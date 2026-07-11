@@ -37,6 +37,9 @@ Copy everything below into a new Claude chat. Fill in the fields at the top — 
 **Include full visual formatting in the tracker?** *(color-coded rating columns, computed Suggested Priority Rank, clickable Website links, autofilter, frozen panes, zebra striping, Notes/Summary tabs)*
 `[Yes / No — default Yes if left blank. "No" gets you a plain data-only spreadsheet instead.]`
 
+**Add a Job Posting Quick Links tab?** *(one-click LinkedIn Jobs, Indeed, and Google Jobs search links per company, built from Company + Suggested Job Title Keywords — a search-link generator, not real postings data)*
+`[Yes / No — default Yes if left blank]`
+
 **M&A research columns — optional** *(leave this whole section out if not relevant)*
 - Add M&A-specific columns? `[Yes / No]`
 - If yes, angle: `[Find acquisition targets / Find likely acquirers / Show fit for either]`
@@ -119,6 +122,17 @@ Apply all of the following to the Excel file:
 - Give the Priority Score, Status, and Next Action columns (the ones I fill in by hand) a distinct light fill and border, separate from the rating gradient.
 - Add a "Notes & Assumptions" tab: document which figures are verified vs. estimated, list key assumptions, and include a color legend explaining the gradient above.
 - Add a "Summary" tab: counts of companies by Opportunity Fit, by NAICS Code Type, and by Category, plus a "Top 5 by Suggested Priority Rank" table.
+
+### Step 6 — Job Posting Quick Links tab (skip this step entirely if I said "No" to the Quick Links tab above)
+
+Add a "Job Posting Quick Links" tab — one row per company, with these columns:
+- Company (same name as the main sheet)
+- Suggested Job Title Keywords (repeat from the main sheet, for reference)
+- LinkedIn Jobs Search — an Excel HYPERLINK() formula built from that row's Company and Suggested Job Title Keywords cells, pointing to https://www.linkedin.com/jobs/search/?keywords=<company>%20<title>
+- Indeed Search — an Excel HYPERLINK() formula pointing to https://www.indeed.com/jobs?q=<title>+<company>
+- Google Jobs Search — an Excel HYPERLINK() formula pointing to https://www.google.com/search?q=<company>+<title>+jobs
+
+Build these as real HYPERLINK() formulas referencing the cells on this new tab (not the main sheet, so the tab works standalone), URL-encoding spaces and special characters properly, so the links stay live and update automatically if I edit the Company or Suggested Job Title Keywords cell later. This tab is a quick-search-link generator, not a source of actual job postings — clicking a link runs a fresh search each time, it doesn't embed real-time results into the file.
 
 Format as a clean, formatted Excel workbook with a header row, sensible column widths, and one row per company. Don't fabricate figures — mark clear estimates as such (e.g. "$50M–$250M (estimate)") and leave anything unverifiable blank rather than guessing. If you're confident a company is publicly traded based on your own knowledge, note that as "likely-public (unverified)" rather than implying a filing was directly checked.
 

@@ -39,6 +39,7 @@ There's also an **Exclude these companies** field (optional) — anything you li
 | **Preferred location / work arrangement** | Optional. If filled in, an extra column is added to the output rating each company against this preference. |
 | **Your background** | Optional. Not a file upload — paste resume, CV, bio, LinkedIn summary, or a few lines of relevant experience directly. No length limit, but a tight paragraph of highlights tends to work better than a full multi-page document — it's easier for Claude to weigh correctly. Sharpens the Suggested Job Title Keywords column and gives Claude something concrete to reason from for Warm Introduction Path (former employers, overlapping experience, relevant credentials) instead of guessing generically. |
 | **Include full visual formatting in the tracker?** | **Yes** (default) bakes the full formatting spec into the generated prompt itself — color-coded rating columns, a computed Suggested Priority Rank, clickable Website links, autofilter, frozen panes, zebra striping, and Notes/Summary tabs — so you get the same output in any chat, not just one that happens to already know these conventions. **No** asks for a plain data-only spreadsheet instead. |
+| **Add a Job Posting Quick Links tab?** | **Yes** (default) adds a second sheet with one-click LinkedIn Jobs, Indeed, and Google Jobs search links per company, built from the Company and Suggested Job Title Keywords columns using Excel HYPERLINK() formulas — the links stay live and update automatically if you edit either cell later. This generates *search links*, not actual postings data — see Section 12 for the difference and when you'd want real postings instead. |
 
 ---
 
@@ -150,6 +151,18 @@ If you've asked Claude to build the tracker (rather than just generating the pro
 
 As of this version, all of this is spelled out directly in the generated prompt itself (as long as **Include full visual formatting** is set to Yes, which is the default) — so you get the same formatted output in any chat, not just one that already knows these conventions from earlier context. If you deliberately turned that toggle to **No**, you'll get a plain data-only spreadsheet instead — no colors, no Suggested Priority Rank, no extra tabs.
 
-## 12. A Faster Way to Fill This Out (reverse note)
+## 12. The Job Posting Quick Links Tab (and Its Limits)
+
+If **Add a Job Posting Quick Links tab?** is Yes, the tracker gets a second sheet — one row per company, with three `HYPERLINK()` formulas: a LinkedIn Jobs search, an Indeed search, and a Google Jobs search, each built from that company's name and its Suggested Job Title Keywords.
+
+Worth understanding clearly what this is and isn't:
+
+- **It's a search-link generator, not a postings database.** Clicking a link runs a fresh, live search on that site — it doesn't embed actual job postings into your spreadsheet. Open the file six months from now and the links still work; they just show you whatever's posted *then*, not what was posted when the file was built.
+- **The links are real formulas, not static text.** Because they're `HYPERLINK()` formulas referencing the Company and Suggested Job Title Keywords cells, if you edit either cell later, the link updates automatically — you don't have to regenerate anything.
+- **This is deliberately the cheap, safe option.** Building it costs no extra research — it's pure string templating from data Claude already generated. That's why it defaults to Yes.
+
+**If you actually want real postings** — a table of specific job titles, companies, and URLs, not just search links — that's a different, deliberately separate tool. Live postings data has a much shorter shelf life than company research (postings turn over weekly; company revenue/HQ/size is stable for months), and getting real results means live web search per company on top of the research already happening — so bundling it into this same prompt would either bloat the request or go stale inside the same file as more durable data. Ask about a companion "Job Posting Finder" prompt if you want that — it's built to take a shortlist of companies (ideally your top few by Suggested Priority Rank, not all of them) and their Suggested Job Title Keywords as input, and return actual postings.
+
+## 13. A Faster Way to Fill This Out (reverse note)
 
 If you'd rather not use the web form at all, there's a companion plain-text template — `Target_Company_Research_Prompt_Template` (.md) — with the same fields laid out as fill-in-the-blank text you can paste directly into a Claude chat. Use whichever format is more convenient in the moment; both produce the same result.
