@@ -2,494 +2,276 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Target Company Research — Prompt Builder</title>
+<title>Target Company Research Prompt Builder</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap');
-
   :root{
-    --navy:#1F3864;
-    --steel:#2E75B6;
-    --steel-light:#5B9BD5;
-    --paper:#F4F8FC;
-    --paper-deep:#D5E8F0;
-    --ink:#22303F;
-    --ink-soft:#5B6B7A;
-    --line:#C9D8E3;
-    --amber:#B8752E;
-    --good:#2E8B57;
-    --white:#FFFFFF;
+    --navy:#0f2d3d;
+    --blue:#1b6fa8;
+    --teal:#0f9b8e;
+    --bg:#f4f7f9;
+    --card:#ffffff;
+    --border:#d7e0e5;
+    --text:#1c2b33;
+    --muted:#5b6b73;
+    --tag-bg:#e7f1f7;
   }
   *{box-sizing:border-box;}
-  html,body{margin:0;padding:0;}
   body{
-    background:var(--paper);
-    color:var(--ink);
-    font-family:'IBM Plex Sans',system-ui,sans-serif;
-    -webkit-font-smoothing:antialiased;
-    min-height:100vh;
-  }
-  .wrap{
-    max-width:1180px;
-    margin:0 auto;
-    padding:36px 24px 64px;
+    margin:0;
+    font-family:-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+    background:var(--bg);
+    color:var(--text);
   }
   header{
+    background:linear-gradient(135deg,var(--navy),var(--blue));
+    color:#fff;
+    padding:24px 32px;
+  }
+  header h1{margin:0 0 4px 0;font-size:22px;}
+  header p{margin:0;opacity:.85;font-size:14px;}
+  .wrap{
     display:flex;
-    align-items:baseline;
-    justify-content:space-between;
-    gap:16px;
-    flex-wrap:wrap;
-    border-bottom:2px solid var(--navy);
-    padding-bottom:16px;
-    margin-bottom:28px;
+    gap:24px;
+    padding:24px;
+    max-width:1400px;
+    margin:0 auto;
+    align-items:flex-start;
   }
-  header .eyebrow{
-    font-family:'IBM Plex Mono',monospace;
-    font-size:11px;
-    letter-spacing:.14em;
-    text-transform:uppercase;
-    color:var(--steel);
-    margin:0 0 6px;
+  .col{flex:1;min-width:0;}
+  .card{
+    background:var(--card);
+    border:1px solid var(--border);
+    border-radius:10px;
+    padding:20px 22px;
+    margin-bottom:18px;
   }
-  header h1{
-    margin:0;
-    font-size:26px;
-    font-weight:700;
-    color:var(--navy);
-    letter-spacing:-0.01em;
-  }
-  header p{
-    margin:6px 0 0;
-    color:var(--ink-soft);
-    font-size:14px;
-    max-width:46ch;
-  }
-  .status{
-    font-family:'IBM Plex Mono',monospace;
-    font-size:12px;
-    color:var(--ink-soft);
-    text-align:right;
-  }
-  .status b{color:var(--steel);}
-
-  .grid{
-    display:grid;
-    grid-template-columns:minmax(320px,1fr) minmax(360px,1.05fr);
-    gap:28px;
-    align-items:start;
-  }
-  @media (max-width:880px){
-    .grid{grid-template-columns:1fr;}
-  }
-
-  .panel{
-    background:var(--white);
-    border:1px solid var(--line);
-    border-radius:4px;
-  }
-  .panel-head{
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-    padding:14px 18px;
-    border-bottom:1px solid var(--line);
-    background:var(--paper-deep);
-  }
-  .panel-head h2{
-    margin:0;
-    font-size:13px;
-    font-weight:600;
-    letter-spacing:.04em;
-    text-transform:uppercase;
-    color:var(--navy);
-  }
-  .panel-body{padding:20px;}
-
   fieldset{
-    border:none;
-    margin:0 0 22px;
-    padding:0;
+    border:1px solid var(--border);
+    border-radius:8px;
+    margin:0 0 18px 0;
+    padding:14px 16px 16px 16px;
   }
-  fieldset:last-child{margin-bottom:0;}
-  legend{
-    font-size:11px;
-    font-weight:600;
-    letter-spacing:.08em;
-    text-transform:uppercase;
-    color:var(--steel);
-    padding:0 0 8px;
-    width:100%;
-    border-bottom:1px dashed var(--line);
-    margin-bottom:12px;
-  }
+  legend{font-weight:600;color:var(--navy);padding:0 6px;font-size:14px;}
+  .field{margin-bottom:14px;}
   label{
     display:block;
-    font-size:13.5px;
     font-weight:600;
-    color:var(--ink);
-    margin:0 0 4px;
+    font-size:13.5px;
+    margin-bottom:5px;
+    color:var(--navy);
   }
-  label .tag{
-    font-family:'IBM Plex Mono',monospace;
-    font-size:10px;
-    font-weight:500;
-    letter-spacing:.03em;
-    color:var(--amber);
-    border:1px solid var(--amber);
-    border-radius:3px;
-    padding:1px 5px;
-    margin-left:7px;
-    vertical-align:1px;
+  .tag{
+    background:var(--tag-bg);
+    color:var(--blue);
+    font-size:10.5px;
+    font-weight:600;
+    padding:2px 7px;
+    border-radius:10px;
+    margin-left:6px;
+    text-transform:uppercase;
+    letter-spacing:.3px;
   }
-  .hint{
-    font-size:12px;
-    color:var(--ink-soft);
-    margin:0 0 7px;
-  }
-  .field{margin-bottom:16px;}
-  .field:last-child{margin-bottom:0;}
+  .hint{font-size:12px;color:var(--muted);margin-top:4px;line-height:1.4;}
   input[type=text], textarea, select{
     width:100%;
-    font-family:'IBM Plex Sans',sans-serif;
-    font-size:13.5px;
-    color:var(--ink);
-    background:var(--paper);
-    border:1px solid var(--line);
-    border-radius:3px;
     padding:9px 10px;
-    transition:border-color .15s ease, background .15s ease;
+    border:1px solid var(--border);
+    border-radius:6px;
+    font-size:14px;
+    font-family:inherit;
+    background:#fcfdfe;
   }
-  input[type=text]:focus, textarea:focus, select:focus{
-    outline:none;
-    border-color:var(--steel);
-    background:var(--white);
+  textarea{resize:vertical;min-height:56px;}
+  .radio-row{display:flex;gap:18px;flex-wrap:wrap;margin-top:2px;}
+  .radio-opt{display:flex;align-items:center;gap:6px;font-size:13.5px;}
+  .radio-opt input{width:auto;}
+  #outputPanel{
+    position:sticky;
+    top:24px;
   }
-  textarea{resize:vertical; min-height:56px; line-height:1.45;}
-  select{appearance:none; cursor:pointer;
-    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='6'><path d='M0 0l5 6 5-6z' fill='%232E75B6'/></svg>");
-    background-repeat:no-repeat;
-    background-position:right 12px center;
-    padding-right:30px;
-  }
-  .radio-row{display:flex; gap:10px; flex-wrap:wrap;}
-  .radio-chip{
-    flex:1 1 auto;
-    position:relative;
-  }
-  .radio-chip input{position:absolute; opacity:0; inset:0; cursor:pointer;}
-  .radio-chip span{
-    display:block;
-    text-align:center;
-    font-size:12.5px;
-    font-weight:600;
-    color:var(--steel);
-    border:1px solid var(--line);
-    border-radius:3px;
-    padding:9px 8px;
-    cursor:pointer;
-    transition:all .15s ease;
-  }
-  .radio-chip input:checked + span{
-    background:var(--navy);
-    border-color:var(--navy);
-    color:var(--white);
-  }
-
-  .out-wrap{position:sticky; top:20px;}
-  .prompt-box{
-    font-family:'IBM Plex Mono',monospace;
-    font-size:12.2px;
-    line-height:1.6;
-    color:#E7EFF7;
-    background:#152337;
-    padding:18px;
-    max-height:620px;
-    overflow-y:auto;
+  #promptText{
     white-space:pre-wrap;
-    word-break:break-word;
-    border-bottom-left-radius:4px;
-    border-bottom-right-radius:4px;
+    font-family:"SFMono-Regular",Consolas,Menlo,monospace;
+    font-size:12.5px;
+    background:#0f2d3d;
+    color:#dff1ec;
+    padding:16px;
+    border-radius:8px;
+    max-height:520px;
+    overflow-y:auto;
+    line-height:1.5;
   }
-  .prompt-box b{color:#8FC1F0;}
-  .prompt-box::-webkit-scrollbar{width:9px;}
-  .prompt-box::-webkit-scrollbar-thumb{background:#2E4A6B; border-radius:6px;}
-  .prompt-box::-webkit-scrollbar-track{background:#152337;}
-
-  .copy-btn{
-    font-family:'IBM Plex Mono',monospace;
-    font-size:12px;
-    font-weight:600;
-    letter-spacing:.03em;
-    color:var(--white);
-    background:var(--steel);
+  .btn-row{display:flex;gap:10px;margin-bottom:12px;flex-wrap:wrap;}
+  button{
+    cursor:pointer;
     border:none;
-    border-radius:3px;
-    padding:7px 14px;
-    cursor:pointer;
-    transition:background .15s ease, transform .1s ease;
-  }
-  .copy-btn:hover{background:var(--steel-light);}
-  .copy-btn:active{transform:scale(.97);}
-  .copy-btn.copied{background:var(--good);}
-
-  .empty-note{
-    color:#8091A3;
-    font-style:italic;
-  }
-
-  footer{
-    margin-top:22px;
-    font-size:12px;
-    color:var(--ink-soft);
-    text-align:center;
-  }
-  footer span{font-family:'IBM Plex Mono',monospace; color:var(--steel);}
-
-  .templates-bar{
-    background:var(--white);
-    border:1px solid var(--line);
-    border-radius:4px;
-    padding:14px 18px;
-    margin-bottom:22px;
-    display:flex;
-    align-items:flex-end;
-    gap:12px;
-    flex-wrap:wrap;
-  }
-  .templates-bar .t-field{
-    display:flex;
-    flex-direction:column;
-    gap:4px;
-  }
-  .templates-bar label{
-    font-size:11px;
+    border-radius:6px;
+    padding:9px 16px;
+    font-size:13.5px;
     font-weight:600;
-    letter-spacing:.06em;
-    text-transform:uppercase;
-    color:var(--steel);
-    margin:0;
+    font-family:inherit;
   }
-  .templates-bar input[type=text], .templates-bar select{
-    font-size:13px;
-    padding:7px 9px;
-    min-width:170px;
-  }
-  .t-btn{
-    font-family:'IBM Plex Mono',monospace;
-    font-size:12px;
-    font-weight:600;
-    letter-spacing:.02em;
-    color:var(--navy);
-    background:var(--paper-deep);
-    border:1px solid var(--line);
-    border-radius:3px;
-    padding:8px 12px;
-    cursor:pointer;
-    transition:background .15s ease;
-    white-space:nowrap;
-  }
-  .t-btn:hover{background:var(--steel); color:var(--white); border-color:var(--steel);}
-  .t-btn.danger:hover{background:#B03A3A; border-color:#B03A3A;}
-  .t-btn.primary{background:var(--navy); color:var(--white); border-color:var(--navy);}
-  .t-btn.primary:hover{background:var(--steel); border-color:var(--steel);}
-  .templates-bar .spacer{flex:1 1 auto; min-width:8px;}
-  .templates-bar .file-btn{position:relative; overflow:hidden;}
-  .templates-bar .file-btn input[type=file]{
-    position:absolute; inset:0; opacity:0; cursor:pointer; width:100%;
-  }
-  .t-note{
-    width:100%;
-    font-size:11.5px;
-    color:var(--ink-soft);
-    margin:2px 0 0;
-  }
-  .t-note span{color:var(--amber); font-weight:600;}
+  .btn-primary{background:var(--teal);color:#fff;}
+  .btn-primary:hover{background:#0c8579;}
+  .btn-secondary{background:var(--tag-bg);color:var(--blue);}
+  .btn-secondary:hover{background:#d9e9f2;}
+  .btn-danger{background:#fbeaea;color:#b23b3b;}
+  .btn-danger:hover{background:#f6d9d9;}
+  .stat-line{font-size:12px;color:var(--muted);margin-bottom:10px;}
+  .template-row{display:flex;gap:8px;margin-top:6px;}
+  .template-row select{flex:1;}
+  #placeholder{color:var(--muted);font-style:italic;font-size:13.5px;}
+  .divider{height:1px;background:var(--border);margin:16px 0;}
 </style>
 </head>
 <body>
+
+<header>
+  <h1>Target Company Research Prompt Builder</h1>
+  <p>Fill in what you know on the left — the exact prompt to send to Claude builds itself on the right. v2</p>
+</header>
+
 <div class="wrap">
+  <div class="col">
 
-  <header>
-    <div>
-      <p class="eyebrow">Prompt Builder · v1</p>
-      <h1>Target Company Research Prompt</h1>
-      <p>Fill in what you know on the left. A complete, ready-to-send research prompt assembles on the right — copy it straight into a chat.</p>
-    </div>
-    <div class="status" id="statusLine">Fields completed: <b id="fieldCount">0</b>/8</div>
-  </header>
+    <div class="card">
+      <fieldset>
+        <legend>1 · Starting point</legend>
+        <p class="hint" style="margin-top:-4px;margin-bottom:12px;">Fill in at least one of these — use more than one if you have them, and they'll be combined.</p>
 
-  <div class="templates-bar">
-    <div class="t-field">
-      <label>Template name</label>
-      <input type="text" id="templateName" placeholder="e.g. OT Vendors">
-    </div>
-    <button class="t-btn primary" id="saveTemplateBtn">Save current as template</button>
-
-    <div class="t-field">
-      <label>Saved templates <span id="modifiedBadge" style="display:none; color:var(--amber); font-weight:600;">(modified)</span></label>
-      <select id="templateSelect"><option value="">— none saved yet —</option></select>
-    </div>
-    <button class="t-btn" id="loadTemplateBtn">Load</button>
-    <button class="t-btn" id="renameTemplateBtn">Rename</button>
-    <button class="t-btn danger" id="deleteTemplateBtn">Delete</button>
-
-    <div class="spacer"></div>
-
-    <button class="t-btn" id="exportBtn">Export all (.json)</button>
-    <button class="t-btn file-btn">Import (.json)
-      <input type="file" id="importInput" accept="application/json">
-    </button>
-    <p class="t-note"><span>Note:</span> saved templates last for this browser tab only. Use Export before closing, and Import to bring them back next time. To rename: select a template, type the new name above, click Rename.</p>
-  </div>
-
-  <div class="grid">
-
-    <!-- FORM -->
-    <div class="panel">
-      <div class="panel-head">
-        <h2>Inputs</h2>
-        <button class="t-btn" id="resetBtn" style="padding:5px 11px;">Reset form</button>
-      </div>
-      <div class="panel-body">
-
-        <fieldset>
-          <legend>Starting point — fill in one or more</legend>
-          <div class="field">
-            <label>Company(s) you know <span class="tag">optional</span></label>
-            <p class="hint">Current employer, former employer, a competitor — anyone. One per line or comma-separated, as many as you like.</p>
-            <textarea id="companies" placeholder="e.g. Booz Allen Hamilton, Dragos"></textarea>
-          </div>
-          <div class="field">
-            <label>Industry / field, plain language <span class="tag">optional</span></label>
-            <p class="hint">No jargon needed — describe it your own way.</p>
-            <input type="text" id="industry" placeholder="e.g. industrial cybersecurity consulting">
-          </div>
-          <div class="field">
-            <label>NAICS code(s), if known <span class="tag">optional</span></label>
-            <input type="text" id="naics" placeholder="e.g. 541512, 541611">
-          </div>
-        </fieldset>
-
-        <fieldset>
-          <legend>Scope &amp; purpose</legend>
-          <div class="field">
-            <label>Discovery scope</label>
-            <div class="radio-row">
-              <label class="radio-chip">
-                <input type="radio" name="scope" value="find" checked>
-                <span>Find new companies</span>
-              </label>
-              <label class="radio-chip">
-                <input type="radio" name="scope" value="enrich">
-                <span>Just enrich these</span>
-              </label>
-            </div>
-          </div>
-          <div class="field" id="excludeField">
-            <label>Exclude these companies <span class="tag">optional</span></label>
-            <p class="hint">Already contacted, already on another list — Claude will skip these entirely during discovery.</p>
-            <textarea id="excludeCompanies" placeholder="e.g. Company A, Company B"></textarea>
-          </div>
-          <div class="field">
-            <label>Companies per code <span class="tag">optional</span></label>
-            <input type="text" id="perCode" placeholder="e.g. 10–15">
-            <p class="hint">Tip: 15–30 per code tends to get the best-researched detail per company. Totals much above ~50–75 across one prompt often come back thinner.</p>
-          </div>
-          <div class="field">
-            <label>Include secondary / adjacent NAICS codes?</label>
-            <div class="radio-row">
-              <label class="radio-chip">
-                <input type="radio" name="secondary" value="yes" checked>
-                <span>Yes</span>
-              </label>
-              <label class="radio-chip">
-                <input type="radio" name="secondary" value="no">
-                <span>No</span>
-              </label>
-            </div>
-          </div>
-          <div class="field">
-            <label>What is this list for?</label>
-            <p class="hint">Drives how Claude fills in Category, Key Contact, Opportunity Fit, and Why This Fits.</p>
-            <textarea id="purpose" placeholder="e.g. job search targets for a Director-level OT cybersecurity advisory role"></textarea>
-          </div>
-          <div class="field">
-            <label>Preferred location / work arrangement <span class="tag">optional</span></label>
-            <input type="text" id="location" placeholder="e.g. Texas or remote">
-          </div>
-        </fieldset>
-
-        <fieldset>
-          <legend>M&amp;A research — optional</legend>
-          <div class="field">
-            <label>Add M&amp;A-specific columns?</label>
-            <p class="hint">Adds ownership type, recent deal activity, succession/appetite signals, and a buyer-vs-target read to the output.</p>
-            <div class="radio-row">
-              <label class="radio-chip">
-                <input type="radio" name="maEnabled" value="no" checked>
-                <span>No</span>
-              </label>
-              <label class="radio-chip">
-                <input type="radio" name="maEnabled" value="yes">
-                <span>Yes</span>
-              </label>
-            </div>
-          </div>
-          <div class="field" id="maAngleField" style="display:none;">
-            <label>M&amp;A angle</label>
-            <div class="radio-row">
-              <label class="radio-chip">
-                <input type="radio" name="maAngle" value="target" checked>
-                <span>Find acquisition targets</span>
-              </label>
-              <label class="radio-chip">
-                <input type="radio" name="maAngle" value="acquirer">
-                <span>Find likely acquirers</span>
-              </label>
-              <label class="radio-chip">
-                <input type="radio" name="maAngle" value="either">
-                <span>Show fit for either</span>
-              </label>
-            </div>
-            <p class="hint">"Find acquisition targets" = I'm the buyer looking at these companies. "Find likely acquirers" = I want to know who might want to buy companies like these (e.g. my own). "Either" rates both directions per company.</p>
-          </div>
-        </fieldset>
-
-      </div>
-    </div>
-
-    <!-- OUTPUT -->
-    <div class="panel out-wrap">
-      <div class="panel-head">
-        <h2>Ready-to-send prompt</h2>
-        <div style="display:flex; gap:8px;">
-          <button class="copy-btn" id="downloadBtn" style="background:var(--navy);">Download .txt</button>
-          <button class="copy-btn" id="copyBtn">Copy prompt</button>
+        <div class="field">
+          <label>Company(s) you know <span class="tag">optional</span></label>
+          <textarea id="companies" placeholder="e.g. Dragos, Claroty, Nozomi Networks"></textarea>
         </div>
-      </div>
-      <div class="prompt-box" id="promptBox"></div>
-    </div>
 
+        <div class="field">
+          <label>Industry / field, plain language <span class="tag">optional</span></label>
+          <input type="text" id="industry" placeholder="e.g. commercial HVAC controls">
+        </div>
+
+        <div class="field">
+          <label>NAICS code(s), if known <span class="tag">optional</span></label>
+          <input type="text" id="naics" placeholder="Leave blank if unknown — Claude will look it up">
+        </div>
+
+        <div class="field">
+          <label>Exclude these companies <span class="tag">optional</span></label>
+          <textarea id="excludeCompanies" placeholder="Companies to leave out entirely, even if they'd otherwise match"></textarea>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>2 · Scope &amp; purpose</legend>
+
+        <div class="field">
+          <label>Discovery scope</label>
+          <div class="radio-row">
+            <label class="radio-opt"><input type="radio" name="scope" value="find" checked> Find new companies</label>
+            <label class="radio-opt"><input type="radio" name="scope" value="enrich"> Just enrich these</label>
+          </div>
+          <p class="hint">"Find new companies" = Claude uses your starting point to discover additional candidates via NAICS codes. "Just enrich these" = Claude only researches the exact company names you typed — no new companies added.</p>
+        </div>
+
+        <div class="field">
+          <label>Companies per code <span class="tag">optional</span></label>
+          <input type="text" id="perCode" placeholder="e.g. 15-30 — leave blank for Claude's judgment">
+          <p class="hint">15–30 per code tends to get the best-researched detail. Totals above ~50–75 in one prompt tend to come back thinner — batch it if you need more.</p>
+        </div>
+
+        <div class="field">
+          <label>Include secondary/adjacent NAICS codes?</label>
+          <div class="radio-row">
+            <label class="radio-opt"><input type="radio" name="secondary" value="yes" checked> Yes</label>
+            <label class="radio-opt"><input type="radio" name="secondary" value="no"> No</label>
+          </div>
+          <p class="hint">"Yes" broadens the search to suppliers, vendors, and related-but-differently-classified industries. "No" keeps it tightly scoped to your exact code(s).</p>
+        </div>
+
+        <div class="field">
+          <label>What is this list for?</label>
+          <textarea id="purpose" placeholder='e.g. "job search targets for a Director-level OT cybersecurity role" or "prospective customers for our SaaS product"'></textarea>
+          <p class="hint">The most important field — it tells Claude how to judge Category, Key Contact, Opportunity Fit, and Why This Fits for every company. Be specific.</p>
+        </div>
+
+        <div class="field">
+          <label>Preferred location / work arrangement <span class="tag">optional</span></label>
+          <input type="text" id="location" placeholder="e.g. Texas or remote">
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>3 · M&amp;A research columns <span class="tag">optional</span></legend>
+
+        <div class="field">
+          <label>Add M&amp;A-specific columns?</label>
+          <div class="radio-row">
+            <label class="radio-opt"><input type="radio" name="maEnabled" value="no" checked> No</label>
+            <label class="radio-opt"><input type="radio" name="maEnabled" value="yes"> Yes</label>
+          </div>
+        </div>
+
+        <div class="field" id="maAngleField" style="display:none;">
+          <label>M&amp;A angle</label>
+          <div class="radio-row">
+            <label class="radio-opt"><input type="radio" name="maAngle" value="target" checked> Find acquisition targets</label>
+            <label class="radio-opt"><input type="radio" name="maAngle" value="acquirer"> Find likely acquirers</label>
+            <label class="radio-opt"><input type="radio" name="maAngle" value="either"> Show fit for either</label>
+          </div>
+          <p class="hint">"Find acquisition targets" = you're the buyer. "Find likely acquirers" = you want to know who might buy companies like yours. "Either" rates both directions per company.</p>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Templates</legend>
+        <div class="field">
+          <label>Template name</label>
+          <div class="template-row">
+            <input type="text" id="templateName" placeholder="e.g. OT Vendors">
+            <button class="btn-secondary" id="saveTemplateBtn">Save current as template</button>
+          </div>
+        </div>
+        <div class="field">
+          <label>Load a saved template</label>
+          <div class="template-row">
+            <select id="templateSelect"><option value="">— none saved yet —</option></select>
+            <button class="btn-secondary" id="loadTemplateBtn">Load</button>
+            <button class="btn-danger" id="deleteTemplateBtn">Delete</button>
+          </div>
+        </div>
+      </fieldset>
+
+      <button class="btn-danger" id="resetBtn">Reset all fields</button>
+    </div>
   </div>
 
-  <footer>Built once, reused anywhere — this generates the same prompt structure used in <span>Target_Company_Research_Prompt_Template</span>.</footer>
+  <div class="col" id="outputPanel">
+    <div class="card">
+      <div class="btn-row">
+        <button class="btn-primary" id="copyBtn">Copy prompt</button>
+        <button class="btn-secondary" id="downloadBtn">Download .txt</button>
+      </div>
+      <div class="stat-line"><span id="fieldCount">0</span> of 7 fields filled in</div>
+      <div id="promptText"><span id="placeholder">Fill in at least one starting-point field or a purpose to see your prompt appear here.</span></div>
+    </div>
+  </div>
 </div>
 
 <script>
-const ids = ['companies','industry','naics','excludeCompanies','perCode','purpose','location'];
 const fieldCountEl = document.getElementById('fieldCount');
-const promptBox = document.getElementById('promptBox');
-const copyBtn = document.getElementById('copyBtn');
-const downloadBtn = document.getElementById('downloadBtn');
-const maAngleField = document.getElementById('maAngleField');
-
-function toggleMaAngleField(){
-  maAngleField.style.display = radioVal('maEnabled') === 'yes' ? 'block' : 'none';
-}
-document.querySelectorAll('input[name="maEnabled"]').forEach(el => el.addEventListener('change', () => { toggleMaAngleField(); render(); }));
+const promptTextEl = document.getElementById('promptText');
+let loadedTemplateName = null;
 
 function val(id){ return document.getElementById(id).value.trim(); }
-function radioVal(name){ return document.querySelector(`input[name="${name}"]:checked`).value; }
+function radioVal(name){
+  const el = document.querySelector(`input[name="${name}"]:checked`);
+  return el ? el.value : '';
+}
+
+function toggleMaAngleField(){
+  document.getElementById('maAngleField').style.display =
+    radioVal('maEnabled') === 'yes' ? 'block' : 'none';
+}
 
 function buildPrompt(){
   const companies = val('companies');
@@ -499,10 +281,10 @@ function buildPrompt(){
   const perCode = val('perCode') || "your judgment";
   const purpose = val('purpose');
   const location = val('location');
-  const scope = radioVal('scope'); // find | enrich
-  const secondary = radioVal('secondary'); // yes | no
+  const scope = radioVal('scope');
+  const secondary = radioVal('secondary');
   const maEnabled = radioVal('maEnabled') === 'yes';
-  const maAngle = radioVal('maAngle'); // target | acquirer | either
+  const maAngle = radioVal('maAngle');
 
   const haveStart = companies || industry || naics;
   let filled = 0;
@@ -514,7 +296,6 @@ function buildPrompt(){
   }
 
   let lines = [];
-
   lines.push(`I want you to research target companies and build a formatted Excel tracker (.xlsx). Here's what I have:`);
   lines.push("");
   if(companies) lines.push(`- Company/companies I know: ${companies}`);
@@ -528,175 +309,104 @@ function buildPrompt(){
   }
   lines.push(`- What this list is for: ${purpose || "Not specified — use general judgment for fit/category/contacts."}`);
   if(location) lines.push(`- Preferred location / work arrangement: ${location}`);
+
   if(maEnabled){
-    const angleText = maAngle === 'target' ? "I'm looking for acquisition targets — companies I/we might acquire."
-      : maAngle === 'acquirer' ? "I'm looking for likely acquirers — companies that might want to buy a business like mine/ours."
-      : "I want both read on each company — whether it looks like a plausible acquisition target and/or a plausible acquirer.";
-    lines.push(`- M&A research angle: ${angleText}`);
-  }
-  lines.push("");
-  lines.push(`Work in these steps. ${scope === 'enrich' ? 'Skip straight to Step 4 using only the companies I named above.' : 'Run all four steps in order.'}`);
-  lines.push("");
-
-  if(scope === 'find'){
-    lines.push(`STEP 1 — Establish the NAICS code(s)`);
-    lines.push(`If I named a company, research it and identify its primary NAICS code(s). If I described an industry in plain language, translate that into the closest matching primary NAICS code(s) and explain the match. If I already gave codes, use them directly and flag anything that looks off. List the primary code(s) with official titles before continuing.`);
-    lines.push("");
-    if(secondary === 'yes'){
-      lines.push(`STEP 2 — Expand to secondary / adjacent NAICS codes`);
-      lines.push(`Identify additional relevant codes covering: suppliers/vendors into the primary industry (even under a different code), adjacent/similar industries classified differently, and downstream/customer industries if relevant to my stated purpose. Give each a one-line reason for inclusion.`);
-      lines.push("");
-    }
-    lines.push(`STEP 3 — Build the candidate company list`);
-    lines.push(`For each NAICS code (primary${secondary === 'yes' ? ' and secondary' : ''}), generate real, currently operating companies under that code — a mix of well-known and lesser-known names, prioritizing any size/location preference I gave. Target roughly ${perCode} companies per code.${exclude ? ' Do not include any company listed under "Exclude these companies" above, even if it would otherwise be a strong match.' : ''}`);
-    lines.push("");
+    const angleText = maAngle === 'target'
+      ? "Treat each company as a potential acquisition target for me."
+      : maAngle === 'acquirer'
+      ? "Treat each company as a potential acquirer of a business like mine."
+      : "Rate each company's fit both as a potential acquisition target AND as a potential acquirer.";
+    lines.push(`- M&A research angle: ${angleText} Add Ownership Type, Recent M&A Activity, Signals, Estimated Deal Size Fit, and M&A Role Fit columns. Base this only on public information (news, filings, press releases) — do not treat silence as evidence a company isn't open to a deal.`);
   }
 
-  lines.push(`STEP 4 — Research each company and build the Excel tracker`);
-  lines.push(`For every company gathered above${scope === 'enrich' ? '' : ' (plus any I named directly)'}, research and build a formatted .xlsx, one row per company, with these columns:`);
   lines.push("");
-
-  const cols = [
-    "Company — legal/common name",
-    "Website",
-    "Industry / Sector",
-    naics || scope === 'find' ? "NAICS Code — the specific code this company was found under" : null,
-    scope === 'find' ? "NAICS Code Type — Primary or Secondary" : null,
-    scope === 'find' ? "Why This NAICS Code — one line connecting this code back to my starting point" : null,
-    "HQ Location / Footprint",
-    "Company Size — employee count band",
-    "Revenue Band / Latest Revenue — with source/year noted",
-    "Growth / Revenue Signal — High/Medium/Low plus a brief note",
-    "Hiring Signal — High/Medium/Low plus a brief note tied to my stated purpose",
-    `${industry ? industry : "[Industry/Focus Area]"} Relevance — label this column using that exact phrase — rate High/Medium/Low with a short note`,
-    "Opportunity Fit — High/Medium/Low, overall fit to my stated purpose",
-    "Category — grouped usefully for my stated purpose",
-    "Why This Fits — 1–2 sentence rationale",
-    maEnabled ? "Ownership Type — founder-owned, privately held, PE-backed, subsidiary of a larger company, or publicly traded, based on public information" : null,
-    maEnabled ? "Recent M&A Activity — any recent acquisitions this company made, received, or was reported exploring, with source; write \"None publicly reported\" if nothing found" : null,
-    maEnabled ? (maAngle === 'acquirer'
-        ? "Acquisition Appetite Signals — public signs this company is actively acquiring (recent tuck-ins, stated roll-up strategy, active corp-dev team, etc.)"
-        : maAngle === 'either'
-        ? "M&A Signals — public signs pointing either toward being acquired (aging founder, no clear successor, prior exploration of a sale) or toward being an acquirer (recent tuck-ins, stated roll-up strategy)"
-        : "Sale/Succession Signals — public signs this company could be open to being acquired (aging founder, no clear successor, prior reports of exploring a sale, private equity approaching the sector, etc.)"
-      ) : null,
-    maEnabled ? "Estimated Deal Size Fit — rough scale (revenue/employee-based estimate) and whether that fits a typical target size for this kind of search; note as an estimate with source where possible" : null,
-    maEnabled ? (maAngle === 'target'
-        ? "M&A Role Fit — \"Likely Acquisition Target\" or \"Unclear,\" with a one-line reason"
-        : maAngle === 'acquirer'
-        ? "M&A Role Fit — \"Likely Acquirer\" or \"Unclear,\" with a one-line reason"
-        : "M&A Role Fit — \"Likely Acquisition Target,\" \"Likely Acquirer,\" \"Could Be Either,\" or \"Unclear,\" with a one-line reason"
-      ) : null,
-    "Outreach Approach — how and through whom to approach this company",
-    "Key Contacts / Priority Titles — named individuals if publicly findable, otherwise closest equivalent titles",
-    "Suggested Search Keywords",
-    "Source URL",
-    "Date Researched — today's date, so this row's data has a freshness timestamp",
-    "Priority Score — leave blank for me to fill in",
-    "Status — leave blank (Not Started / Researching / Contacted / In Progress / Closed)",
-    "Next Action — leave blank",
-    "Contact Name / Contact URL — leave blank unless found",
-    "Notes — leave blank"
-  ].filter(Boolean);
-
-  cols.forEach((c,i) => lines.push(`${i+1}. ${c}`));
-  lines.push("");
-
-  lines.push(`Formatting requirements:`);
-  if(scope === 'find'){
-    lines.push(`- Two tabs: "NAICS Reference" (codes, titles, type, rationale) and "Target Companies" (the full table above)`);
-  }
-  lines.push(`- Bold header row, frozen, autofilter enabled on the Target Companies tab`);
-  lines.push(`- Column widths sized to content — no truncated text`);
-  lines.push(`- Sort by${scope === 'find' ? ' NAICS Code Type (Primary first), then' : ''} Category, then Company name`);
-  lines.push(`- Leave "Priority Score," "Status," "Next Action," and "Notes" blank/editable — don't guess these`);
-  lines.push(`- If a data point can't be found, write "Not publicly available" rather than guessing`);
-  if(location){
-    lines.push(`- Add one column reflecting fit against my location/work-arrangement preference above`);
-  }
-  lines.push(`- Cite sources for revenue/employee/contact figures in the Source URL column`);
-  lines.push(`- If I'm merging this into an existing tracker, check for and skip any companies I've already listed (see "Exclude these companies" above), and flag any other likely duplicates by name so I can review them`);
+  lines.push(`For each company, research and include these columns in the tracker:`);
+  lines.push(`1. Company — legal/common name`);
+  lines.push(`2. Website`);
+  lines.push(`3. Industry / Sector`);
+  lines.push(`4. Industry Emphasized — the specific niche, vertical, or market segment this company emphasizes within that broader sector (e.g. "cloud security for financial services" rather than just "cybersecurity")`);
+  lines.push(`5. NAICS Code — the specific code this company was found under`);
+  lines.push(`6. NAICS Code Type — Primary or Secondary`);
+  lines.push(`7. Why This NAICS Code — one line connecting this code back to my starting point`);
+  lines.push(`8. HQ Location / Footprint — city, state/country, and whether local, regional, or global`);
+  lines.push(`9. Company Size — employee count band`);
+  lines.push(`10. Revenue Band / Latest Revenue — most recent public figure or reasonable estimate, with source/year noted`);
+  lines.push(`11. Growth / Revenue Signal — High/Medium/Low plus a brief note on what's driving it`);
+  lines.push(`12. Hiring Signal — High/Medium/Low plus a brief note, inferred from overall business trajectory (revenue growth, expansion announcements, funding rounds, earnings commentary) and how that connects to my stated purpose — an indirect signal, not a job-posting count`);
+  lines.push(`13. Recent Hiring Trends — High/Medium/Low based on actual current job postings for this company (check LinkedIn Jobs, Indeed, or the company's own careers page) as of today (${new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}) — High = many open roles posted right now, Medium = some open roles, Low = few or no open roles found. This is a direct, concrete snapshot, separate from the broader Hiring Signal above`);
+  lines.push(`14. Opportunity Relevance — rate High/Medium/Low with a short note on how relevant this company is to my stated purpose, whatever that purpose is (job search, sales, partnerships, M&A, etc.)`);
+  lines.push(`15. Opportunity Fit — High/Medium/Low, how well this company fits my stated purpose overall`);
+  lines.push(`16. Category — group companies usefully for my stated purpose`);
+  lines.push(`17. Why This Fits — 1-2 sentence rationale connecting the company to my stated purpose`);
+  lines.push(`18. Executive Role Fit — the level/title most relevant to approach or target at this company for my purpose (e.g. Partner, Managing Director, Practice Lead, VP, Chief Consultant), based on how the company is structured`);
+  lines.push(`19. Warm Introduction Path — the most plausible path to a warm introduction at this company (e.g. recruiter, executive search firm, former colleagues, LinkedIn 2nd-degree connection, conference/industry contacts), inferred from the company's profile and my background if I've shared it`);
+  lines.push(`20. Outreach Approach — brief guidance on how and through whom to approach this company`);
+  lines.push(`21. Key Contacts / Priority Titles — named individuals if publicly findable, otherwise closest equivalent titles`);
+  lines.push(`22. Suggested Search Keywords — terms useful for a LinkedIn or similar search`);
+  lines.push(`23. Source URL — link(s) supporting the data above`);
+  lines.push(`24. Priority Score — leave blank for me to fill in`);
+  lines.push(`25. Status — leave blank (Not Started / Researching / Contacted / In Progress / Closed)`);
+  lines.push(`26. Next Action — leave blank`);
+  lines.push(`27. Date Researched — today's date`);
   if(maEnabled){
-    lines.push(`- M&A-related columns rely on public information only (news, press releases, filings) — write "Not publicly available" rather than speculating about private deal intentions, and don't treat the absence of public signals as evidence a company is NOT open to a deal`);
+    lines.push(`28. Ownership Type — founder-owned, PE-backed, public, subsidiary`);
+    lines.push(`29. Recent M&A Activity`);
+    lines.push(`30. Signals — sale/succession signals or acquisition-appetite signals depending on angle above`);
+    lines.push(`31. Estimated Deal Size Fit`);
+    lines.push(`32. M&A Role Fit — Likely Acquisition Target / Likely Acquirer / Could Be Either / Unclear`);
   }
   lines.push("");
-  lines.push(`Deliver the finished file as a download.`);
+  lines.push(`Format the result as a clean, formatted Excel workbook (.xlsx) with a header row, reasonable column widths, and one row per company. Don't fabricate figures — mark estimates clearly and leave anything unverifiable blank rather than guessing.`);
 
   return lines.join("\n");
 }
 
 function render(){
-  const text = buildPrompt();
-  if(!text){
-    promptBox.innerHTML = '<span class="empty-note">Fill in at least one "starting point" field or a purpose to generate your prompt…</span>';
-    copyBtn.disabled = true;
-    downloadBtn.disabled = true;
+  const prompt = buildPrompt();
+  if(prompt === null){
+    promptTextEl.innerHTML = '<span id="placeholder">Fill in at least one starting-point field or a purpose to see your prompt appear here.</span>';
   } else {
-    promptBox.textContent = text;
-    copyBtn.disabled = false;
-    downloadBtn.disabled = false;
+    promptTextEl.textContent = prompt;
   }
-  updateModifiedBadge();
 }
 
-document.querySelectorAll('input, textarea, select').forEach(el => {
+document.querySelectorAll('input, textarea').forEach(el => {
   el.addEventListener('input', render);
   el.addEventListener('change', render);
 });
+document.querySelectorAll('input[name="maEnabled"]').forEach(el => {
+  el.addEventListener('change', toggleMaAngleField);
+});
 
-copyBtn.addEventListener('click', () => {
-  const text = buildPrompt();
-  if(!text) return;
-  navigator.clipboard.writeText(text).then(() => {
-    copyBtn.textContent = 'Copied ✓';
-    copyBtn.classList.add('copied');
-    setTimeout(() => {
-      copyBtn.textContent = 'Copy prompt';
-      copyBtn.classList.remove('copied');
-    }, 1600);
+document.getElementById('copyBtn').addEventListener('click', () => {
+  const prompt = buildPrompt();
+  if(!prompt) return;
+  navigator.clipboard.writeText(prompt).then(() => {
+    const btn = document.getElementById('copyBtn');
+    const original = btn.textContent;
+    btn.textContent = 'Copied!';
+    setTimeout(() => btn.textContent = original, 1500);
   }).catch(() => {
-    alert('Clipboard access was blocked by your browser — use "Download .txt" instead, or click inside the page once and try Copy again.');
+    alert('Clipboard blocked by your browser — use the Download .txt button instead.');
   });
 });
 
-downloadBtn.addEventListener('click', () => {
-  const text = buildPrompt();
-  if(!text) return;
-  const blob = new Blob([text], {type:'text/plain'});
+document.getElementById('downloadBtn').addEventListener('click', () => {
+  const prompt = buildPrompt();
+  if(!prompt) return;
+  const blob = new Blob([prompt], {type: 'text/plain'});
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
   a.download = 'target_company_research_prompt.txt';
-  document.body.appendChild(a);
   a.click();
-  a.remove();
   URL.revokeObjectURL(url);
-  downloadBtn.textContent = 'Downloaded ✓';
-  setTimeout(() => { downloadBtn.textContent = 'Download .txt'; }, 1600);
 });
 
-// ---- Reset ----
-document.getElementById('resetBtn').addEventListener('click', () => {
-  if(!confirm('Clear all fields on the form? This does not affect any saved templates.')) return;
-  document.querySelectorAll('input[type=text], textarea').forEach(el => el.value = '');
-  document.querySelector('input[name="scope"][value="find"]').checked = true;
-  document.querySelector('input[name="secondary"][value="yes"]').checked = true;
-  document.querySelector('input[name="maEnabled"][value="no"]').checked = true;
-  document.querySelector('input[name="maAngle"][value="target"]').checked = true;
-  toggleMaAngleField();
-  loadedTemplateName = null;
-  render();
-});
+// --- Templates (stored in-memory for this session; not persisted across page reloads) ---
+let templates = {};
 
-// ---- Template management (in-memory for this tab; export/import for persistence) ----
-let savedTemplates = []; // { name, data: {companies, industry, naics, excludeCompanies, perCode, purpose, location, scope, secondary} }
-let loadedTemplateName = null; // tracks which saved template (if any) is currently loaded, for the "modified" indicator
-
-const templateNameInput = document.getElementById('templateName');
-const templateSelect = document.getElementById('templateSelect');
-const modifiedBadge = document.getElementById('modifiedBadge');
-
-function currentFieldData(){
+function collectFieldData(){
   return {
     companies: val('companies'),
     industry: val('industry'),
@@ -732,134 +442,59 @@ function applyFieldData(data){
   render();
 }
 
-function dataEquals(a, b){
-  const keys = ['companies','industry','naics','excludeCompanies','perCode','purpose','location','scope','secondary','maEnabled','maAngle'];
-  return keys.every(k => (a[k] || '') === (b[k] || ''));
-}
-
-function updateModifiedBadge(){
-  if(!loadedTemplateName){ modifiedBadge.style.display = 'none'; return; }
-  const found = savedTemplates.find(t => t.name === loadedTemplateName);
-  if(!found){ modifiedBadge.style.display = 'none'; return; }
-  modifiedBadge.style.display = dataEquals(found.data, currentFieldData()) ? 'none' : 'inline';
-}
-
-function refreshTemplateSelect(selectName){
-  templateSelect.innerHTML = '';
-  if(savedTemplates.length === 0){
-    const opt = document.createElement('option');
-    opt.value = '';
-    opt.textContent = '— none saved yet —';
-    templateSelect.appendChild(opt);
+function refreshTemplateSelect(){
+  const sel = document.getElementById('templateSelect');
+  sel.innerHTML = '';
+  const names = Object.keys(templates);
+  if(names.length === 0){
+    sel.innerHTML = '<option value="">— none saved yet —</option>';
     return;
   }
-  savedTemplates.forEach(t => {
+  names.forEach(name => {
     const opt = document.createElement('option');
-    opt.value = t.name;
-    opt.textContent = t.name;
-    templateSelect.appendChild(opt);
+    opt.value = name;
+    opt.textContent = name;
+    sel.appendChild(opt);
   });
-  if(selectName) templateSelect.value = selectName;
 }
 
 document.getElementById('saveTemplateBtn').addEventListener('click', () => {
-  const name = templateNameInput.value.trim();
-  if(!name){
-    templateNameInput.focus();
-    templateNameInput.placeholder = 'Name it first…';
-    return;
-  }
-  const existingIdx = savedTemplates.findIndex(t => t.name === name);
-  if(existingIdx >= 0){
-    if(!confirm(`A template named "${name}" already exists. Overwrite it with your current inputs?`)) return;
-  }
-  const entry = { name, data: currentFieldData() };
-  if(existingIdx >= 0){ savedTemplates[existingIdx] = entry; } else { savedTemplates.push(entry); }
-  refreshTemplateSelect(name);
+  const name = val('templateName');
+  if(!name){ alert('Give the template a name first.'); return; }
+  templates[name] = collectFieldData();
+  refreshTemplateSelect();
+  document.getElementById('templateSelect').value = name;
   loadedTemplateName = name;
-  templateNameInput.value = '';
-  updateModifiedBadge();
+  alert(`Saved as "${name}". Note: templates only persist for this browser session — they're cleared if you close or reload the page.`);
 });
 
 document.getElementById('loadTemplateBtn').addEventListener('click', () => {
-  const name = templateSelect.value;
-  const found = savedTemplates.find(t => t.name === name);
-  if(found){
-    applyFieldData(found.data);
-    loadedTemplateName = name;
-    updateModifiedBadge();
-  } else {
-    alert('Nothing to load yet. Save a template first with "Save current as template," or use "Import (.json)" to bring in a previously exported file — then pick it from the dropdown and click Load.');
-  }
-});
-
-document.getElementById('renameTemplateBtn').addEventListener('click', () => {
-  const oldName = templateSelect.value;
-  const found = savedTemplates.find(t => t.name === oldName);
-  if(!found){
-    alert('Nothing selected to rename. Save or Import a template first, then select it from the dropdown.');
-    return;
-  }
-  const newName = templateNameInput.value.trim();
-  if(!newName){
-    templateNameInput.focus();
-    templateNameInput.placeholder = 'Type the new name first…';
-    return;
-  }
-  if(savedTemplates.some(t => t.name === newName && t.name !== oldName)){
-    alert(`A template named "${newName}" already exists. Choose a different name.`);
-    return;
-  }
-  found.name = newName;
-  if(loadedTemplateName === oldName) loadedTemplateName = newName;
-  refreshTemplateSelect(newName);
-  templateNameInput.value = '';
-  updateModifiedBadge();
+  const sel = document.getElementById('templateSelect');
+  const name = sel.value;
+  if(!name || !templates[name]) return;
+  applyFieldData(templates[name]);
+  loadedTemplateName = name;
 });
 
 document.getElementById('deleteTemplateBtn').addEventListener('click', () => {
-  const name = templateSelect.value;
-  if(!name) return;
-  if(!confirm(`Delete the saved template "${name}"? This can't be undone (unless you've exported it).`)) return;
-  savedTemplates = savedTemplates.filter(t => t.name !== name);
-  if(loadedTemplateName === name) loadedTemplateName = null;
+  const sel = document.getElementById('templateSelect');
+  const name = sel.value;
+  if(!name || !templates[name]) return;
+  if(!confirm(`Delete template "${name}"?`)) return;
+  delete templates[name];
   refreshTemplateSelect();
-  updateModifiedBadge();
 });
 
-document.getElementById('exportBtn').addEventListener('click', () => {
-  if(savedTemplates.length === 0){ return; }
-  const blob = new Blob([JSON.stringify(savedTemplates, null, 2)], {type:'application/json'});
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = 'target_company_prompt_templates.json';
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
-  URL.revokeObjectURL(url);
-});
-
-document.getElementById('importInput').addEventListener('change', (e) => {
-  const file = e.target.files[0];
-  if(!file) return;
-  const reader = new FileReader();
-  reader.onload = (evt) => {
-    try{
-      const imported = JSON.parse(evt.target.result);
-      if(!Array.isArray(imported)) throw new Error('bad format');
-      imported.forEach(entry => {
-        if(!entry.name || !entry.data) return;
-        const idx = savedTemplates.findIndex(t => t.name === entry.name);
-        if(idx >= 0){ savedTemplates[idx] = entry; } else { savedTemplates.push(entry); }
-      });
-      refreshTemplateSelect();
-    }catch(err){
-      alert('Could not read that file — make sure it\'s a template file exported from this tool.');
-    }
-    e.target.value = '';
-  };
-  reader.readAsText(file);
+document.getElementById('resetBtn').addEventListener('click', () => {
+  if(!confirm('Clear all fields on the form? This does not affect any saved templates.')) return;
+  document.querySelectorAll('input[type=text], textarea').forEach(el => el.value = '');
+  document.querySelector('input[name="scope"][value="find"]').checked = true;
+  document.querySelector('input[name="secondary"][value="yes"]').checked = true;
+  document.querySelector('input[name="maEnabled"][value="no"]').checked = true;
+  document.querySelector('input[name="maAngle"][value="target"]').checked = true;
+  toggleMaAngleField();
+  loadedTemplateName = null;
+  render();
 });
 
 refreshTemplateSelect();
