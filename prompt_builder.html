@@ -204,6 +204,15 @@
           <textarea id="background" placeholder="Paste a few lines from your resume, CV, LinkedIn bio, or a summary of your relevant experience — e.g. '8 years in federal OT cybersecurity consulting, former Booz Allen and SAIC'"></textarea>
           <p class="hint">Not a file upload — paste text directly (resume, CV, bio, LinkedIn summary, or just a few sentences — whatever you have). No length limit, but a tight paragraph of relevant highlights tends to work better than pasting a full multi-page document — it's easier for Claude to weigh correctly. Sharpens the Suggested Job Title Keywords column and gives Claude something real to reason from for Warm Introduction Path (former employers, overlapping experience) instead of guessing generically.</p>
         </div>
+
+        <div class="field">
+          <label>Include full visual formatting in the tracker?</label>
+          <div class="radio-row">
+            <label class="radio-opt"><input type="radio" name="formatting" value="yes" checked> Yes</label>
+            <label class="radio-opt"><input type="radio" name="formatting" value="no"> No — just the data</label>
+          </div>
+          <p class="hint">"Yes" (default) asks for the full formatted tracker: color-coded rating columns, a computed Suggested Priority Rank column, clickable Website links, autofilter, frozen panes, zebra striping, and separate Notes/Summary tabs — the same conventions used throughout this project, spelled out explicitly so you get them in any chat, not just this one. "No" asks for a plain data-only spreadsheet if you'd rather skip the extra formatting.</p>
+        </div>
       </fieldset>
 
       <fieldset>
@@ -288,6 +297,7 @@ function buildPrompt(){
   const purpose = val('purpose');
   const location = val('location');
   const background = val('background');
+  const formatting = radioVal('formatting') !== 'no'; // default true
   const scope = radioVal('scope');
   const secondary = radioVal('secondary');
   const maEnabled = radioVal('maEnabled') === 'yes';
@@ -365,6 +375,18 @@ function buildPrompt(){
     lines.push(`33. M&A Role Fit — Likely Acquisition Target / Likely Acquirer / Could Be Either / Unclear`);
   }
   lines.push("");
+  if(formatting){
+    lines.push(`Formatting requirements for the Excel file — apply all of these:`);
+    lines.push(`- Color-code these five rating columns using a 5-step gradient keyed to the leading word of each cell: Growth / Revenue Signal, Hiring Signal, Recent Hiring Trends, Opportunity Relevance, Opportunity Fit. Very High = darker green (A9D8A9), High = green (C6E8C6), Medium-High = yellow-green (E2EFC0), Medium = yellow (FFF2B2), Low-Medium = orange (FBDCB8), Low = red (F4C7C3).`);
+    lines.push(`- Add a "Suggested Priority Rank (1-25)" column positioned immediately next to the blank Priority Score column. Compute it per company: convert each rating word to points (Very High=5, High=4, Medium-High=3.5, Medium=3, Low-Medium=2, Low=1), then score = (Opportunity Fit points x 2) + (Opportunity Relevance points x 2) + average(Growth/Revenue Signal points, Hiring Signal points, Recent Hiring Trends points). Round to 1 decimal. Color this column using the same gradient, bucketed by score: >=22 Very High, >=18 High, >=14 Medium-High, >=10 Medium, >=7 Low-Medium, else Low. Add a cell comment on this column's header noting it's a mechanical starting point based on the formula above, not a replacement for my own judgment, and that I should compare it against my own Priority Score.`);
+    lines.push(`- Hyperlink the Website column so each cell links to that company's actual site. Leave Source URL as plain text (those cells are often citation notes, not single clean links).`);
+    lines.push(`- Add autofilter on the header row. Freeze both the header row and the Company column so they stay visible while scrolling.`);
+    lines.push(`- Lightly shade alternating data rows (zebra striping) for readability, without overriding the rating-column colors above.`);
+    lines.push(`- Give the Priority Score, Status, and Next Action columns (the ones I fill in by hand) a distinct light fill and border, separate from the rating gradient, so it's visually clear which columns are your research versus my own input.`);
+    lines.push(`- Add a "Notes & Assumptions" tab: document which figures are verified vs. estimated, list key assumptions (like how you interpreted an unstated purpose), and include a color legend explaining the gradient above.`);
+    lines.push(`- Add a "Summary" tab: counts of companies by Opportunity Fit, by NAICS Code Type, and by Category, plus a "Top 5 by Suggested Priority Rank" table.`);
+    lines.push("");
+  }
   lines.push(`Format the result as a clean, formatted Excel workbook (.xlsx) with a header row, reasonable column widths, and one row per company. Don't fabricate figures — mark estimates clearly and leave anything unverifiable blank rather than guessing.`);
 
   return lines.join("\n");
@@ -429,6 +451,7 @@ function collectFieldData(){
     secondary: radioVal('secondary'),
     maEnabled: radioVal('maEnabled'),
     maAngle: radioVal('maAngle'),
+    formatting: radioVal('formatting'),
   };
 }
 
@@ -445,10 +468,12 @@ function applyFieldData(data){
   const secondaryVal = data.secondary || 'yes';
   const maEnabledVal = data.maEnabled || 'no';
   const maAngleVal = data.maAngle || 'target';
+  const formattingVal = data.formatting || 'yes';
   document.querySelector(`input[name="scope"][value="${scopeVal}"]`).checked = true;
   document.querySelector(`input[name="secondary"][value="${secondaryVal}"]`).checked = true;
   document.querySelector(`input[name="maEnabled"][value="${maEnabledVal}"]`).checked = true;
   document.querySelector(`input[name="maAngle"][value="${maAngleVal}"]`).checked = true;
+  document.querySelector(`input[name="formatting"][value="${formattingVal}"]`).checked = true;
   toggleMaAngleField();
   render();
 }
@@ -503,6 +528,7 @@ document.getElementById('resetBtn').addEventListener('click', () => {
   document.querySelector('input[name="secondary"][value="yes"]').checked = true;
   document.querySelector('input[name="maEnabled"][value="no"]').checked = true;
   document.querySelector('input[name="maAngle"][value="target"]').checked = true;
+  document.querySelector('input[name="formatting"][value="yes"]').checked = true;
   toggleMaAngleField();
   loadedTemplateName = null;
   render();

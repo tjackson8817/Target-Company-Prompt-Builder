@@ -38,6 +38,7 @@ There's also an **Exclude these companies** field (optional) — anything you li
 | **What is this list for?** | The most important field for personalizing the output — it tells Claude how to judge "Category," "Key Contact," "Opportunity Fit," and "Why This Fits" for every company. Be specific: "job search targets for a Director-level OT cybersecurity role" produces a very different sheet than "prospective customers for our SaaS product." |
 | **Preferred location / work arrangement** | Optional. If filled in, an extra column is added to the output rating each company against this preference. |
 | **Your background** | Optional. Not a file upload — paste resume, CV, bio, LinkedIn summary, or a few lines of relevant experience directly. No length limit, but a tight paragraph of highlights tends to work better than a full multi-page document — it's easier for Claude to weigh correctly. Sharpens the Suggested Job Title Keywords column and gives Claude something concrete to reason from for Warm Introduction Path (former employers, overlapping experience, relevant credentials) instead of guessing generically. |
+| **Include full visual formatting in the tracker?** | **Yes** (default) bakes the full formatting spec into the generated prompt itself — color-coded rating columns, a computed Suggested Priority Rank, clickable Website links, autofilter, frozen panes, zebra striping, and Notes/Summary tabs — so you get the same output in any chat, not just one that happens to already know these conventions. **No** asks for a plain data-only spreadsheet instead. |
 
 ---
 
@@ -147,7 +148,7 @@ If you've asked Claude to build the tracker (rather than just generating the pro
 - **Priority Score, Status, and Next Action** — the three columns meant for you to fill in by hand — get a distinct pale blue fill with a navy left border, so it's visually obvious which columns are Claude's research and which are yours.
 - **A Summary tab** with quick counts (companies by Opportunity Fit, by NAICS Code Type, by Category) and a Top 5 by Suggested Priority Rank table, so you don't have to scroll the full sheet to get the gist.
 
-None of this happens automatically from the prompt alone — it's something Claude does when actually building the spreadsheet, based on formatting conventions established in this project. If you're generating the tracker in a fresh chat that hasn't seen this formatting before, mention that you'd like the same color-coding, priority scoring, and layout conventions applied.
+As of this version, all of this is spelled out directly in the generated prompt itself (as long as **Include full visual formatting** is set to Yes, which is the default) — so you get the same formatted output in any chat, not just one that already knows these conventions from earlier context. If you deliberately turned that toggle to **No**, you'll get a plain data-only spreadsheet instead — no colors, no Suggested Priority Rank, no extra tabs.
 
 ## 12. A Faster Way to Fill This Out (reverse note)
 

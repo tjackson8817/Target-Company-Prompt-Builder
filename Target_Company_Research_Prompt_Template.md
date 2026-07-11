@@ -34,6 +34,9 @@ Copy everything below into a new Claude chat. Fill in the fields at the top — 
 **Your background — optional** *(paste resume, CV, bio, LinkedIn summary, or a few lines of relevant experience — no length limit, but a tight paragraph of highlights tends to work better than a full multi-page document; sharpens Suggested Job Title Keywords and Warm Introduction Path)*
 `[e.g. "8 years in federal OT cybersecurity consulting, former Booz Allen and SAIC" — or leave blank]`
 
+**Include full visual formatting in the tracker?** *(color-coded rating columns, computed Suggested Priority Rank, clickable Website links, autofilter, frozen panes, zebra striping, Notes/Summary tabs)*
+`[Yes / No — default Yes if left blank. "No" gets you a plain data-only spreadsheet instead.]`
+
 **M&A research columns — optional** *(leave this whole section out if not relevant)*
 - Add M&A-specific columns? `[Yes / No]`
 - If yes, angle: `[Find acquisition targets / Find likely acquirers / Show fit for either]`
@@ -104,6 +107,18 @@ For every company gathered in Step 3 (plus any I named directly), research and b
 31. **Signals** — sale/succession signals (if I'm looking for acquisition targets) or acquisition-appetite signals (if I'm looking for acquirers)
 32. **Estimated Deal Size Fit**
 33. **M&A Role Fit** — Likely Acquisition Target / Likely Acquirer / Could Be Either / Unclear
+
+### Step 5 — Formatting (skip this step entirely if I said "No" to visual formatting above)
+
+Apply all of the following to the Excel file:
+- Color-code these five rating columns using a 5-step gradient keyed to the leading word of each cell: Growth / Revenue Signal, Hiring Signal, Recent Hiring Trends, Opportunity Relevance, Opportunity Fit. Very High = darker green (A9D8A9), High = green (C6E8C6), Medium-High = yellow-green (E2EFC0), Medium = yellow (FFF2B2), Low-Medium = orange (FBDCB8), Low = red (F4C7C3).
+- Add a "Suggested Priority Rank (1-25)" column positioned immediately next to the blank Priority Score column. Compute it per company: convert each rating word to points (Very High=5, High=4, Medium-High=3.5, Medium=3, Low-Medium=2, Low=1), then score = (Opportunity Fit points x 2) + (Opportunity Relevance points x 2) + average(Growth/Revenue Signal points, Hiring Signal points, Recent Hiring Trends points). Round to 1 decimal. Color this column using the same gradient, bucketed by score: ≥22 Very High, ≥18 High, ≥14 Medium-High, ≥10 Medium, ≥7 Low-Medium, else Low. Add a cell comment on this column's header noting it's a mechanical starting point, not a replacement for my own judgment, and that I should compare it against my own Priority Score.
+- Hyperlink the Website column so each cell links to that company's actual site. Leave Source URL as plain text (those cells are often citation notes, not single clean links).
+- Add autofilter on the header row. Freeze both the header row and the Company column so they stay visible while scrolling.
+- Lightly shade alternating data rows (zebra striping) for readability, without overriding the rating-column colors above.
+- Give the Priority Score, Status, and Next Action columns (the ones I fill in by hand) a distinct light fill and border, separate from the rating gradient.
+- Add a "Notes & Assumptions" tab: document which figures are verified vs. estimated, list key assumptions, and include a color legend explaining the gradient above.
+- Add a "Summary" tab: counts of companies by Opportunity Fit, by NAICS Code Type, and by Category, plus a "Top 5 by Suggested Priority Rank" table.
 
 Format as a clean, formatted Excel workbook with a header row, sensible column widths, and one row per company. Don't fabricate figures — mark clear estimates as such (e.g. "$50M–$250M (estimate)") and leave anything unverifiable blank rather than guessing. If you're confident a company is publicly traded based on your own knowledge, note that as "likely-public (unverified)" rather than implying a filing was directly checked.
 
