@@ -2,7 +2,7 @@
 
 A single self-contained HTML tool that turns a few form fields into a ready-to-send Claude prompt for researching target companies (job search targets, sales prospects, partnership candidates, or M&A targets) and building a formatted Excel tracker.
 
-**[Open the live tool](../../)** — replace this line's link with your actual GitHub Pages URL once Pages is enabled (see below), e.g. `https://yourusername.github.io/target-company-prompt-builder/prompt_builder.html`
+**[Open the live tool](https://tjackson8817.github.io/Target-Company-Prompt-Builder/prompt_builder.html)**
 
 No install, no account, nothing sent anywhere — it's a static form that assembles text entirely in your browser.
 
