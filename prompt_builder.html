@@ -198,6 +198,12 @@
           <label>Preferred location / work arrangement <span class="tag">optional</span></label>
           <input type="text" id="location" placeholder="e.g. Texas or remote">
         </div>
+
+        <div class="field">
+          <label>Your background <span class="tag">optional</span></label>
+          <textarea id="background" placeholder="Paste a few lines from your resume, CV, LinkedIn bio, or a summary of your relevant experience — e.g. '8 years in federal OT cybersecurity consulting, former Booz Allen and SAIC'"></textarea>
+          <p class="hint">Not a file upload — paste text directly (resume, CV, bio, LinkedIn summary, or just a few sentences — whatever you have). No length limit, but a tight paragraph of relevant highlights tends to work better than pasting a full multi-page document — it's easier for Claude to weigh correctly. Sharpens the Suggested Job Title Keywords column and gives Claude something real to reason from for Warm Introduction Path (former employers, overlapping experience) instead of guessing generically.</p>
+        </div>
       </fieldset>
 
       <fieldset>
@@ -251,7 +257,7 @@
         <button class="btn-primary" id="copyBtn">Copy prompt</button>
         <button class="btn-secondary" id="downloadBtn">Download .txt</button>
       </div>
-      <div class="stat-line"><span id="fieldCount">0</span> of 7 fields filled in</div>
+      <div class="stat-line"><span id="fieldCount">0</span> of 8 fields filled in</div>
       <div id="promptText"><span id="placeholder">Fill in at least one starting-point field or a purpose to see your prompt appear here.</span></div>
     </div>
   </div>
@@ -281,6 +287,7 @@ function buildPrompt(){
   const perCode = val('perCode') || "your judgment";
   const purpose = val('purpose');
   const location = val('location');
+  const background = val('background');
   const scope = radioVal('scope');
   const secondary = radioVal('secondary');
   const maEnabled = radioVal('maEnabled') === 'yes';
@@ -288,7 +295,7 @@ function buildPrompt(){
 
   const haveStart = companies || industry || naics;
   let filled = 0;
-  [companies, industry, naics, exclude, val('perCode'), purpose, location].forEach(v => { if(v) filled++; });
+  [companies, industry, naics, exclude, val('perCode'), purpose, location, background].forEach(v => { if(v) filled++; });
   fieldCountEl.textContent = filled;
 
   if(!haveStart && !purpose){
@@ -309,6 +316,7 @@ function buildPrompt(){
   }
   lines.push(`- What this list is for: ${purpose || "Not specified — use general judgment for fit/category/contacts."}`);
   if(location) lines.push(`- Preferred location / work arrangement: ${location}`);
+  if(background) lines.push(`- My background (use this to sharpen Suggested Job Title Keywords and Warm Introduction Path — look for former-employer overlap, transferable experience, or relevant credentials): ${background}`);
 
   if(maEnabled){
     const angleText = maAngle === 'target'
@@ -342,18 +350,19 @@ function buildPrompt(){
   lines.push(`19. Warm Introduction Path — the most plausible path to a warm introduction at this company (e.g. recruiter, executive search firm, former colleagues, LinkedIn 2nd-degree connection, conference/industry contacts), inferred from the company's profile and my background if I've shared it`);
   lines.push(`20. Outreach Approach — brief guidance on how and through whom to approach this company`);
   lines.push(`21. Key Contacts / Priority Titles — named individuals if publicly findable, otherwise closest equivalent titles`);
-  lines.push(`22. Suggested Search Keywords — terms useful for a LinkedIn or similar search`);
-  lines.push(`23. Source URL — link(s) supporting the data above`);
-  lines.push(`24. Priority Score — leave blank for me to fill in`);
-  lines.push(`25. Status — leave blank (Not Started / Researching / Contacted / In Progress / Closed)`);
-  lines.push(`26. Next Action — leave blank`);
-  lines.push(`27. Date Researched — today's date`);
+  lines.push(`22. Suggested Search Keywords — terms useful for a LinkedIn people-search (finding the right person at this company)`);
+  lines.push(`23. Suggested Job Title Keywords — 2-4 actual job title variants this specific company would plausibly use in a job posting for the Executive Role Fit identified above (e.g. not a generic title — the title format this company itself tends to use), meant for searching job postings/boards rather than searching for people${background ? ", informed by my background above where relevant" : ""}`);
+  lines.push(`24. Source URL — link(s) supporting the data above`);
+  lines.push(`25. Priority Score — leave blank for me to fill in`);
+  lines.push(`26. Status — leave blank (Not Started / Researching / Contacted / In Progress / Closed)`);
+  lines.push(`27. Next Action — leave blank`);
+  lines.push(`28. Date Researched — today's date`);
   if(maEnabled){
-    lines.push(`28. Ownership Type — founder-owned, PE-backed, public, subsidiary`);
-    lines.push(`29. Recent M&A Activity`);
-    lines.push(`30. Signals — sale/succession signals or acquisition-appetite signals depending on angle above`);
-    lines.push(`31. Estimated Deal Size Fit`);
-    lines.push(`32. M&A Role Fit — Likely Acquisition Target / Likely Acquirer / Could Be Either / Unclear`);
+    lines.push(`29. Ownership Type — founder-owned, PE-backed, public, subsidiary`);
+    lines.push(`30. Recent M&A Activity`);
+    lines.push(`31. Signals — sale/succession signals or acquisition-appetite signals depending on angle above`);
+    lines.push(`32. Estimated Deal Size Fit`);
+    lines.push(`33. M&A Role Fit — Likely Acquisition Target / Likely Acquirer / Could Be Either / Unclear`);
   }
   lines.push("");
   lines.push(`Format the result as a clean, formatted Excel workbook (.xlsx) with a header row, reasonable column widths, and one row per company. Don't fabricate figures — mark estimates clearly and leave anything unverifiable blank rather than guessing.`);
@@ -415,6 +424,7 @@ function collectFieldData(){
     perCode: val('perCode'),
     purpose: val('purpose'),
     location: val('location'),
+    background: val('background'),
     scope: radioVal('scope'),
     secondary: radioVal('secondary'),
     maEnabled: radioVal('maEnabled'),
@@ -430,6 +440,7 @@ function applyFieldData(data){
   document.getElementById('perCode').value = data.perCode || '';
   document.getElementById('purpose').value = data.purpose || '';
   document.getElementById('location').value = data.location || '';
+  document.getElementById('background').value = data.background || '';
   const scopeVal = data.scope || 'find';
   const secondaryVal = data.secondary || 'yes';
   const maEnabledVal = data.maEnabled || 'no';

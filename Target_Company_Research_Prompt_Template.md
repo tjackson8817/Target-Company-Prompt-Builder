@@ -31,6 +31,9 @@ Copy everything below into a new Claude chat. Fill in the fields at the top — 
 **Preferred location / work arrangement — optional:**
 `[e.g. "Texas or remote" / "must have EU presence" / leave blank if no preference]`
 
+**Your background — optional** *(paste resume, CV, bio, LinkedIn summary, or a few lines of relevant experience — no length limit, but a tight paragraph of highlights tends to work better than a full multi-page document; sharpens Suggested Job Title Keywords and Warm Introduction Path)*
+`[e.g. "8 years in federal OT cybersecurity consulting, former Booz Allen and SAIC" — or leave blank]`
+
 **M&A research columns — optional** *(leave this whole section out if not relevant)*
 - Add M&A-specific columns? `[Yes / No]`
 - If yes, angle: `[Find acquisition targets / Find likely acquirers / Show fit for either]`
@@ -50,10 +53,11 @@ I want you to research target companies and build a formatted Excel tracker (.xl
 - Exclude these companies entirely, even if they'd otherwise match: *(from above, if any)*
 - What this list is for: *(from above)*
 - Preferred location / work arrangement: *(from above, if any)*
+- My background, if I shared it above: use it to sharpen Suggested Job Title Keywords and Warm Introduction Path — look for former-employer overlap, transferable experience, or relevant credentials.
 - M&A research angle, if requested above: treat each company accordingly and add the M&A columns described below.
 
-### Step 1 — Confirm or derive the industry/focus label
-Use the industry/field description I gave (or infer one from the companies I named) as the label for the "[Industry/Focus Area] Relevance" column below — e.g. if I said "OT Cybersecurity," title that column "OT Cybersecurity Relevance."
+### Step 1 — Confirm the industry/focus context
+Use the industry/field description I gave (or infer one from the companies I named) as context for judging the Opportunity Relevance column below — this column stays generically named regardless of my industry, since the same tracker structure should work for any purpose.
 
 ### Step 2 — Look up NAICS code(s)
 If I didn't give a NAICS code, determine the most appropriate primary code(s) from my industry description or named companies. If "include secondary/adjacent codes" is Yes, also identify relevant secondary/adjacent codes (suppliers, related disciplines).
@@ -85,20 +89,21 @@ For every company gathered in Step 3 (plus any I named directly), research and b
 19. **Warm Introduction Path** — the most plausible path to a warm introduction at this company (e.g. recruiter, executive search firm, former colleagues, LinkedIn 2nd-degree connection, conference/industry contacts), inferred from the company's profile and my background if I've shared it
 20. **Outreach Approach** — brief guidance on how and through whom to approach this company
 21. **Key Contacts / Priority Titles** — the person/role most relevant to my purpose, named individuals if publicly findable, otherwise closest equivalent titles
-22. **Suggested Search Keywords** — terms useful for a LinkedIn or similar search
-23. **Source URL** — link(s) supporting the data above
-24. **Priority Score** — leave blank for me to fill in
-25. **Status** — leave blank (I will fill in: Not Started / Researching / Contacted / In Progress / Closed)
-26. **Next Action** — leave blank
-27. **Date Researched** — today's date
+22. **Suggested Search Keywords** — terms useful for a LinkedIn people-search (finding the right person at this company)
+23. **Suggested Job Title Keywords** — 2–4 actual job title variants this specific company would plausibly use in a job posting for the Executive Role Fit identified above (not a generic title — the title format this company itself tends to use), meant for searching job postings/boards rather than searching for people
+24. **Source URL** — link(s) supporting the data above
+25. **Priority Score** — leave blank for me to fill in
+26. **Status** — leave blank (I will fill in: Not Started / Researching / Contacted / In Progress / Closed)
+27. **Next Action** — leave blank
+28. **Date Researched** — today's date
 
 *(If M&A columns were requested, also add:)*
 
-28. **Ownership Type** — founder-owned, PE-backed, public, subsidiary
-29. **Recent M&A Activity**
-30. **Signals** — sale/succession signals (if I'm looking for acquisition targets) or acquisition-appetite signals (if I'm looking for acquirers)
-31. **Estimated Deal Size Fit**
-32. **M&A Role Fit** — Likely Acquisition Target / Likely Acquirer / Could Be Either / Unclear
+29. **Ownership Type** — founder-owned, PE-backed, public, subsidiary
+30. **Recent M&A Activity**
+31. **Signals** — sale/succession signals (if I'm looking for acquisition targets) or acquisition-appetite signals (if I'm looking for acquirers)
+32. **Estimated Deal Size Fit**
+33. **M&A Role Fit** — Likely Acquisition Target / Likely Acquirer / Could Be Either / Unclear
 
 Format as a clean, formatted Excel workbook with a header row, sensible column widths, and one row per company. Don't fabricate figures — mark clear estimates as such (e.g. "$50M–$250M (estimate)") and leave anything unverifiable blank rather than guessing. If you're confident a company is publicly traded based on your own knowledge, note that as "likely-public (unverified)" rather than implying a filing was directly checked.
 
