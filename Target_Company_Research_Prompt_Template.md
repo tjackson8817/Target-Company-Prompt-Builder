@@ -126,13 +126,21 @@ Apply all of the following to the Excel file:
 ### Step 6 — Job Posting Quick Links tab (skip this step entirely if I said "No" to the Quick Links tab above)
 
 Add a "Job Posting Quick Links" tab — one row per company, with these columns:
-- Company (same name as the main sheet)
-- Suggested Job Title Keywords (repeat from the main sheet, for reference)
-- LinkedIn Jobs Search — an Excel HYPERLINK() formula built from that row's Company and Suggested Job Title Keywords cells, pointing to https://www.linkedin.com/jobs/search/?keywords=<company>%20<title>
-- Indeed Search — an Excel HYPERLINK() formula pointing to https://www.indeed.com/jobs?q=<title>+<company>
-- Google Jobs Search — an Excel HYPERLINK() formula pointing to https://www.google.com/search?q=<company>+<title>+jobs
+- Company
+- Job Title Used for Search — the single most likely job title for this company (pull just the first variant out of Suggested Job Title Keywords, not the whole multi-title cell — a focused single-title search works better than one crammed with 3-4 titles at once). If Suggested Job Title Keywords is "N/A" for this company (e.g. a current/internal-only row), use a generic fallback like the industry/purpose keyword instead so the link still works.
+- LinkedIn Jobs Search, Indeed Search, Google Jobs Search — three separate HYPERLINK() formulas per row
 
-Build these as real HYPERLINK() formulas referencing the cells on this new tab (not the main sheet, so the tab works standalone), URL-encoding spaces and special characters properly, so the links stay live and update automatically if I edit the Company or Suggested Job Title Keywords cell later. This tab is a quick-search-link generator, not a source of actual job postings — clicking a link runs a fresh search each time, it doesn't embed real-time results into the file.
+Use exactly this formula pattern (tested and confirmed working — note the `_xlfn.` prefix on `ENCODEURL`, which Excel requires when this function is written programmatically; omitting it produces a `#NAME?` error), referencing that row's own Company (column A) and Job Title Used for Search (column B) cells on this tab:
+
+```
+LinkedIn:    =HYPERLINK("https://www.linkedin.com/jobs/search/?keywords="&_xlfn.ENCODEURL(A2)&"%20"&_xlfn.ENCODEURL(B2),"Search LinkedIn")
+Indeed:      =HYPERLINK("https://www.indeed.com/jobs?q="&_xlfn.ENCODEURL(B2)&"+"&_xlfn.ENCODEURL(A2),"Search Indeed")
+Google Jobs: =HYPERLINK("https://www.google.com/search?q="&_xlfn.ENCODEURL(A2)&"+"&_xlfn.ENCODEURL(B2)&"+jobs","Search Google Jobs")
+```
+
+(Adjust the row number in each formula to match its own row.) These reference this tab's own cells, not the main sheet, so the tab works standalone and the links update automatically if I edit the Company or Job Title cell later.
+
+**Important — be explicit about what this tab is and isn't:** it is a set of pre-built search links, nothing more. Each link just opens LinkedIn, Indeed, or Google with the company name and a job title already typed into the search box — the same as if I'd typed them in myself. Clicking a link does not pull in, list, or embed any actual job postings, and nothing here is "unique jobs found" — it's a shortcut to go run that search, every time, live, whenever I click it. Say this plainly in the file itself (e.g. in the tab's notes or the main Notes tab), not just in your reply.
 
 Format as a clean, formatted Excel workbook with a header row, sensible column widths, and one row per company. Don't fabricate figures — mark clear estimates as such (e.g. "$50M–$250M (estimate)") and leave anything unverifiable blank rather than guessing. If you're confident a company is publicly traded based on your own knowledge, note that as "likely-public (unverified)" rather than implying a filing was directly checked.
 
