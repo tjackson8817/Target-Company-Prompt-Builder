@@ -4,6 +4,19 @@ This tool is a single web page (`prompt_builder.html`) that turns a few fields y
 
 ---
 
+## Claude Settings You'll Need Before You Start
+
+This prompt asks Claude to do two things: research live, and build a real `.xlsx` file. Both depend on a setting that isn't always on by default — if either is off, Claude will tell you so directly (and honestly) rather than fake the result, but it's faster to just check both up front.
+
+| Setting | Why you need it | Where to find it |
+|---|---|---|
+| **Web search** | Without it, Claude can't do the actual live company research this tool depends on — it would only be able to answer from training data, which goes stale and can't tell you what a company's revenue or hiring activity looks like today. | Click the **+** (or slider) icon in the chat input, find **Web search**, toggle it on. On Team/Enterprise accounts, an admin has to enable it workspace-wide first before individual members can turn it on. |
+| **Code execution and file creation** | This is what lets Claude actually build and hand you a downloadable `.xlsx` — without it, Claude can still do the research and present it as a table in the chat, but it has no way to package that into a real file. | **Settings → Capabilities**, toggle **Code execution and file creation** on. |
+
+If you ever get a response back that reads like a polite explanation of a missing tool instead of your tracker, this is almost always why — check both toggles and re-run.
+
+---
+
 ## 1. Opening the tool
 
 1. Locate `prompt_builder.html` (wherever your browser saved it — usually your Downloads folder).

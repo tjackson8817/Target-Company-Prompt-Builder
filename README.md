@@ -27,6 +27,12 @@ No install, no account, nothing sent anywhere — it's a static form that assemb
 
 See `Prompt_Builder_User_Guide.md` for the full walkthrough, including what each output column means and how the color-coding and priority scoring work.
 
+## Companion tool: Job Posting Finder
+
+Lives in a separate repo: **[tjackson8817/Job-Posting-Finder](https://tjackson8817.github.io/Job-Posting-Finder/job_posting_finder.html)**
+
+A separate tool, by design — it takes a shortlist of companies (ideally your top few by Suggested Priority Rank from this tracker) and/or job titles, and generates a prompt asking Claude to find **real, current job postings** with real URLs, not company research. Supports bulk-pasting rows straight from your tracker, boolean title logic, and always includes a built-in guarantee against fabricated results. See that repo's own guide for the full explanation, including why it's a quick-triage tool and not a substitute for searching a job board directly.
+
 ## Notes
 
 - This repo can be public or private — GitHub Pages on the free tier requires a public repo (or a paid plan for private-repo Pages).

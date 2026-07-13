@@ -12,6 +12,8 @@ The `.txt` prompt this tool generates is plain text, so it isn't locked to Claud
 - **Some may need minor edits** — for example, a tool without built-in spreadsheet-creation ability might return the same research as a formatted table or CSV text instead of a downloadable `.xlsx` file, or may need to be told explicitly how to output the data.
 - **Some may offer their own suggestions** for how to restructure or run the prompt based on that platform's particular strengths or limitations.
 
+One concrete example worth knowing: in ChatGPT, web browsing and Code Interpreter (its file-building tool) are separate capabilities, and the Code Interpreter sandbox has no internet access. That means a single unified pass — live research *and* a live-built Excel file in the same response — isn't guaranteed the way it is in a Claude session with both Web search and Code execution and file creation enabled. Expect either a plain-text/table result, or a two-step process (research first, then a separate step to build the file from what was found).
+
 None of this means the prompt is broken elsewhere — it just means results, formatting, and follow-up behavior may vary by platform. If you get inconsistent results on a non-Claude tool, try simplifying the request (fewer companies, fewer columns) or asking that tool directly how it would prefer the prompt restructured.
 
 ## The overall goal
