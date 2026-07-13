@@ -53,6 +53,8 @@ There's also an **Exclude these companies** field (optional) — anything you li
 | **Your background** | Optional. Not a file upload — paste resume, CV, bio, LinkedIn summary, or a few lines of relevant experience directly. No length limit, but a tight paragraph of highlights tends to work better than a full multi-page document — it's easier for Claude to weigh correctly. Sharpens the Suggested Job Title Keywords column and gives Claude something concrete to reason from for Warm Introduction Path (former employers, overlapping experience, relevant credentials) instead of guessing generically. |
 | **Include full visual formatting in the tracker?** | **Yes** (default) bakes the full formatting spec into the generated prompt itself — color-coded rating columns, a computed Suggested Priority Rank, clickable Website links, autofilter, frozen panes, zebra striping, and Notes/Summary tabs — so you get the same output in any chat, not just one that happens to already know these conventions. **No** asks for a plain data-only spreadsheet instead. |
 | **Add a Job Posting Quick Links tab?** | **Yes** (default) adds a second sheet with one-click LinkedIn Jobs, Indeed, and Google Jobs search links per company, built from the Company and Suggested Job Title Keywords columns using Excel HYPERLINK() formulas — the links stay live and update automatically if you edit either cell later. This generates *search links*, not actual postings data — see Section 12 for the difference and when you'd want real postings instead. |
+| **Add an Industry Events & Forums tab?** | **Yes** (default) adds a tab of real, upcoming conferences and trade shows relevant to your stated industry/purpose — one row per event, not per company. Also lets you set how far ahead to look: next 6 months, next 12 months (default), or any upcoming date. See Section 13 for how this connects to your Category column. |
+| **Compensation Benchmark** *(not a toggle — always included alongside the 10-K contact check)* | For publicly traded companies, if the named 10-K contact also appears as a Named Executive Officer in the company's proxy statement, reports their disclosed total compensation. See Section 15 for why this will only fire for a minority of companies. |
 
 ---
 
@@ -149,6 +151,7 @@ The additions worth knowing about specifically:
 - **Opportunity Relevance** replaced an earlier version of this column that baked a specific industry into its own name (like "OT Cybersecurity Relevance"). It's now generic on purpose, so the same tool works cleanly whether your purpose is a job search, sales prospecting, partnership scouting, or anything else — the relevance judgment still happens, it's just not hard-coded to one field.
 - **Executive Role Fit** and **Warm Introduction Path** sit next to Why This Fits and are aimed squarely at outreach planning — the first tells you who to target, the second tells you how you're most likely to actually reach them.
 - **Suggested Search Keywords** and **Suggested Job Title Keywords** sit next to each other but search for different things. Suggested Search Keywords is for finding *people* — the right person at a company on LinkedIn. Suggested Job Title Keywords is for finding *postings* — 2–4 actual job title variants that specific company would plausibly use, tailored to its Executive Role Fit rather than a generic title (e.g. "VP, Professional Services" for an OT security vendor vs. "Partner, Cyber Security Services" for a Big 4 firm). If you filled in **Your background**, this column also gets sharpened using that context.
+- **Key Contacts / Priority Titles** can carry a second line for publicly traded companies — a named cybersecurity executive sourced directly from the company's 10-K, where disclosed. See Section 14 for what this does and doesn't cover.
 
 ## 11. Reading the Formatted Tracker
 
@@ -178,6 +181,37 @@ A few other things worth knowing:
 
 **If you actually want real postings** — a table of specific job titles, companies, and URLs, not just search links — that's a different, deliberately separate tool. Live postings data has a much shorter shelf life than company research (postings turn over weekly; company revenue/HQ/size is stable for months), and getting real results means live web search per company on top of the research already happening — so bundling it into this same prompt would either bloat the request or go stale inside the same file as more durable data. Ask about a companion "Job Posting Finder" prompt if you want that — it's built to take a shortlist of companies (ideally your top few by Suggested Priority Rank, not all of them) and their Suggested Job Title Keywords as input, and return actual postings.
 
-## 13. A Faster Way to Fill This Out (reverse note)
+## 13. The Industry Events & Forums Tab (and How Category Drives It)
+
+If **Add an Industry Events & Forums tab?** is Yes, the tracker gets a tab listing real, upcoming conferences and trade shows relevant to your stated industry/purpose — Event Name, Date(s), Location, Format (in-person/virtual/hybrid), Relevant To, and URL.
+
+The one field worth understanding is **Relevant To**. Events aren't company-specific the way the rest of this tracker is — the same conference is often relevant to several companies on your list at once, so this tab is one row per *event*, not one row per company. To keep it connected back to your company list without hard-linking to individual rows (which would break the moment you added or removed a company), **Relevant To reuses the exact values from your main sheet's Category column** rather than inventing a separate industry taxonomy. Whatever grouping logic Claude used to sort your companies — by sub-industry, by NAICS code type, by company role, whatever made sense for your purpose — is the same grouping this tab uses to connect events back to them.
+
+Practically, that means if your Category column has values like "OT Cybersecurity Vendor — Practice/Professional Services Leadership" and "Big 4 / Tier 1 Consulting," this tab's Relevant To column will use those same phrases, not a generic "Cybersecurity" or "Consulting" label — so you can quickly see which events matter for which cluster of companies you're already tracking.
+
+Same honesty standard as everywhere else in this tracker: only real, currently findable events with a real URL are included. If coverage for a given Category is thin, that's reported directly rather than an event getting invented to fill the gap.
+
+## 14. Key Contacts and 10-K Filings
+
+The Key Contacts / Priority Titles column normally identifies the practice-level person worth targeting at a company — a Managing Director, VP, or Practice Lead, based on how that company is structured. As of this version, there's a second, narrower data point layered on top of that for **publicly traded companies specifically**: a check of the company's most recent 10-K for a named individual responsible for cybersecurity governance.
+
+Since 2023, SEC rules (Regulation S-K Item 106 / Item 1C of the 10-K) have required public companies to describe who's responsible for managing cybersecurity risk, and a majority of large public filers do name that person — usually a CISO, sometimes a CIO or CTO. When Claude finds one, it's added as a clearly labeled second line — "(per FY20XX 10-K)" — kept visually separate from the practice-level contact above it, since one is inferred from research and the other is sourced directly from a regulatory filing.
+
+Worth knowing the real limits here before treating this as a bigger feature than it is:
+
+- **Only applies to companies that file a 10-K at all.** Most pure-play OT vendors on a typical list (Dragos, Claroty, Nozomi, Armis) are privately held — no 10-K exists, so nothing gets added for them, and the column doesn't clutter itself with a "not applicable" line for the obvious case.
+- **It's the enterprise-wide security executive, not an OT-specific one.** A named CISO at a Big 4 firm or a public vendor tells you who owns cybersecurity risk company-wide — it's a useful *additional* data point, not a replacement for the practice-level targeting the rest of the column already does.
+- **Not every public company names someone.** Many disclosures describe the responsible role without naming the individual. When that happens, the tracker says so directly rather than silently leaving the company looking unchecked.
+- **It's only as current as the filing.** A 10-K is annual — the named person could have moved on since the most recent filing.
+
+## 15. Compensation Benchmark
+
+Right next to the 10-K contact check sits a related, narrower data point: if the named individual from that 10-K also shows up in the company's proxy statement (DEF 14A) as a Named Executive Officer, their disclosed total compensation gets reported alongside them — e.g. "$2.1M total comp, FY2025 proxy."
+
+Set expectations accordingly: **this will genuinely apply to a minority of the companies on your list.** Proxy statements only disclose compensation for a handful of the most highly paid executives at a company (typically the top 5) — a security-specific role like CISO is rarely in that group unless it happens to also be, say, the CTO or another top-5 role. When it doesn't apply, the tracker says so directly ("not a Named Executive Officer — not disclosed") rather than leaving the cell ambiguously blank or substituting a generic market-rate guess dressed up as filing data.
+
+Think of this one as a bonus when it fires, not something to plan around — it's a nice, free negotiation data point for the handful of companies where it happens to apply, layered on top of a feature (the 10-K contact check) that itself only applies to public companies in the first place.
+
+## 16. A Faster Way to Fill This Out (reverse note)
 
 If you'd rather not use the web form at all, there's a companion plain-text template — `Target_Company_Research_Prompt_Template` (.md) — with the same fields laid out as fill-in-the-blank text you can paste directly into a Claude chat. Use whichever format is more convenient in the moment; both produce the same result.

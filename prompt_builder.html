@@ -222,6 +222,24 @@
           </div>
           <p class="hint">"Yes" (default) adds a second sheet with one-click LinkedIn Jobs, Indeed, and Google Jobs search links per company — built from the Company and Suggested Job Title Keywords columns using Excel HYPERLINK() formulas, so the links stay live and update automatically if you edit either cell later. This is a search-link generator, not a source of actual live postings — for real postings data, that's a separate tool/step (see the User Guide).</p>
         </div>
+
+        <div class="field">
+          <label>Add an Industry Events & Forums tab?</label>
+          <div class="radio-row">
+            <label class="radio-opt"><input type="radio" name="events" value="yes" checked> Yes</label>
+            <label class="radio-opt"><input type="radio" name="events" value="no"> No</label>
+          </div>
+          <p class="hint">"Yes" (default) adds a tab of real, upcoming industry conferences and trade shows relevant to your stated industry/purpose — one row per event, not per company, since the same event is often relevant to several companies on your list at once. Each event's "Relevant To" field reuses your Category column, so it stays connected to however you've grouped your companies.</p>
+        </div>
+
+        <div class="field" id="eventsWindowField">
+          <label>How far ahead should events be?</label>
+          <div class="radio-row">
+            <label class="radio-opt"><input type="radio" name="eventsWindow" value="6"> Next 6 months</label>
+            <label class="radio-opt"><input type="radio" name="eventsWindow" value="12" checked> Next 12 months</label>
+            <label class="radio-opt"><input type="radio" name="eventsWindow" value="any"> Any upcoming</label>
+          </div>
+        </div>
       </fieldset>
 
       <fieldset>
@@ -308,6 +326,8 @@ function buildPrompt(){
   const background = val('background');
   const formatting = radioVal('formatting') !== 'no'; // default true
   const quickLinks = radioVal('quickLinks') !== 'no'; // default true
+  const events = radioVal('events') !== 'no'; // default true
+  const eventsWindow = radioVal('eventsWindow') || '12';
   const scope = radioVal('scope');
   const secondary = radioVal('secondary');
   const maEnabled = radioVal('maEnabled') === 'yes';
@@ -369,20 +389,21 @@ function buildPrompt(){
   lines.push(`18. Executive Role Fit — the level/title most relevant to approach or target at this company for my purpose (e.g. Partner, Managing Director, Practice Lead, VP, Chief Consultant), based on how the company is structured`);
   lines.push(`19. Warm Introduction Path — the most plausible path to a warm introduction at this company (e.g. recruiter, executive search firm, former colleagues, LinkedIn 2nd-degree connection, conference/industry contacts), inferred from the company's profile and my background if I've shared it`);
   lines.push(`20. Outreach Approach — brief guidance on how and through whom to approach this company`);
-  lines.push(`21. Key Contacts / Priority Titles — named individuals if publicly findable, otherwise closest equivalent titles`);
-  lines.push(`22. Suggested Search Keywords — terms useful for a LinkedIn people-search (finding the right person at this company)`);
-  lines.push(`23. Suggested Job Title Keywords — 2-4 actual job title variants this specific company would plausibly use in a job posting for the Executive Role Fit identified above (e.g. not a generic title — the title format this company itself tends to use), meant for searching job postings/boards rather than searching for people${background ? ", informed by my background above where relevant" : ""}`);
-  lines.push(`24. Source URL — link(s) supporting the data above`);
-  lines.push(`25. Priority Score — leave blank for me to fill in`);
-  lines.push(`26. Status — leave blank (Not Started / Researching / Contacted / In Progress / Closed)`);
-  lines.push(`27. Next Action — leave blank`);
-  lines.push(`28. Date Researched — today's date`);
+  lines.push(`21. Key Contacts / Priority Titles — named individuals if publicly findable, otherwise closest equivalent titles. Additionally, for publicly traded companies only, check the most recent 10-K's cybersecurity governance disclosure (Item 1C / Regulation S-K Item 106) for a named CISO, CIO, CTO, or similarly responsible officer. If one is named there, add it as a clearly labeled second line: "(per FY20XX 10-K)" — this is a different kind of data point than the practice-level contact above (sourced from a filing, not inferred), so keep it visually distinct rather than blending the two. If the company is public but the 10-K doesn't name anyone (common — many disclosures describe the role without naming the person), add a brief note saying so rather than omitting silently. If the company is privately held and doesn't file a 10-K at all, skip this entirely — don't add a "not applicable" line for the obvious case.`);
+  lines.push(`22. Compensation Benchmark — for publicly traded companies only: if the individual named from the 10-K in column 21 also appears in that company's most recent proxy statement (DEF 14A) Summary Compensation Table as a Named Executive Officer, report their total compensation figure with the fiscal year noted (e.g. "$2.1M total comp, FY2025 proxy"). This will genuinely apply to a minority of companies — security-specific roles like CISO are rarely among the top 5 highest-paid executives a proxy discloses, so most rows will legitimately have nothing here. When that's the case, say so briefly ("not a Named Executive Officer — not disclosed") rather than leaving the cell ambiguously blank, and don't substitute a generic market-rate guess dressed up as filing data. Skip entirely for private companies, same as column 21.`);
+  lines.push(`23. Suggested Search Keywords — terms useful for a LinkedIn people-search (finding the right person at this company)`);
+  lines.push(`24. Suggested Job Title Keywords — 2-4 actual job title variants this specific company would plausibly use in a job posting for the Executive Role Fit identified above (e.g. not a generic title — the title format this company itself tends to use), meant for searching job postings/boards rather than searching for people${background ? ", informed by my background above where relevant" : ""}`);
+  lines.push(`25. Source URL — link(s) supporting the data above`);
+  lines.push(`26. Priority Score — leave blank for me to fill in`);
+  lines.push(`27. Status — leave blank (Not Started / Researching / Contacted / In Progress / Closed)`);
+  lines.push(`28. Next Action — leave blank`);
+  lines.push(`29. Date Researched — today's date`);
   if(maEnabled){
-    lines.push(`29. Ownership Type — founder-owned, PE-backed, public, subsidiary`);
-    lines.push(`30. Recent M&A Activity`);
-    lines.push(`31. Signals — sale/succession signals or acquisition-appetite signals depending on angle above`);
-    lines.push(`32. Estimated Deal Size Fit`);
-    lines.push(`33. M&A Role Fit — Likely Acquisition Target / Likely Acquirer / Could Be Either / Unclear`);
+    lines.push(`30. Ownership Type — founder-owned, PE-backed, public, subsidiary`);
+    lines.push(`31. Recent M&A Activity`);
+    lines.push(`32. Signals — sale/succession signals or acquisition-appetite signals depending on angle above`);
+    lines.push(`33. Estimated Deal Size Fit`);
+    lines.push(`34. M&A Role Fit — Likely Acquisition Target / Likely Acquirer / Could Be Either / Unclear`);
   }
   lines.push("");
   if(formatting){
@@ -408,6 +429,18 @@ function buildPrompt(){
     lines.push(`  Google Jobs: =HYPERLINK("https://www.google.com/search?q="&_xlfn.ENCODEURL(A2)&"+"&_xlfn.ENCODEURL(B2)&"+jobs","Search Google Jobs")`);
     lines.push(`(Adjust the row number in each formula to match its own row.) These reference this tab's own cells, not the main sheet, so the tab works standalone and the links update automatically if I edit the Company or Job Title cell later.`);
     lines.push(`Important — be explicit about what this tab is and isn't: it is a set of pre-built search links, nothing more. Each link just opens LinkedIn, Indeed, or Google with the company name and a job title already typed into the search box for me — the same as if I'd typed them in myself. Clicking a link does not pull in, list, or embed any actual job postings, and nothing here is "unique jobs found" — it's a shortcut to go run that search, every time, live, whenever I click it. Say this plainly in the file itself (e.g. in the tab's notes or the main Notes tab), not just in your reply to me.`);
+    lines.push("");
+  }
+  if(events){
+    const windowLabel = eventsWindow === '6' ? 'the next 6 months' : eventsWindow === 'any' ? 'any upcoming date (no cutoff)' : 'the next 12 months';
+    lines.push(`Also add an "Industry Events & Forums" tab — one row per event, not per company, since the same event is often relevant to several companies on my list at once. Columns:`);
+    lines.push(`- Event Name`);
+    lines.push(`- Date(s)`);
+    lines.push(`- Location`);
+    lines.push(`- Format — In-person / Virtual / Hybrid`);
+    lines.push(`- Relevant To — reuse the values from the main sheet's Category column (not a separate taxonomy), so this tab stays connected to however the companies are already grouped there`);
+    lines.push(`- URL`);
+    lines.push(`Only include real, currently findable conferences, trade shows, or industry forums relevant to my stated industry/purpose, scoped to ${windowLabel}. Same honesty standard as the rest of this request: only report events you actually find via search with a real URL, do not fabricate or guess at an event that "probably exists" for this industry, and report fewer events rather than padding the list. If you can't find good coverage for a given Category, say so rather than inventing something to fill the gap.`);
     lines.push("");
   }
   lines.push(`Format the result as a clean, formatted Excel workbook (.xlsx) with a header row, reasonable column widths, and one row per company. Don't fabricate figures — mark estimates clearly and leave anything unverifiable blank rather than guessing.`);
@@ -476,6 +509,8 @@ function collectFieldData(){
     maAngle: radioVal('maAngle'),
     formatting: radioVal('formatting'),
     quickLinks: radioVal('quickLinks'),
+    events: radioVal('events'),
+    eventsWindow: radioVal('eventsWindow'),
   };
 }
 
@@ -494,12 +529,16 @@ function applyFieldData(data){
   const maAngleVal = data.maAngle || 'target';
   const formattingVal = data.formatting || 'yes';
   const quickLinksVal = data.quickLinks || 'yes';
+  const eventsVal = data.events || 'yes';
+  const eventsWindowVal = data.eventsWindow || '12';
   document.querySelector(`input[name="scope"][value="${scopeVal}"]`).checked = true;
   document.querySelector(`input[name="secondary"][value="${secondaryVal}"]`).checked = true;
   document.querySelector(`input[name="maEnabled"][value="${maEnabledVal}"]`).checked = true;
   document.querySelector(`input[name="maAngle"][value="${maAngleVal}"]`).checked = true;
   document.querySelector(`input[name="formatting"][value="${formattingVal}"]`).checked = true;
   document.querySelector(`input[name="quickLinks"][value="${quickLinksVal}"]`).checked = true;
+  document.querySelector(`input[name="events"][value="${eventsVal}"]`).checked = true;
+  document.querySelector(`input[name="eventsWindow"][value="${eventsWindowVal}"]`).checked = true;
   toggleMaAngleField();
   render();
 }
@@ -556,6 +595,8 @@ document.getElementById('resetBtn').addEventListener('click', () => {
   document.querySelector('input[name="maAngle"][value="target"]').checked = true;
   document.querySelector('input[name="formatting"][value="yes"]').checked = true;
   document.querySelector('input[name="quickLinks"][value="yes"]').checked = true;
+  document.querySelector('input[name="events"][value="yes"]').checked = true;
+  document.querySelector('input[name="eventsWindow"][value="12"]').checked = true;
   toggleMaAngleField();
   loadedTemplateName = null;
   render();

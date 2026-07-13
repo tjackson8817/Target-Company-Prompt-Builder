@@ -40,6 +40,10 @@ Copy everything below into a new Claude chat. Fill in the fields at the top — 
 **Add a Job Posting Quick Links tab?** *(one-click LinkedIn Jobs, Indeed, and Google Jobs search links per company, built from Company + Suggested Job Title Keywords — a search-link generator, not real postings data)*
 `[Yes / No — default Yes if left blank]`
 
+**Add an Industry Events & Forums tab?** *(real, upcoming conferences and trade shows relevant to your industry/purpose — one row per event, not per company; the Relevant To field reuses your Category column)*
+`[Yes / No — default Yes if left blank]`
+`How far ahead: [Next 6 months / Next 12 months / Any upcoming — default 12 months]`
+
 **M&A research columns — optional** *(leave this whole section out if not relevant)*
 - Add M&A-specific columns? `[Yes / No]`
 - If yes, angle: `[Find acquisition targets / Find likely acquirers / Show fit for either]`
@@ -94,22 +98,23 @@ For every company gathered in Step 3 (plus any I named directly), research and b
 18. **Executive Role Fit** — the level/title most relevant to approach or target at this company for my purpose (e.g. Partner, Managing Director, Practice Lead, VP, Chief Consultant), based on how the company is structured
 19. **Warm Introduction Path** — the most plausible path to a warm introduction at this company (e.g. recruiter, executive search firm, former colleagues, LinkedIn 2nd-degree connection, conference/industry contacts), inferred from the company's profile and my background if I've shared it
 20. **Outreach Approach** — brief guidance on how and through whom to approach this company
-21. **Key Contacts / Priority Titles** — the person/role most relevant to my purpose, named individuals if publicly findable, otherwise closest equivalent titles
-22. **Suggested Search Keywords** — terms useful for a LinkedIn people-search (finding the right person at this company)
-23. **Suggested Job Title Keywords** — 2–4 actual job title variants this specific company would plausibly use in a job posting for the Executive Role Fit identified above (not a generic title — the title format this company itself tends to use), meant for searching job postings/boards rather than searching for people
-24. **Source URL** — link(s) supporting the data above
-25. **Priority Score** — leave blank for me to fill in
-26. **Status** — leave blank (I will fill in: Not Started / Researching / Contacted / In Progress / Closed)
-27. **Next Action** — leave blank
-28. **Date Researched** — today's date
+21. **Key Contacts / Priority Titles** — the person/role most relevant to my purpose, named individuals if publicly findable, otherwise closest equivalent titles. Additionally, for publicly traded companies only, check the most recent 10-K's cybersecurity governance disclosure (Item 1C / Regulation S-K Item 106) for a named CISO, CIO, CTO, or similarly responsible officer. If found, add as a clearly labeled second line: "(per FY20XX 10-K)" — kept visually distinct from the practice-level contact above since it's sourced from a filing, not inferred. If the company is public but no one is named, say so briefly rather than omitting silently. If the company is privately held with no 10-K, skip this entirely.
+22. **Compensation Benchmark** — for publicly traded companies only: if the individual named from the 10-K in column 21 also appears in that company's most recent proxy statement (DEF 14A) Summary Compensation Table as a Named Executive Officer, report their total compensation figure with the fiscal year noted (e.g. "$2.1M total comp, FY2025 proxy"). This will genuinely apply to a minority of companies — security-specific roles like CISO are rarely among the top 5 highest-paid executives a proxy discloses. When it doesn't apply, say so briefly ("not a Named Executive Officer — not disclosed") rather than leaving the cell ambiguously blank. Skip entirely for private companies, same as column 21.
+23. **Suggested Search Keywords** — terms useful for a LinkedIn people-search (finding the right person at this company)
+24. **Suggested Job Title Keywords** — 2–4 actual job title variants this specific company would plausibly use in a job posting for the Executive Role Fit identified above (not a generic title — the title format this company itself tends to use), meant for searching job postings/boards rather than searching for people
+25. **Source URL** — link(s) supporting the data above
+26. **Priority Score** — leave blank for me to fill in
+27. **Status** — leave blank (I will fill in: Not Started / Researching / Contacted / In Progress / Closed)
+28. **Next Action** — leave blank
+29. **Date Researched** — today's date
 
 *(If M&A columns were requested, also add:)*
 
-29. **Ownership Type** — founder-owned, PE-backed, public, subsidiary
-30. **Recent M&A Activity**
-31. **Signals** — sale/succession signals (if I'm looking for acquisition targets) or acquisition-appetite signals (if I'm looking for acquirers)
-32. **Estimated Deal Size Fit**
-33. **M&A Role Fit** — Likely Acquisition Target / Likely Acquirer / Could Be Either / Unclear
+30. **Ownership Type** — founder-owned, PE-backed, public, subsidiary
+31. **Recent M&A Activity**
+32. **Signals** — sale/succession signals (if I'm looking for acquisition targets) or acquisition-appetite signals (if I'm looking for acquirers)
+33. **Estimated Deal Size Fit**
+34. **M&A Role Fit** — Likely Acquisition Target / Likely Acquirer / Could Be Either / Unclear
 
 ### Step 5 — Formatting (skip this step entirely if I said "No" to visual formatting above)
 
@@ -141,6 +146,18 @@ Google Jobs: =HYPERLINK("https://www.google.com/search?q="&_xlfn.ENCODEURL(A2)&"
 (Adjust the row number in each formula to match its own row.) These reference this tab's own cells, not the main sheet, so the tab works standalone and the links update automatically if I edit the Company or Job Title cell later.
 
 **Important — be explicit about what this tab is and isn't:** it is a set of pre-built search links, nothing more. Each link just opens LinkedIn, Indeed, or Google with the company name and a job title already typed into the search box — the same as if I'd typed them in myself. Clicking a link does not pull in, list, or embed any actual job postings, and nothing here is "unique jobs found" — it's a shortcut to go run that search, every time, live, whenever I click it. Say this plainly in the file itself (e.g. in the tab's notes or the main Notes tab), not just in your reply.
+
+### Step 7 — Industry Events & Forums tab (skip this step entirely if I said "No" to the Events tab above)
+
+Add an "Industry Events & Forums" tab — one row per event, not per company, since the same event is often relevant to several companies on my list at once. Columns:
+- Event Name
+- Date(s)
+- Location
+- Format — In-person / Virtual / Hybrid
+- Relevant To — reuse the exact values from the main sheet's Category column (not a separate taxonomy), so this tab stays connected to however the companies are already grouped there
+- URL
+
+Only include real, currently findable conferences, trade shows, or industry forums relevant to my stated industry/purpose, scoped to how far ahead I specified above. Same honesty standard as everywhere else: only report events actually found via search with a real URL, don't fabricate or guess at an event that "probably exists," and report fewer events rather than padding the list. If coverage for a given Category is thin, say so rather than inventing something to fill the gap.
 
 Format as a clean, formatted Excel workbook with a header row, sensible column widths, and one row per company. Don't fabricate figures — mark clear estimates as such (e.g. "$50M–$250M (estimate)") and leave anything unverifiable blank rather than guessing. If you're confident a company is publicly traded based on your own knowledge, note that as "likely-public (unverified)" rather than implying a filing was directly checked.
 
