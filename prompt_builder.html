@@ -159,6 +159,21 @@
           <label>Exclude these companies <span class="tag">optional</span></label>
           <textarea id="excludeCompanies" placeholder="Companies to leave out entirely, even if they'd otherwise match"></textarea>
         </div>
+
+        <div class="field">
+          <label>Limit to company size <span class="tag">optional</span></label>
+          <input type="text" id="companySize" placeholder="e.g. under 1,000 employees">
+          <p class="hint">Phrased as a filter Claude applies while researching. Leave blank to include companies of any size.</p>
+        </div>
+
+        <div class="field">
+          <label>Limit to a location radius <span class="tag">optional</span></label>
+          <div style="display:flex; gap:10px;">
+            <input type="text" id="zipCode" placeholder="ZIP code, e.g. 60601" style="flex:1;">
+            <input type="text" id="radiusMiles" placeholder="Radius (miles)" value="100" style="width:150px;">
+          </div>
+          <p class="hint">Leave the ZIP code blank to search all locations with no distance restriction. If you enter a ZIP, the radius defaults to 100 miles but can be changed. This is separate from "Preferred location / work arrangement" below, which is about your own job-search preferences rather than filtering candidate companies by distance.</p>
+        </div>
       </fieldset>
 
       <fieldset>
@@ -240,6 +255,26 @@
             <label class="radio-opt"><input type="radio" name="eventsWindow" value="any"> Any upcoming</label>
           </div>
         </div>
+
+        <div class="divider"></div>
+
+        <div class="field">
+          <label>Add a Company Activity &amp; Events tab? <span class="tag">optional</span></label>
+          <div class="radio-row">
+            <label class="radio-opt"><input type="radio" name="companyEvents" value="yes"> Yes</label>
+            <label class="radio-opt"><input type="radio" name="companyEvents" value="no" checked> No</label>
+          </div>
+          <p class="hint">Different from the tab above — this one is one row per <strong>company</strong> (not per event), tracking each company's own public activity: recent LinkedIn posts/announcements, podcast or webcast appearances, and upcoming events/tradeshows they're attending or speaking at. This is much harder to verify reliably via search than a public conference calendar, so expect real gaps — Claude is instructed to leave rows blank rather than invent activity that isn't actually findable.</p>
+        </div>
+
+        <div class="field" id="companyEventsWindowField">
+          <label>How far back for recent activity?</label>
+          <div class="radio-row">
+            <label class="radio-opt"><input type="radio" name="companyEventsWindow" value="30"> Last 30 days</label>
+            <label class="radio-opt"><input type="radio" name="companyEventsWindow" value="90" checked> Last 90 days</label>
+            <label class="radio-opt"><input type="radio" name="companyEventsWindow" value="180"> Last 6 months</label>
+          </div>
+        </div>
       </fieldset>
 
       <fieldset>
@@ -293,7 +328,7 @@
         <button class="btn-primary" id="copyBtn">Copy prompt</button>
         <button class="btn-secondary" id="downloadBtn">Download .txt</button>
       </div>
-      <div class="stat-line"><span id="fieldCount">0</span> of 8 fields filled in</div>
+      <div class="stat-line"><span id="fieldCount">0</span> of 10 fields filled in</div>
       <div id="promptText"><span id="placeholder">Fill in at least one starting-point field or a purpose to see your prompt appear here.</span></div>
     </div>
   </div>
@@ -320,6 +355,9 @@ function buildPrompt(){
   const industry = val('industry');
   const naics = val('naics');
   const exclude = val('excludeCompanies');
+  const companySize = val('companySize');
+  const zip = val('zipCode');
+  const radius = val('radiusMiles') || '100';
   const perCode = val('perCode') || "your judgment";
   const purpose = val('purpose');
   const location = val('location');
@@ -328,6 +366,8 @@ function buildPrompt(){
   const quickLinks = radioVal('quickLinks') !== 'no'; // default true
   const events = radioVal('events') !== 'no'; // default true
   const eventsWindow = radioVal('eventsWindow') || '12';
+  const companyEvents = radioVal('companyEvents') === 'yes'; // default false
+  const companyEventsWindow = radioVal('companyEventsWindow') || '90';
   const scope = radioVal('scope');
   const secondary = radioVal('secondary');
   const maEnabled = radioVal('maEnabled') === 'yes';
@@ -335,7 +375,7 @@ function buildPrompt(){
 
   const haveStart = companies || industry || naics;
   let filled = 0;
-  [companies, industry, naics, exclude, val('perCode'), purpose, location, background].forEach(v => { if(v) filled++; });
+  [companies, industry, naics, exclude, companySize, zip, val('perCode'), purpose, location, background].forEach(v => { if(v) filled++; });
   fieldCountEl.textContent = filled;
 
   if(!haveStart && !purpose){
@@ -355,6 +395,8 @@ function buildPrompt(){
     if(exclude) lines.push(`- Exclude these companies entirely, even if they'd otherwise match: ${exclude}`);
   }
   lines.push(`- What this list is for: ${purpose || "Not specified — use general judgment for fit/category/contacts."}`);
+  if(companySize) lines.push(`- Company size filter: only include companies matching "${companySize}" — exclude companies outside this size band.`);
+  if(zip) lines.push(`- Location filter: only include companies headquartered within ${radius} miles of ZIP code ${zip}. Estimate the distance from each company's HQ to this ZIP code and note the approximate mileage as part of the HQ Location / Footprint column.`);
   if(location) lines.push(`- Preferred location / work arrangement: ${location}`);
   if(background) lines.push(`- My background (use this to sharpen Suggested Job Title Keywords and Warm Introduction Path — look for former-employer overlap, transferable experience, or relevant credentials): ${background}`);
 
@@ -443,6 +485,17 @@ function buildPrompt(){
     lines.push(`Only include real, currently findable conferences, trade shows, or industry forums relevant to my stated industry/purpose, scoped to ${windowLabel}. Same honesty standard as the rest of this request: only report events you actually find via search with a real URL, do not fabricate or guess at an event that "probably exists" for this industry, and report fewer events rather than padding the list. If you can't find good coverage for a given Category, say so rather than inventing something to fill the gap.`);
     lines.push("");
   }
+  if(companyEvents){
+    const cWindowLabel = companyEventsWindow === '30' ? 'the last 30 days' : companyEventsWindow === '180' ? 'the last 6 months' : 'the last 90 days';
+    lines.push(`Also add a "Company Activity & Events" tab — one row per COMPANY (not per event, unlike the Industry Events tab above), tracking each company's own public activity and event footprint. Columns:`);
+    lines.push(`- Company`);
+    lines.push(`- Recent LinkedIn Activity — notable posts, announcements, or updates from ${cWindowLabel}, with date and a one-line summary`);
+    lines.push(`- Podcast / Webcast Appearances — company leadership appearing on a podcast, or the company hosting/participating in a webcast, with date, title, and link`);
+    lines.push(`- Upcoming Events / Tradeshows — conferences, tradeshows, or in-person/virtual events this company is attending, sponsoring, or speaking at`);
+    lines.push(`- Source URL(s)`);
+    lines.push(`This is inherently uneven across companies -- some will have a rich public footprint, many will have little to nothing findable, and that's expected. Same honesty standard as the rest of this request: only report activity you can verify via search with a real, working URL and date. If you can't find meaningful recent activity for a company, write "No recent public activity found" rather than fabricating a LinkedIn post, podcast appearance, or event that doesn't actually exist.`);
+    lines.push("");
+  }
   lines.push(`Format the result as a clean, formatted Excel workbook (.xlsx) with a header row, reasonable column widths, and one row per company. Don't fabricate figures — mark estimates clearly and leave anything unverifiable blank rather than guessing.`);
 
   return lines.join("\n");
@@ -499,6 +552,9 @@ function collectFieldData(){
     industry: val('industry'),
     naics: val('naics'),
     excludeCompanies: val('excludeCompanies'),
+    companySize: val('companySize'),
+    zipCode: val('zipCode'),
+    radiusMiles: val('radiusMiles'),
     perCode: val('perCode'),
     purpose: val('purpose'),
     location: val('location'),
@@ -511,6 +567,8 @@ function collectFieldData(){
     quickLinks: radioVal('quickLinks'),
     events: radioVal('events'),
     eventsWindow: radioVal('eventsWindow'),
+    companyEvents: radioVal('companyEvents'),
+    companyEventsWindow: radioVal('companyEventsWindow'),
   };
 }
 
@@ -519,6 +577,9 @@ function applyFieldData(data){
   document.getElementById('industry').value = data.industry || '';
   document.getElementById('naics').value = data.naics || '';
   document.getElementById('excludeCompanies').value = data.excludeCompanies || '';
+  document.getElementById('companySize').value = data.companySize || '';
+  document.getElementById('zipCode').value = data.zipCode || '';
+  document.getElementById('radiusMiles').value = data.radiusMiles || '100';
   document.getElementById('perCode').value = data.perCode || '';
   document.getElementById('purpose').value = data.purpose || '';
   document.getElementById('location').value = data.location || '';
@@ -531,6 +592,8 @@ function applyFieldData(data){
   const quickLinksVal = data.quickLinks || 'yes';
   const eventsVal = data.events || 'yes';
   const eventsWindowVal = data.eventsWindow || '12';
+  const companyEventsVal = data.companyEvents || 'no';
+  const companyEventsWindowVal = data.companyEventsWindow || '90';
   document.querySelector(`input[name="scope"][value="${scopeVal}"]`).checked = true;
   document.querySelector(`input[name="secondary"][value="${secondaryVal}"]`).checked = true;
   document.querySelector(`input[name="maEnabled"][value="${maEnabledVal}"]`).checked = true;
@@ -539,6 +602,8 @@ function applyFieldData(data){
   document.querySelector(`input[name="quickLinks"][value="${quickLinksVal}"]`).checked = true;
   document.querySelector(`input[name="events"][value="${eventsVal}"]`).checked = true;
   document.querySelector(`input[name="eventsWindow"][value="${eventsWindowVal}"]`).checked = true;
+  document.querySelector(`input[name="companyEvents"][value="${companyEventsVal}"]`).checked = true;
+  document.querySelector(`input[name="companyEventsWindow"][value="${companyEventsWindowVal}"]`).checked = true;
   toggleMaAngleField();
   render();
 }
@@ -589,6 +654,7 @@ document.getElementById('deleteTemplateBtn').addEventListener('click', () => {
 document.getElementById('resetBtn').addEventListener('click', () => {
   if(!confirm('Clear all fields on the form? This does not affect any saved templates.')) return;
   document.querySelectorAll('input[type=text], textarea').forEach(el => el.value = '');
+  document.getElementById('radiusMiles').value = '100';
   document.querySelector('input[name="scope"][value="find"]').checked = true;
   document.querySelector('input[name="secondary"][value="yes"]').checked = true;
   document.querySelector('input[name="maEnabled"][value="no"]').checked = true;
@@ -597,6 +663,8 @@ document.getElementById('resetBtn').addEventListener('click', () => {
   document.querySelector('input[name="quickLinks"][value="yes"]').checked = true;
   document.querySelector('input[name="events"][value="yes"]').checked = true;
   document.querySelector('input[name="eventsWindow"][value="12"]').checked = true;
+  document.querySelector('input[name="companyEvents"][value="no"]').checked = true;
+  document.querySelector('input[name="companyEventsWindow"][value="90"]').checked = true;
   toggleMaAngleField();
   loadedTemplateName = null;
   render();
