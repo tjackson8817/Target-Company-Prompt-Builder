@@ -16,6 +16,13 @@ Copy everything below into a new Claude chat. Fill in the fields at the top — 
 **Exclude these companies** *(optional — leave out entirely even if they'd otherwise match)*
 `[Company name(s), or leave blank]`
 
+**Limit to company size — optional** *(e.g. "under 1,000 employees" — leave blank to include all sizes)*
+`[Size filter, or leave blank]`
+
+**Limit to a location radius — optional** *(enter a ZIP code and a radius to restrict results to companies headquartered within that distance; leave the ZIP blank for no distance restriction — separate from "Preferred location / work arrangement" below, which is about your own preferences, not a company-distance filter)*
+`[ZIP code, or leave blank]`
+`[Radius in miles — default 100 if a ZIP is given]`
+
 **Discovery Scope** *(this controls what Claude actually does with the above)*
 `[Find new companies via NAICS discovery / Just enrich the companies I listed — default: Find new companies]`
 
@@ -44,6 +51,10 @@ Copy everything below into a new Claude chat. Fill in the fields at the top — 
 `[Yes / No — default Yes if left blank]`
 `How far ahead: [Next 6 months / Next 12 months / Any upcoming — default 12 months]`
 
+**Add a Company Activity & Events tab? — optional** *(different from the tab above: one row per COMPANY, not per event — recent LinkedIn activity, podcast/webcast appearances, and upcoming events/tradeshows that specific company is attending or speaking at. Harder to verify reliably than a public conference calendar, so it defaults off. Same honesty standard applies — expect "No recent public activity found" for many companies rather than invented activity.)*
+`[Yes / No — default No if left blank]`
+`How far back for recent activity: [Last 30 days / Last 90 days / Last 6 months — default 90 days]`
+
 **M&A research columns — optional** *(leave this whole section out if not relevant)*
 - Add M&A-specific columns? `[Yes / No]`
 - If yes, angle: `[Find acquisition targets / Find likely acquirers / Show fit for either]`
@@ -61,6 +72,8 @@ I want you to research target companies and build a formatted Excel tracker (.xl
 - Roughly how many companies per NAICS code: *(from above)*
 - Include secondary/adjacent NAICS codes: *(from above)*
 - Exclude these companies entirely, even if they'd otherwise match: *(from above, if any)*
+- Company size filter, if given above: only include companies matching that size band — exclude companies outside it.
+- Location filter, if a ZIP was given above: only include companies headquartered within the given radius of that ZIP code. Estimate the distance from each company's HQ to the ZIP code and note the approximate mileage as part of the HQ Location / Footprint column.
 - What this list is for: *(from above)*
 - Preferred location / work arrangement: *(from above, if any)*
 - My background, if I shared it above: use it to sharpen Suggested Job Title Keywords and Warm Introduction Path — look for former-employer overlap, transferable experience, or relevant credentials.
@@ -158,6 +171,17 @@ Add an "Industry Events & Forums" tab — one row per event, not per company, si
 - URL
 
 Only include real, currently findable conferences, trade shows, or industry forums relevant to my stated industry/purpose, scoped to how far ahead I specified above. Same honesty standard as everywhere else: only report events actually found via search with a real URL, don't fabricate or guess at an event that "probably exists," and report fewer events rather than padding the list. If coverage for a given Category is thin, say so rather than inventing something to fill the gap.
+
+### Step 8 — Company Activity & Events tab (skip this step entirely if I said "No" to this tab above)
+
+Add a "Company Activity & Events" tab — one row per COMPANY (not per event, unlike the Industry Events tab above), tracking each company's own public activity and event footprint. Columns:
+- Company
+- Recent LinkedIn Activity — notable posts, announcements, or updates from the window I specified above, with date and a one-line summary
+- Podcast / Webcast Appearances — company leadership appearing on a podcast, or the company hosting/participating in a webcast, with date, title, and link
+- Upcoming Events / Tradeshows — conferences, tradeshows, or in-person/virtual events this company is attending, sponsoring, or speaking at
+- Source URL(s)
+
+This is inherently uneven across companies -- some will have a rich public footprint, many will have little to nothing findable, and that's expected. Same honesty standard as the rest of this request: only report activity verifiable via search with a real, working URL and date. If nothing meaningful turns up for a company, write "No recent public activity found" rather than fabricating a LinkedIn post, podcast appearance, or event that doesn't actually exist.
 
 Format as a clean, formatted Excel workbook with a header row, sensible column widths, and one row per company. Don't fabricate figures — mark clear estimates as such (e.g. "$50M–$250M (estimate)") and leave anything unverifiable blank rather than guessing. If you're confident a company is publicly traded based on your own knowledge, note that as "likely-public (unverified)" rather than implying a filing was directly checked.
 
