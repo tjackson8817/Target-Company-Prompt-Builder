@@ -1,3 +1,5 @@
+Please execute this task directly — research and build the actual file now, rather than first describing your plan, summarizing what you're about to do, or offering recommendations about how to proceed. If a genuine capability limitation prevents you from completing part of this (e.g., no file-creation tool available, no web search), say so plainly and do as much as you actually can — but don't pause to ask permission, outline an approach, or check in before starting the real work.
+
 I want you to research target companies and build a formatted Excel tracker (.xlsx). Here's what I have:
 
 - Industry / field (plain language): OT / ICS cybersecurity consulting and tooling
@@ -22,7 +24,7 @@ For each company, research and include these columns in the tracker:
 10. Revenue Band / Latest Revenue — most recent public figure or reasonable estimate, with source/year noted
 11. Growth / Revenue Signal — High/Medium/Low plus a brief note on what's driving it
 12. Hiring Signal — High/Medium/Low plus a brief note, inferred from overall business trajectory (revenue growth, expansion announcements, funding rounds, earnings commentary) and how that connects to my stated purpose — an indirect signal, not a job-posting count
-13. Recent Hiring Trends — High/Medium/Low based on actual current job postings for this company (check LinkedIn Jobs, Indeed, or the company's own careers page) as of today (July 24, 2026) — High = many open roles posted right now, Medium = some open roles, Low = few or no open roles found. This is a direct, concrete snapshot, separate from the broader Hiring Signal above
+13. Recent Hiring Trends — High/Medium/Low based on actual current job postings for this company (check LinkedIn Jobs, Indeed, or the company's own careers page) as of today (July 27, 2026) — High = many open roles posted right now, Medium = some open roles, Low = few or no open roles found. This is a direct, concrete snapshot, separate from the broader Hiring Signal above
 14. Opportunity Relevance — rate High/Medium/Low with a short note on how relevant this company is to my stated purpose, whatever that purpose is (job search, sales, partnerships, M&A, etc.)
 15. Opportunity Fit — High/Medium/Low, how well this company fits my stated purpose overall
 16. Category — group companies usefully for my stated purpose

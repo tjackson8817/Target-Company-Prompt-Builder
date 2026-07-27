@@ -383,6 +383,8 @@ function buildPrompt(){
   }
 
   let lines = [];
+  lines.push(`Please execute this task directly — research and build the actual file now, rather than first describing your plan, summarizing what you're about to do, or offering recommendations about how to proceed. If a genuine capability limitation prevents you from completing part of this (e.g., no file-creation tool available, no web search), say so plainly and do as much as you actually can — but don't pause to ask permission, outline an approach, or check in before starting the real work.`);
+  lines.push("");
   lines.push(`I want you to research target companies and build a formatted Excel tracker (.xlsx). Here's what I have:`);
   lines.push("");
   if(companies) lines.push(`- Company/companies I know: ${companies}`);

@@ -63,6 +63,8 @@ Copy everything below into a new Claude chat. Fill in the fields at the top — 
 
 ## PROMPT (send as-is after filling in the section above)
 
+Please execute this task directly — research and build the actual file now, rather than first describing your plan, summarizing what you're about to do, or offering recommendations about how to proceed. If a genuine capability limitation prevents you from completing part of this (e.g., no file-creation tool available, no web search), say so plainly and do as much as you actually can — but don't pause to ask permission, outline an approach, or check in before starting the real work.
+
 I want you to research target companies and build a formatted Excel tracker (.xlsx). Here's what I have:
 
 - Company/companies I know: *(from above)*
