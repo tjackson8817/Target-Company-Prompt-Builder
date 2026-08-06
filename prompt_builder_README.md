@@ -55,11 +55,13 @@ page only builds text locally in your browser.
 - **Templates** — save your current field values under a name and reload
   them later, for scenarios you run repeatedly (session-only; not saved
   across a page reload)
-- **28-29 research columns per company** in the main tracker, including
-  growth/hiring signals, opportunity fit, warm introduction paths, and (for
-  public companies) named CISO/CIO/CTO disclosures pulled from 10-K
-  cybersecurity governance sections and executive compensation from proxy
-  statements where applicable
+- **31 research columns per company** in the main tracker (36 with M&A
+  columns on), including a direct careers-page link alongside the website,
+  a salary range column pulled from current job postings where one is
+  disclosed, growth/hiring signals, opportunity fit, warm introduction
+  paths, and (for public companies) named CISO/CIO/CTO disclosures pulled
+  from 10-K cybersecurity governance sections and executive compensation
+  from proxy statements where applicable
 
 ## Files in this repo
 
