@@ -349,7 +349,7 @@
         <button class="btn-primary" id="copyEnrichBtn">Copy prompt</button>
         <button class="btn-secondary" id="downloadEnrichBtn">Download .txt</button>
       </div>
-      <div id="enrichPromptText"><span id="enrichPlaceholder">Add at least one company above to see this prompt appear here.</span></div>
+      <div id="enrichPromptText"><span id="enrichPlaceholder">Paste your top 25 companies from the Target Company spreadsheet above to see this prompt appear here.</span></div>
 
       <div style="margin-top:20px;padding:14px 16px;background:#fcfdfe;border:1px solid var(--border);border-radius:8px;">
         <p class="hint" style="font-size:13px;color:var(--text);margin-top:0;"><strong>NOTE:</strong></p>
@@ -758,7 +758,7 @@ function enrichRender(){
   const list = raw.split('\n').map(s => s.trim()).filter(Boolean);
   const prompt = buildEnrichPrompt();
   if(prompt === null){
-    enrichPromptTextEl.innerHTML = '<span id="enrichPlaceholder">Add at least one company above to see this prompt appear here.</span>';
+    enrichPromptTextEl.innerHTML = '<span id="enrichPlaceholder">Paste your top 25 companies from the Target Company spreadsheet above to see this prompt appear here.</span>';
   } else {
     enrichPromptTextEl.textContent = prompt;
   }
