@@ -43,6 +43,13 @@ page only builds text locally in your browser.
 - **Job Posting Quick Links tab** *(optional, on by default)* — one row per
   company with live HYPERLINK() search links to LinkedIn Jobs, Indeed, and
   Google Jobs
+- **Job Post Finder tab** *(optional, on by default)* — a simpler, second
+  job-posting-related tab: just Company Name (column A) and the full
+  Suggested Job Title Keywords cell (column B), one row per company, no
+  formulas or links. Meant for copying a company and its keyword variants
+  to paste into whatever job board or search tool you want to check by
+  hand, rather than being limited to the three platforms the Quick Links
+  tab is hardcoded to
 - **Industry Events & Forums tab** *(optional, on by default)* — one row
   per event: real, currently findable conferences and trade shows relevant
   to your stated industry/purpose

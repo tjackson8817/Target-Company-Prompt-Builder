@@ -239,6 +239,15 @@
         </div>
 
         <div class="field">
+          <label>Add a Job Post Finder tab?</label>
+          <div class="radio-row">
+            <label class="radio-opt"><input type="radio" name="jobFinder" value="yes" checked> Yes</label>
+            <label class="radio-opt"><input type="radio" name="jobFinder" value="no"> No</label>
+          </div>
+          <p class="hint">"Yes" (default) adds a simple two-column "Job Post Finder" tab — Company Name in column A and Suggested Job Title Keywords in column B, copied straight from the main tracker, one row per company. No formulas or hardcoded job boards, just plain data: run the target list first, then come to this tab and copy a company name plus its keyword variants to paste into whichever job board or search engine you want to check by hand. This complements the Job Posting Quick Links tab above rather than replacing it — that one gives pre-built clickable links to three specific platforms using a single title; this one gives you the raw company-and-keywords pair, with all title variants, to search anywhere yourself.</p>
+        </div>
+
+        <div class="field">
           <label>Add an Industry Events & Forums tab?</label>
           <div class="radio-row">
             <label class="radio-opt"><input type="radio" name="events" value="yes" checked> Yes</label>
@@ -407,6 +416,7 @@ function buildPrompt(){
   const background = val('background');
   const formatting = radioVal('formatting') !== 'no'; // default true
   const quickLinks = radioVal('quickLinks') !== 'no'; // default true
+  const jobFinder = radioVal('jobFinder') !== 'no'; // default true
   const events = radioVal('events') !== 'no'; // default true
   const eventsWindow = radioVal('eventsWindow') || '12';
   const companyEvents = radioVal('companyEvents') === 'yes'; // default false
@@ -521,6 +531,13 @@ function buildPrompt(){
     lines.push(`Important — be explicit about what this tab is and isn't: it is a set of pre-built search links, nothing more. Each link just opens LinkedIn, Indeed, or Google with the company name and a job title already typed into the search box for me — the same as if I'd typed them in myself. Clicking a link does not pull in, list, or embed any actual job postings, and nothing here is "unique jobs found" — it's a shortcut to go run that search, every time, live, whenever I click it. Say this plainly in the file itself (e.g. in the tab's notes or the main Notes tab), not just in your reply to me.`);
     lines.push("");
   }
+  if(jobFinder){
+    lines.push(`Also add a "Job Post Finder" tab — separate from the Job Posting Quick Links tab above, and much simpler: plain reference data, not links or formulas. Exactly two columns:`);
+    lines.push(`- Column A: Company Name — same value as the Company column on the main tracker`);
+    lines.push(`- Column B: Suggested Job Title Keywords — the full value from the main tracker's Suggested Job Title Keywords column, all 2-4 title variants included, not reduced to a single title`);
+    lines.push(`One row per company, same order as the main tracker, header row on row 1. No HYPERLINK() formulas, no job-board-specific columns, nothing clickable — just the two columns side by side. The point is for me to be able to select a company's row, copy the company name and its keyword variants, and paste them into whatever job board or search engine I want to check manually, rather than being limited to the three platforms the Quick Links tab is hardcoded to.`);
+    lines.push("");
+  }
   if(events){
     const windowLabel = eventsWindow === '6' ? 'the next 6 months' : eventsWindow === 'any' ? 'any upcoming date (no cutoff)' : 'the next 12 months';
     lines.push(`Also add an "Industry Events & Forums" tab — one row per event, not per company, since the same event is often relevant to several companies on my list at once. Columns:`);
@@ -614,6 +631,7 @@ function collectFieldData(){
     maAngle: radioVal('maAngle'),
     formatting: radioVal('formatting'),
     quickLinks: radioVal('quickLinks'),
+    jobFinder: radioVal('jobFinder'),
     events: radioVal('events'),
     eventsWindow: radioVal('eventsWindow'),
     companyEvents: radioVal('companyEvents'),
@@ -639,6 +657,7 @@ function applyFieldData(data){
   const maAngleVal = data.maAngle || 'target';
   const formattingVal = data.formatting || 'yes';
   const quickLinksVal = data.quickLinks || 'yes';
+  const jobFinderVal = data.jobFinder || 'yes';
   const eventsVal = data.events || 'yes';
   const eventsWindowVal = data.eventsWindow || '12';
   const companyEventsVal = data.companyEvents || 'no';
@@ -649,6 +668,7 @@ function applyFieldData(data){
   document.querySelector(`input[name="maAngle"][value="${maAngleVal}"]`).checked = true;
   document.querySelector(`input[name="formatting"][value="${formattingVal}"]`).checked = true;
   document.querySelector(`input[name="quickLinks"][value="${quickLinksVal}"]`).checked = true;
+  document.querySelector(`input[name="jobFinder"][value="${jobFinderVal}"]`).checked = true;
   document.querySelector(`input[name="events"][value="${eventsVal}"]`).checked = true;
   document.querySelector(`input[name="eventsWindow"][value="${eventsWindowVal}"]`).checked = true;
   document.querySelector(`input[name="companyEvents"][value="${companyEventsVal}"]`).checked = true;
@@ -710,6 +730,7 @@ document.getElementById('resetBtn').addEventListener('click', () => {
   document.querySelector('input[name="maAngle"][value="target"]').checked = true;
   document.querySelector('input[name="formatting"][value="yes"]').checked = true;
   document.querySelector('input[name="quickLinks"][value="yes"]').checked = true;
+  document.querySelector('input[name="jobFinder"][value="yes"]').checked = true;
   document.querySelector('input[name="events"][value="yes"]').checked = true;
   document.querySelector('input[name="eventsWindow"][value="12"]').checked = true;
   document.querySelector('input[name="companyEvents"][value="no"]').checked = true;

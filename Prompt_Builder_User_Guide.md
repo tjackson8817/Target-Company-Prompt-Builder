@@ -53,9 +53,10 @@ There's also an **Exclude these companies** field (optional) — anything you li
 | **Your background** | Optional. Not a file upload — paste resume, CV, bio, LinkedIn summary, or a few lines of relevant experience directly. No length limit, but a tight paragraph of highlights tends to work better than a full multi-page document — it's easier for Claude to weigh correctly. Sharpens the Suggested Job Title Keywords column and gives Claude something concrete to reason from for Warm Introduction Path (former employers, overlapping experience, relevant credentials) instead of guessing generically. |
 | **Include full visual formatting in the tracker?** | **Yes** (default) bakes the full formatting spec into the generated prompt itself — color-coded rating columns, a computed Suggested Priority Rank, clickable Website links, autofilter, frozen panes, zebra striping, and Notes/Summary tabs — so you get the same output in any chat, not just one that happens to already know these conventions. **No** asks for a plain data-only spreadsheet instead. |
 | **Add a Job Posting Quick Links tab?** | **Yes** (default) adds a second sheet with one-click LinkedIn Jobs, Indeed, and Google Jobs search links per company, built from the Company and Suggested Job Title Keywords columns using Excel HYPERLINK() formulas — the links stay live and update automatically if you edit either cell later. This generates *search links*, not actual postings data — see Section 12 for the difference and when you'd want real postings instead. |
-| **Add an Industry Events & Forums tab?** | **Yes** (default) adds a tab of real, upcoming conferences and trade shows relevant to your stated industry/purpose — one row per event, not per company. Also lets you set how far ahead to look: next 6 months, next 12 months (default), or any upcoming date. See Section 13 for how this connects to your Category column. |
-| **Add a Company Activity & Events tab?** | **No** by default (this is a harder research task than the two tabs above it). One row per *company* instead of per event — recent LinkedIn activity, podcast/webcast appearances, and upcoming events that company is attending or speaking at. See Section 14 — coverage is expected to be uneven, and Claude is told to say "No recent public activity found" rather than invent something. |
-| **Compensation Benchmark** *(not a toggle — always included alongside the 10-K contact check)* | For publicly traded companies, if the named 10-K contact also appears as a Named Executive Officer in the company's proxy statement, reports their disclosed total compensation. See Section 16 for why this will only fire for a minority of companies. |
+| **Add a Job Post Finder tab?** | **Yes** (default) adds a third, minimal sheet — Company Name in column A, the full Suggested Job Title Keywords cell in column B, one row per company. No formulas, no links — plain data meant for you to copy a company and its keyword variants and paste them into whatever job board or search tool you want to check by hand. See Section 13 for how this differs from the Quick Links tab above it. |
+| **Add an Industry Events & Forums tab?** | **Yes** (default) adds a tab of real, upcoming conferences and trade shows relevant to your stated industry/purpose — one row per event, not per company. Also lets you set how far ahead to look: next 6 months, next 12 months (default), or any upcoming date. See Section 14 for how this connects to your Category column. |
+| **Add a Company Activity & Events tab?** | **No** by default (this is a harder research task than the two tabs above it). One row per *company* instead of per event — recent LinkedIn activity, podcast/webcast appearances, and upcoming events that company is attending or speaking at. See Section 15 — coverage is expected to be uneven, and Claude is told to say "No recent public activity found" rather than invent something. |
+| **Compensation Benchmark** *(not a toggle — always included alongside the 10-K contact check)* | For publicly traded companies, if the named 10-K contact also appears as a Named Executive Officer in the company's proxy statement, reports their disclosed total compensation. See Section 17 for why this will only fire for a minority of companies. |
 
 ---
 
@@ -154,7 +155,7 @@ The additions worth knowing about specifically:
 - **Opportunity Relevance** replaced an earlier version of this column that baked a specific industry into its own name (like "OT Cybersecurity Relevance"). It's now generic on purpose, so the same tool works cleanly whether your purpose is a job search, sales prospecting, partnership scouting, or anything else — the relevance judgment still happens, it's just not hard-coded to one field.
 - **Executive Role Fit** and **Warm Introduction Path** sit next to Why This Fits and are aimed squarely at outreach planning — the first tells you who to target, the second tells you how you're most likely to actually reach them.
 - **Suggested Search Keywords** and **Suggested Job Title Keywords** sit next to each other but search for different things. Suggested Search Keywords is for finding *people* — the right person at a company on LinkedIn. Suggested Job Title Keywords is for finding *postings* — 2–4 actual job title variants that specific company would plausibly use, tailored to its Executive Role Fit rather than a generic title (e.g. "VP, Professional Services" for an OT security vendor vs. "Partner, Cyber Security Services" for a Big 4 firm). If you filled in **Your background**, this column also gets sharpened using that context.
-- **Key Contacts / Priority Titles** can carry a second line for publicly traded companies — a named cybersecurity executive sourced directly from the company's 10-K, where disclosed. See Section 15 for what this does and doesn't cover.
+- **Key Contacts / Priority Titles** can carry a second line for publicly traded companies — a named cybersecurity executive sourced directly from the company's 10-K, where disclosed. See Section 16 for what this does and doesn't cover.
 
 ## 11. Reading the Formatted Tracker
 
@@ -183,9 +184,22 @@ A few other things worth knowing:
 - **Known issue, now fixed:** earlier versions of the generated prompt occasionally came back with cells showing literal broken text like `[hashtag#Name](linkedin.com/feed/hashtag/...)` instead of working links. That was Claude substituting LinkedIn's hashtag/feed URL for the actual jobs-search URL, and writing it as Markdown link syntax instead of a real `=HYPERLINK()` formula (Excel doesn't render Markdown, so it just shows as text). The prompt now explicitly calls out both mistakes and asks Claude to verify a sample of links before finishing. If you regenerate a prompt from an older saved copy of this tool, re-copy it from the current version to pick up that fix.
 - **This is deliberately the cheap, safe option.** Building it costs no extra research — it's pure string templating from data Claude already generated in the main tracker. That's why it defaults to Yes.
 
-**If you actually want real postings** — a table of specific job titles, companies, and URLs, not just search links — that's a different, deliberately separate tool. Live postings data has a much shorter shelf life than company research (postings turn over weekly; company revenue/HQ/size is stable for months), and getting real results means live web search per company on top of the research already happening — so bundling it into this same prompt would either bloat the request or go stale inside the same file as more durable data. Ask about a companion "Job Posting Finder" prompt if you want that — it's built to take a shortlist of companies (ideally your top few by Suggested Priority Rank, not all of them) and their Suggested Job Title Keywords as input, and return actual postings.
+**If you actually want real postings** — a table of specific job titles, companies, and URLs, not just search links — that's a different, deliberately separate tool from either tab on this page. Live postings data has a much shorter shelf life than company research (postings turn over weekly; company revenue/HQ/size is stable for months), and getting real results means live web search per company on top of the research already happening — so bundling it into this same prompt would either bloat the request or go stale inside the same file as more durable data. Ask about a companion live-postings-research prompt if you want that — it's built to take a shortlist of companies (ideally your top few by Suggested Priority Rank, not all of them) and their Suggested Job Title Keywords as input, and return actual postings. Don't confuse it with the Job Post Finder tab in Section 13 below — that one is a static copy of data already in this tracker, not a live search.
 
-## 13. The Industry Events & Forums Tab (and How Category Drives It)
+## 13. The Job Post Finder Tab
+
+If **Add a Job Post Finder tab?** is Yes, the tracker gets a third, deliberately minimal sheet: **Company Name** in column A, **Suggested Job Title Keywords** in column B, one row per company, in the same order as the main tracker. Nothing else — no formulas, no hyperlinks, no job-board-specific columns.
+
+This is a different tool for a different moment than the Job Posting Quick Links tab covered in Section 12:
+
+- **Job Posting Quick Links** gives you pre-built, clickable search links — but only to three specific platforms (LinkedIn, Indeed, Google Jobs), and only using a single job title per company (the first variant pulled from Suggested Job Title Keywords, to keep each search focused).
+- **Job Post Finder** gives you the raw ingredients instead — the full Suggested Job Title Keywords cell, all 2-4 title variants included, sitting right next to the company name so you can select both, copy, and paste into whatever job board, search engine, or internal tool you actually want to use — not just the three the Quick Links tab is hardcoded to.
+
+The intended workflow: run your target list first, then come to this tab as a simple reference sheet — highlight a row, copy the company name and its keyword variants, and paste them wherever you're searching that day. Because it's plain data with no live links to maintain, it also survives being copied out to somewhere else (a notes app, a second spreadsheet, a task tracker) without losing anything, unlike the HYPERLINK() formulas on the Quick Links tab, which only work inside the original file.
+
+Like the Quick Links tab, this one costs no extra research to build — it's pure copy-through of data Claude already generated for the main tracker — which is why it also defaults to Yes.
+
+## 14. The Industry Events & Forums Tab (and How Category Drives It)
 
 If **Add an Industry Events & Forums tab?** is Yes, the tracker gets a tab listing real, upcoming conferences and trade shows relevant to your stated industry/purpose — Event Name, Date(s), Location, Format (in-person/virtual/hybrid), Relevant To, and URL.
 
@@ -195,7 +209,7 @@ Practically, that means if your Category column has values like "OT Cybersecurit
 
 Same honesty standard as everywhere else in this tracker: only real, currently findable events with a real URL are included. If coverage for a given Category is thin, that's reported directly rather than an event getting invented to fill the gap.
 
-## 14. The Company Activity & Events Tab
+## 15. The Company Activity & Events Tab
 
 If **Add a Company Activity & Events tab?** is set to Yes (it's **off by default**), the tracker gets a tab that flips the Industry Events tab's structure around: one row per *company* instead of per event, tracking that specific company's own public footprint — recent LinkedIn activity, podcast/webcast appearances, and upcoming events it's attending, sponsoring, or speaking at.
 
@@ -206,7 +220,7 @@ This is a meaningfully harder research task than the Industry Events tab, which 
 
 To get better coverage, the prompt tells Claude to check each company from a few different angles — the company's own LinkedIn page directly, a podcast/webcast search, and a conference/sponsor search — rather than giving up after one generic search. Even so, **expect real unevenness**: some companies will have a rich trail of recent activity, and many rows will legitimately read "No recent public activity found." That's the honest result, not a sign something's broken — Claude is explicitly told not to invent a LinkedIn post, podcast appearance, or event that doesn't actually exist just to fill a cell. If most of your list comes back empty, check the Notes tab first — it should say what was actually searched, so you can tell "nothing found" apart from "not really checked."
 
-## 15. Key Contacts and 10-K Filings
+## 16. Key Contacts and 10-K Filings
 
 The Key Contacts / Priority Titles column normally identifies the practice-level person worth targeting at a company — a Managing Director, VP, or Practice Lead, based on how that company is structured. As of this version, there's a second, narrower data point layered on top of that for **publicly traded companies specifically**: a check of the company's most recent 10-K for a named individual responsible for cybersecurity governance.
 
@@ -219,7 +233,7 @@ Worth knowing the real limits here before treating this as a bigger feature than
 - **Not every public company names someone.** Many disclosures describe the responsible role without naming the individual. When that happens, the tracker says so directly rather than silently leaving the company looking unchecked.
 - **It's only as current as the filing.** A 10-K is annual — the named person could have moved on since the most recent filing.
 
-## 16. Compensation Benchmark
+## 17. Compensation Benchmark
 
 Right next to the 10-K contact check sits a related, narrower data point: if the named individual from that 10-K also shows up in the company's proxy statement (DEF 14A) as a Named Executive Officer, their disclosed total compensation gets reported alongside them — e.g. "$2.1M total comp, FY2025 proxy."
 
@@ -227,7 +241,7 @@ Set expectations accordingly: **this will genuinely apply to a minority of the c
 
 Think of this one as a bonus when it fires, not something to plan around — it's a nice, free negotiation data point for the handful of companies where it happens to apply, layered on top of a feature (the 10-K contact check) that itself only applies to public companies in the first place.
 
-## 17. Step 2 — LinkedIn Contact Enrichment
+## 18. Step 2 — LinkedIn Contact Enrichment
 
 Below the main prompt panel is a second, self-contained card: **Step 2 (optional) — LinkedIn Contact Enrichment**. This is a separate feature from everything above it — it doesn't touch or require the main tracker at all, and it generates its own standalone prompt with its own Copy/Download buttons.
 
@@ -244,6 +258,6 @@ Below the main prompt panel is a second, self-contained card: **Step 2 (optional
 
 This is a genuinely separate run from your main tracker — think of it as a follow-up step once you already have a shortlist, not something to run alongside the initial research.
 
-## 18. A Faster Way to Fill This Out (reverse note)
+## 19. A Faster Way to Fill This Out (reverse note)
 
 If you'd rather not use the web form at all, there's a companion plain-text template — `Target_Company_Research_Prompt_Template` (.md) — with the same fields laid out as fill-in-the-blank text you can paste directly into a Claude chat. Use whichever format is more convenient in the moment; both produce the same result.
