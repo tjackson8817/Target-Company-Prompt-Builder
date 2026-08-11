@@ -229,7 +229,7 @@
             <label class="radio-opt"><input type="radio" name="tiered" value="no" checked> No — one flat list</label>
             <label class="radio-opt"><input type="radio" name="tiered" value="yes"> Yes — Tier 1 (full detail) + Tier 2 (lighter)</label>
           </div>
-          <p class="hint">"Yes" has Claude build a wider candidate pool using the NAICS discovery method below (Census + SAM.gov + web search), rank the whole pool against your purpose, then fully research your top companies (Tier 1 — every column) while giving the rest (Tier 2) a lighter pass with a slimmer column set. This lets the list be genuinely comprehensive for a code without spending full research effort on every single company.</p>
+          <p class="hint">"Yes" has Claude build a wider candidate pool using the discovery method below (competitor cascade, analyst/category sources, conference exhibitor lists, job postings), rank the whole pool against your purpose, then fully research your top companies (Tier 1 — every column) while giving the rest (Tier 2) a lighter pass with a slimmer column set. This only applies when Discovery scope above is "Find new companies" — there's no pool to rank in "Just enrich these" mode, so this setting is ignored (and Tier 2 comes back empty) if you've selected that instead.</p>
         </div>
 
         <div class="field" id="tier1SizeField" style="display:none;">
@@ -490,6 +490,7 @@ function buildPrompt(){
   const scope = radioVal('scope');
   const secondary = radioVal('secondary');
   const tiered = radioVal('tiered') === 'yes';
+  const tieredActive = tiered && scope === 'find'; // tiering only makes sense when there's a discovered pool to rank; in enrich-only mode there's no ranking rationale for a split
   const tier1Size = val('tier1Size') || '25';
   const tier2Size = val('tier2Size') || '75';
   const maEnabled = radioVal('maEnabled') === 'yes';
@@ -540,7 +541,7 @@ function buildPrompt(){
   }
 
   lines.push("");
-  lines.push(tiered ? `For each Tier 1 company, research and include these columns in the tracker:` : `For each company, research and include these columns in the tracker:`);
+  lines.push(tieredActive ? `For each Tier 1 company, research and include these columns in the tracker:` : `For each company, research and include these columns in the tracker:`);
   lines.push(`1. Company — legal/common name`);
   lines.push(`2. Website`);
   lines.push(`3. Careers Page — a direct link to this company's careers/jobs listing page specifically (e.g. "acme.com/careers" or their Workday/Greenhouse/Lever posting board), not just the homepage. Leave blank if you can't find one rather than guessing at a URL pattern`);
@@ -580,7 +581,7 @@ function buildPrompt(){
     lines.push(`36. M&A Role Fit — Likely Acquisition Target / Likely Acquirer / Could Be Either / Unclear`);
   }
   lines.push("");
-  if(tiered){
+  if(tieredActive){
     lines.push(`For each Tier 2 company, research and include only this shorter set of columns — skip the deeper lookups (careers page verification, job-posting/hiring checks, salary data, 10-K/proxy research, named contacts, keyword generation). The goal for Tier 2 is enough to judge fit and know who they are, not exhaustive detail:`);
     lines.push(`1. Company — legal/common name`);
     lines.push(`2. Website`);
