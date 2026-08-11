@@ -195,6 +195,27 @@
         </div>
 
         <div class="field">
+          <label>Use a two-tier target list?</label>
+          <div class="radio-row">
+            <label class="radio-opt"><input type="radio" name="tiered" value="no" checked> No — one flat list</label>
+            <label class="radio-opt"><input type="radio" name="tiered" value="yes"> Yes — Tier 1 (full detail) + Tier 2 (lighter)</label>
+          </div>
+          <p class="hint">"Yes" has Claude build a wider candidate pool using the NAICS discovery method below (Census + SAM.gov + web search), rank the whole pool against your purpose, then fully research your top companies (Tier 1 — every column) while giving the rest (Tier 2) a lighter pass with a slimmer column set. This lets the list be genuinely comprehensive for a code without spending full research effort on every single company.</p>
+        </div>
+
+        <div class="field" id="tier1SizeField" style="display:none;">
+          <label>Tier 1 size (full detail)</label>
+          <input type="text" id="tier1Size" placeholder="e.g. 25" value="25">
+          <p class="hint">These get every column below, fully researched — careers pages, hiring signals, named contacts, the works.</p>
+        </div>
+
+        <div class="field" id="tier2SizeField" style="display:none;">
+          <label>Tier 2 size (lighter detail)</label>
+          <input type="text" id="tier2Size" placeholder="e.g. 75" value="75">
+          <p class="hint">These skip the expensive per-company lookups (job-board checks, 10-K/proxy research, named contacts, keyword generation) and just get enough to judge fit and know who they are.</p>
+        </div>
+
+        <div class="field">
           <label>Include secondary/adjacent NAICS codes?</label>
           <div class="radio-row">
             <label class="radio-opt"><input type="radio" name="secondary" value="yes" checked> Yes</label>
@@ -411,6 +432,12 @@ function toggleMaAngleField(){
     radioVal('maEnabled') === 'yes' ? 'block' : 'none';
 }
 
+function toggleTierFields(){
+  const show = radioVal('tiered') === 'yes' ? 'block' : 'none';
+  document.getElementById('tier1SizeField').style.display = show;
+  document.getElementById('tier2SizeField').style.display = show;
+}
+
 function buildPrompt(){
   const companies = val('companies');
   const industry = val('industry');
@@ -433,6 +460,9 @@ function buildPrompt(){
   const companyEventsWindow = radioVal('companyEventsWindow') || '90';
   const scope = radioVal('scope');
   const secondary = radioVal('secondary');
+  const tiered = radioVal('tiered') === 'yes';
+  const tier1Size = val('tier1Size') || '25';
+  const tier2Size = val('tier2Size') || '75';
   const maEnabled = radioVal('maEnabled') === 'yes';
   const maAngle = radioVal('maAngle');
 
@@ -458,6 +488,10 @@ function buildPrompt(){
     lines.push(`- Roughly how many companies per NAICS code: ${perCode}`);
     lines.push(`- Include secondary/adjacent NAICS codes (suppliers, related industries): ${secondary === 'yes' ? 'Yes' : 'No'}`);
     if(exclude) lines.push(`- Exclude these companies entirely, even if they'd otherwise match: ${exclude}`);
+    lines.push(`- NAICS-based discovery method — a single NAICS code typically has many companies tied to it, so don't rely on general knowledge/memory to name a handful of obvious companies and stop there. For each NAICS code involved (whether I gave you one above or you derive it from the industry/company info I gave you): (1) confirm the code and its official definition using the U.S. Census Bureau's NAICS search (census.gov/naics) — this is the authoritative source for what the code actually covers; (2) pull real companies registered under that code using SAM.gov's entity search filtered by NAICS code — this is the closest thing to an actual company-level NAICS directory, since Census itself only publishes aggregated statistics, not a searchable list of companies; (3) supplement with general web search and industry directories to catch privately-held companies that wouldn't appear in SAM.gov's federal-contractor-oriented database. Use all three together rather than any single one alone.`);
+    if(tiered){
+      lines.push(`- Two-tier list: use the NAICS discovery method above to build a candidate pool broader than a normal single-tier list would need, then rank the full pool against my stated purpose. The top ${tier1Size} companies become "Tier 1" and get full research — every column listed below. The next ${tier2Size} companies become "Tier 2" and get a lighter research pass — see the separate, shorter Tier 2 column list below. This keeps the overall list genuinely comprehensive for the code(s) involved without spending full per-company research effort on every single one.`);
+    }
   }
   lines.push(`- What this list is for: ${purpose || "Not specified — use general judgment for fit/category/contacts."}`);
   if(companySize) lines.push(`- Company size filter: only include companies matching "${companySize}" — exclude companies outside this size band.`);
@@ -475,7 +509,7 @@ function buildPrompt(){
   }
 
   lines.push("");
-  lines.push(`For each company, research and include these columns in the tracker:`);
+  lines.push(tiered ? `For each Tier 1 company, research and include these columns in the tracker:` : `For each company, research and include these columns in the tracker:`);
   lines.push(`1. Company — legal/common name`);
   lines.push(`2. Website`);
   lines.push(`3. Careers Page — a direct link to this company's careers/jobs listing page specifically (e.g. "acme.com/careers" or their Workday/Greenhouse/Lever posting board), not just the homepage. Leave blank if you can't find one rather than guessing at a URL pattern`);
@@ -515,6 +549,22 @@ function buildPrompt(){
     lines.push(`36. M&A Role Fit — Likely Acquisition Target / Likely Acquirer / Could Be Either / Unclear`);
   }
   lines.push("");
+  if(tiered){
+    lines.push(`For each Tier 2 company, research and include only this shorter set of columns — skip the deeper lookups (careers page verification, job-posting/hiring checks, salary data, 10-K/proxy research, named contacts, keyword generation). The goal for Tier 2 is enough to judge fit and know who they are, not exhaustive detail:`);
+    lines.push(`1. Company — legal/common name`);
+    lines.push(`2. Website`);
+    lines.push(`3. Industry / Sector`);
+    lines.push(`4. NAICS Code — the specific code this company was found under`);
+    lines.push(`5. NAICS Code Type — Primary or Secondary`);
+    lines.push(`6. HQ Location / Footprint — city, state/country`);
+    lines.push(`7. Company Size — employee count band, best available estimate`);
+    lines.push(`8. Opportunity Fit — High/Medium/Low only, no supporting rationale needed`);
+    lines.push(`9. Category — same grouping logic used for Tier 1, for consistency`);
+    lines.push(`10. Source URL`);
+    lines.push("");
+    lines.push(`Output structure for the two-tier list: put Tier 1 companies in a tab named "Tier 1 - Priority Targets" (the full column set above, with all formatting rules below applied) and Tier 2 companies in a separate tab named "Tier 2 - Extended List" (the slim column set just above, plain data — autofilter is fine, but skip the rating-color gradient and Suggested Priority Rank formula since Tier 2 doesn't have the underlying rating columns those depend on). Any tabs below that pull from "the main tracker" (Job Posting Quick Links, Job Post Finder, Outreach Contacts) should pull from Tier 1 only, since they depend on Tier-1-only columns like Suggested Job Title Keywords and Key Contacts / Priority Titles.`);
+    lines.push("");
+  }
   if(formatting){
     lines.push(`Formatting requirements for the Excel file — apply all of these:`);
     lines.push(`- Color-code these five rating columns using a 5-step gradient keyed to the leading word of each cell: Growth / Revenue Signal, Hiring Signal, Recent Hiring Trends, Opportunity Relevance, Opportunity Fit. Very High = darker green (A9D8A9), High = green (C6E8C6), Medium-High = yellow-green (E2EFC0), Medium = yellow (FFF2B2), Low-Medium = orange (FBDCB8), Low = red (F4C7C3).`);
@@ -602,6 +652,9 @@ document.querySelectorAll('input, textarea').forEach(el => {
 document.querySelectorAll('input[name="maEnabled"]').forEach(el => {
   el.addEventListener('change', toggleMaAngleField);
 });
+document.querySelectorAll('input[name="tiered"]').forEach(el => {
+  el.addEventListener('change', toggleTierFields);
+});
 
 document.getElementById('copyBtn').addEventListener('click', () => {
   const prompt = buildPrompt();
@@ -646,6 +699,9 @@ function collectFieldData(){
     background: val('background'),
     scope: radioVal('scope'),
     secondary: radioVal('secondary'),
+    tiered: radioVal('tiered'),
+    tier1Size: val('tier1Size'),
+    tier2Size: val('tier2Size'),
     maEnabled: radioVal('maEnabled'),
     maAngle: radioVal('maAngle'),
     formatting: radioVal('formatting'),
@@ -671,8 +727,11 @@ function applyFieldData(data){
   document.getElementById('purpose').value = data.purpose || '';
   document.getElementById('location').value = data.location || '';
   document.getElementById('background').value = data.background || '';
+  document.getElementById('tier1Size').value = data.tier1Size || '25';
+  document.getElementById('tier2Size').value = data.tier2Size || '75';
   const scopeVal = data.scope || 'find';
   const secondaryVal = data.secondary || 'yes';
+  const tieredVal = data.tiered || 'no';
   const maEnabledVal = data.maEnabled || 'no';
   const maAngleVal = data.maAngle || 'target';
   const formattingVal = data.formatting || 'yes';
@@ -685,6 +744,7 @@ function applyFieldData(data){
   const companyEventsWindowVal = data.companyEventsWindow || '90';
   document.querySelector(`input[name="scope"][value="${scopeVal}"]`).checked = true;
   document.querySelector(`input[name="secondary"][value="${secondaryVal}"]`).checked = true;
+  document.querySelector(`input[name="tiered"][value="${tieredVal}"]`).checked = true;
   document.querySelector(`input[name="maEnabled"][value="${maEnabledVal}"]`).checked = true;
   document.querySelector(`input[name="maAngle"][value="${maAngleVal}"]`).checked = true;
   document.querySelector(`input[name="formatting"][value="${formattingVal}"]`).checked = true;
@@ -696,6 +756,7 @@ function applyFieldData(data){
   document.querySelector(`input[name="companyEvents"][value="${companyEventsVal}"]`).checked = true;
   document.querySelector(`input[name="companyEventsWindow"][value="${companyEventsWindowVal}"]`).checked = true;
   toggleMaAngleField();
+  toggleTierFields();
   render();
 }
 
@@ -746,8 +807,11 @@ document.getElementById('resetBtn').addEventListener('click', () => {
   if(!confirm('Clear all fields on the form? This does not affect any saved templates.')) return;
   document.querySelectorAll('input[type=text], textarea').forEach(el => el.value = '');
   document.getElementById('radiusMiles').value = '100';
+  document.getElementById('tier1Size').value = '25';
+  document.getElementById('tier2Size').value = '75';
   document.querySelector('input[name="scope"][value="find"]').checked = true;
   document.querySelector('input[name="secondary"][value="yes"]').checked = true;
+  document.querySelector('input[name="tiered"][value="no"]').checked = true;
   document.querySelector('input[name="maEnabled"][value="no"]').checked = true;
   document.querySelector('input[name="maAngle"][value="target"]').checked = true;
   document.querySelector('input[name="formatting"][value="yes"]').checked = true;
@@ -759,6 +823,7 @@ document.getElementById('resetBtn').addEventListener('click', () => {
   document.querySelector('input[name="companyEvents"][value="no"]').checked = true;
   document.querySelector('input[name="companyEventsWindow"][value="90"]').checked = true;
   toggleMaAngleField();
+  toggleTierFields();
   loadedTemplateName = null;
   render();
 });
