@@ -129,7 +129,7 @@
 
 <header>
   <h1>Target Company Research Prompt Builder</h1>
-  <p>Fill in what you know on the left — the exact prompt to send to Claude builds itself on the right. v2</p>
+  <p>Fill in what you know on the left — the exact prompt to send to Claude builds itself on the right. v3</p>
 </header>
 
 <div class="wrap">
@@ -143,6 +143,7 @@
         <div class="field">
           <label>Company(s) you know <span class="tag">optional</span></label>
           <textarea id="companies" placeholder="e.g. Dragos, Claroty, Nozomi Networks"></textarea>
+          <p class="hint" id="namedCountHint"></p>
         </div>
 
         <div class="field">
@@ -189,9 +190,23 @@
         </div>
 
         <div class="field">
+          <label>Full research is capped at 25 companies</label>
+          <p class="hint">This is fixed, not adjustable — full 31-column research (contacts, revenue signals, hiring signals, 10-K checks) is genuinely slow and heavy past 25, and 25 is also what keeps the output a clean fit for the other tools in this suite (Job Posting Finder, LinkedIn Enrichment, Outreach Message Builder), which are all tuned around batches of 25 or fewer. If your named companies plus any NAICS-discovered candidates add up to more than 25 total, Claude does a quick qualification pass first, gives full research to the strongest 25 (your named companies get a thumb on the scale, but aren't automatically guaranteed a slot if the list is very long), and puts everyone else in a second, lighter "Tier 2" list — company, website, industry, and NAICS fit only, sourced from efficient batch searches rather than one search per company. Tier 2 includes a blank column for you to mark which ones to promote into a full Tier 1 run next — copy those names into "Just enrich these" mode above to continue. If your total is 25 or fewer, none of this matters — everything just gets full research as normal.</p>
+        </div>
+
+        <div class="field">
+          <label>Include large diversified players in Tier 2? <span class="tag">optional</span></label>
+          <div class="radio-row">
+            <label class="radio-opt"><input type="radio" name="adjacent" value="no" checked> No</label>
+            <label class="radio-opt"><input type="radio" name="adjacent" value="yes"> Yes</label>
+          </div>
+          <p class="hint">Only matters if Tier 2 gets used. Batch discovery searches for a niche industry often also surface large, diversified companies where that industry is one product line among many, not their core business (e.g. a broad industrial conglomerate that happens to also sell into your space). "No" (default) leaves these out, keeping Tier 2 focused on genuine specialists. "Yes" includes them, but kept in a visually separate, clearly labeled block — never blended in with the focused list, since "fits the industry" means something different for a diversified player than it does for a specialist.</p>
+        </div>
+
+        <div class="field">
           <label>Companies per code <span class="tag">optional</span></label>
           <input type="text" id="perCode" placeholder="e.g. 15-30 — leave blank for Claude's judgment">
-          <p class="hint">15–30 per code tends to get the best-researched detail. Totals above ~50–75 in one prompt tend to come back thinner — batch it if you need more.</p>
+          <p class="hint">Governs how many candidates Claude considers per NAICS code before the 25-company research cap applies (see above) — not a count that all get full research automatically. 15–30 per code tends to surface good candidates without the pool ballooning unnecessarily.</p>
         </div>
 
         <div class="field">
@@ -422,6 +437,7 @@ function buildPrompt(){
   const companyEvents = radioVal('companyEvents') === 'yes'; // default false
   const companyEventsWindow = radioVal('companyEventsWindow') || '90';
   const scope = radioVal('scope');
+  const adjacent = radioVal('adjacent') === 'yes'; // default false
   const secondary = radioVal('secondary');
   const maEnabled = radioVal('maEnabled') === 'yes';
   const maAngle = radioVal('maAngle');
@@ -465,7 +481,7 @@ function buildPrompt(){
   }
 
   lines.push("");
-  lines.push(`For each company, research and include these columns in the tracker:`);
+  lines.push(`These are the full research columns — used for every company if your total candidate pool is 25 or fewer, or for whichever 25 make the cut if it's larger (see the two-tier instructions right after this list):`);
   lines.push(`1. Company — legal/common name`);
   lines.push(`2. Website`);
   lines.push(`3. Careers Page — a direct link to this company's careers/jobs listing page specifically (e.g. "acme.com/careers" or their Workday/Greenhouse/Lever posting board), not just the homepage. Leave blank if you can't find one rather than guessing at a URL pattern`);
@@ -505,6 +521,28 @@ function buildPrompt(){
     lines.push(`36. M&A Role Fit — Likely Acquisition Target / Likely Acquirer / Could Be Either / Unclear`);
   }
   lines.push("");
+  lines.push(`TWO-TIER OUTPUT — read this before starting research:`);
+  lines.push(`Assemble your full candidate pool first: every company I named above, plus (if discovery is on) every NAICS-discovered candidate. Do not start full research yet.`);
+  lines.push(`- If that combined pool is 25 companies or fewer: skip everything below in this section. Research all of them at full depth (all columns above) and output a single tracker, exactly as this prompt would have worked without any of this.`);
+  lines.push(`- If the pool is more than 25: use the two-tier process below.`);
+  lines.push("");
+  lines.push(`TIER 1 SELECTION (only when the pool exceeds 25): before doing full research on anyone, run a fast, cheap qualification pass across the whole pool — does the company plausibly fit the stated NAICS code(s) and industry emphasis, and a rough size/relevance read. Do NOT use the full rating rubric (Opportunity Fit, Growth Signal, etc.) for this pass — that comes later and would defeat the point of a cheap filter. Rank the pool using that quick read, and give every company I explicitly named above a fixed bonus in that ranking (they aren't automatically guaranteed a spot if the pool is very large, but they should usually outrank a comparable NAICS-discovered candidate). Select the top 25 and give ONLY those companies the full research described in the column list above.`);
+  lines.push("");
+  lines.push(`TIER 2 (everyone else, when the pool exceeds 25): add a second sheet/section, clearly labeled "Tier 2 — Additional Candidates (Basic Info Only)", with exactly these columns and nothing else — no revenue, no hiring signals, no contacts, none of the heavier research above:`);
+  lines.push(`- Company`);
+  lines.push(`- Website`);
+  lines.push(`- Industry / Sector`);
+  lines.push(`- NAICS Code`);
+  lines.push(`- NAICS Code Type — Primary or Secondary`);
+  lines.push(`- Why This NAICS Code`);
+  lines.push(`- HQ Location / Footprint`);
+  lines.push(`- Promote to Tier 1? — leave entirely blank for me to fill in later; this is not something you research or guess at`);
+  lines.push(`Source Tier 2 efficiently: use searches that surface many companies at once — "top companies in [industry/NAICS]" roundups, and especially industry market-report vendor lists (e.g. "[industry] market report key players") — rather than one dedicated search per company. Keep searching with new query angles (different phrasing, sub-segments, regions) until two consecutive searches each add fewer than about 3 new companies not already found, then stop — don't force a fixed target count once yield has genuinely dropped off, and don't let Tier 2 grow past roughly 75 rows regardless of how much search budget remains. Report honestly how many searches you ran and roughly what yield you got, so I know whether you stopped from genuine saturation or just gave up early.`);
+  lines.push(`Tier 2 still needs to genuinely fit my stated industry/NAICS/purpose — don't let a broad market-report search turn this into a dump of loosely-related companies just because a source happened to mention them.`);
+  lines.push(`${adjacent ? 'Include large, diversified companies where this industry is one product line among many, not their core business (e.g. a broad industrial or networking conglomerate that also sells into this space) — but keep them in their own clearly labeled block within Tier 2, visually separate from the focused/specialist companies above them, since "fits the industry" means something different for a diversified player than a specialist.' : 'Leave out large, diversified companies where this industry is only one product line among many, not their core business (e.g. a broad industrial or networking conglomerate that also happens to sell into this space) — keep Tier 2 focused on genuine specialists in this industry.'}`);
+  lines.push(`Dedup across both tiers: treat two entries as the same company if their names match case-insensitively after stripping suffixes like Inc./LLC/Corp./Ltd./Co., or if they share the same website domain. If a company I explicitly named also turns up via discovery, it's a Tier 1 candidate under my original name — never create a second, separate row for the same company.`);
+  lines.push(`Close with a plain-language note (in the Notes tab if formatting is on, otherwise in your reply) telling me: how many total unique candidates you found, how many made Tier 1 vs Tier 2, and reminding me that to research more from Tier 2, I should mark "Y" in the Promote to Tier 1? column for whichever ones I want, then paste just those company names back into this same tool using "Just enrich these" mode for a follow-up run.`);
+  lines.push("");
   if(formatting){
     lines.push(`Formatting requirements for the Excel file — apply all of these:`);
     lines.push(`- Color-code these five rating columns using a 5-step gradient keyed to the leading word of each cell: Growth / Revenue Signal, Hiring Signal, Recent Hiring Trends, Opportunity Relevance, Opportunity Fit. Very High = darker green (A9D8A9), High = green (C6E8C6), Medium-High = yellow-green (E2EFC0), Medium = yellow (FFF2B2), Low-Medium = orange (FBDCB8), Low = red (F4C7C3).`);
@@ -513,7 +551,8 @@ function buildPrompt(){
     lines.push(`- Add autofilter on the header row. Freeze both the header row and the Company column so they stay visible while scrolling.`);
     lines.push(`- Lightly shade alternating data rows (zebra striping) for readability, without overriding the rating-column colors above.`);
     lines.push(`- Give the Priority Score, Status, and Next Action columns (the ones I fill in by hand) a distinct light fill and border, separate from the rating gradient, so it's visually clear which columns are your research versus my own input.`);
-    lines.push(`- Add a "Notes & Assumptions" tab: document which figures are verified vs. estimated, list key assumptions (like how you interpreted an unstated purpose), and include a color legend explaining the gradient above.`);
+    lines.push(`- If a Tier 2 sheet exists: give its "Promote to Tier 1?" column that same distinct light fill and border treatment (it's also mine to fill in, not yours to research). Add autofilter and freeze the header row on the Tier 2 sheet too. If the adjacent/diversified block exists within it, separate it from the focused list above with a clearly labeled divider row, not just a color change alone.`);
+    lines.push(`- Add a "Notes & Assumptions" tab: document which figures are verified vs. estimated, list key assumptions (like how you interpreted an unstated purpose), and include a color legend explaining the gradient above. If a Tier 2 sheet exists, this is also where the two-tier summary note (search count, yield, Tier 1 vs Tier 2 counts) belongs.`);
     lines.push(`- Add a "Summary" tab: counts of companies by Opportunity Fit, by NAICS Code Type, and by Category, plus a "Top 5 by Suggested Priority Rank" table.`);
     lines.push("");
   }
@@ -567,6 +606,21 @@ function buildPrompt(){
   return lines.join("\n");
 }
 
+function countNamedCompanies(raw){
+  if(!raw) return 0;
+  return raw.split(/[,\n]/).map(s => s.trim()).filter(Boolean).length;
+}
+
+function updateNamedCountHint(){
+  const hintEl = document.getElementById('namedCountHint');
+  const count = countNamedCompanies(val('companies'));
+  if(count > 25){
+    hintEl.textContent = `${count} companies named — that's already above the 25-company research cap on its own. Claude will do a quick qualification pass across all of them (named companies get a boost, but aren't automatically guaranteed a slot) and give full research to the strongest 25; the rest land in the lighter Tier 2 list.`;
+  } else {
+    hintEl.textContent = '';
+  }
+}
+
 function render(){
   const prompt = buildPrompt();
   if(prompt === null){
@@ -574,6 +628,7 @@ function render(){
   } else {
     promptTextEl.textContent = prompt;
   }
+  updateNamedCountHint();
 }
 
 document.querySelectorAll('input, textarea').forEach(el => {
@@ -632,6 +687,7 @@ function collectFieldData(){
     formatting: radioVal('formatting'),
     quickLinks: radioVal('quickLinks'),
     jobFinder: radioVal('jobFinder'),
+    adjacent: radioVal('adjacent'),
     events: radioVal('events'),
     eventsWindow: radioVal('eventsWindow'),
     companyEvents: radioVal('companyEvents'),
@@ -658,6 +714,7 @@ function applyFieldData(data){
   const formattingVal = data.formatting || 'yes';
   const quickLinksVal = data.quickLinks || 'yes';
   const jobFinderVal = data.jobFinder || 'yes';
+  const adjacentVal = data.adjacent || 'no';
   const eventsVal = data.events || 'yes';
   const eventsWindowVal = data.eventsWindow || '12';
   const companyEventsVal = data.companyEvents || 'no';
@@ -669,6 +726,7 @@ function applyFieldData(data){
   document.querySelector(`input[name="formatting"][value="${formattingVal}"]`).checked = true;
   document.querySelector(`input[name="quickLinks"][value="${quickLinksVal}"]`).checked = true;
   document.querySelector(`input[name="jobFinder"][value="${jobFinderVal}"]`).checked = true;
+  document.querySelector(`input[name="adjacent"][value="${adjacentVal}"]`).checked = true;
   document.querySelector(`input[name="events"][value="${eventsVal}"]`).checked = true;
   document.querySelector(`input[name="eventsWindow"][value="${eventsWindowVal}"]`).checked = true;
   document.querySelector(`input[name="companyEvents"][value="${companyEventsVal}"]`).checked = true;
@@ -731,6 +789,7 @@ document.getElementById('resetBtn').addEventListener('click', () => {
   document.querySelector('input[name="formatting"][value="yes"]').checked = true;
   document.querySelector('input[name="quickLinks"][value="yes"]').checked = true;
   document.querySelector('input[name="jobFinder"][value="yes"]').checked = true;
+  document.querySelector('input[name="adjacent"][value="no"]').checked = true;
   document.querySelector('input[name="events"][value="yes"]').checked = true;
   document.querySelector('input[name="eventsWindow"][value="12"]').checked = true;
   document.querySelector('input[name="companyEvents"][value="no"]').checked = true;

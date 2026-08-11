@@ -22,14 +22,30 @@ page only builds text locally in your browser.
    since it drives how Claude judges fit, category, and contacts for every
    company
 4. Toggle optional add-ons: M&A research columns, a Job Posting Quick Links
-   tab, an Industry Events & Forums tab, and a Company Activity & Events tab
+   tab, a Job Post Finder tab, an Industry Events & Forums tab, and a
+   Company Activity & Events tab
 5. Copy or download the generated prompt, paste it into Claude
+6. Optionally, run the separate Step 2 prompt to cross-reference your
+   LinkedIn contacts export against your top target companies for warm
+   introduction paths
 
 ## Key features
 
 - **NAICS-based discovery or exact-list enrichment** — either let Claude
   find new candidate companies, or restrict it to only the exact companies
   you name
+- **Two-tier output, capped at 25 companies for full research** — if your
+  named companies plus any NAICS-discovered candidates exceed 25 total,
+  Claude runs a quick qualification pass (named companies get a bonus, but
+  aren't automatically guaranteed a slot), gives full research to the
+  strongest 25, and puts everyone else in a lighter "Tier 2" list —
+  Company, Website, Industry/Sector, and NAICS fit only, sourced from
+  efficient batch searches rather than one search per company. Tier 2
+  includes a "Promote to Tier 1?" column so you can mark candidates to
+  research fully in a follow-up "Just enrich these" run. An optional
+  toggle controls whether large, diversified companies (where your
+  industry is one product line among many) get included in Tier 2, kept
+  in their own clearly separated block if so
 - **Company size filter** *(optional)* — e.g. "under 1,000 employees";
   leave blank to include all sizes
 - **Location radius filter** *(optional)* — enter a ZIP code and a radius
@@ -62,6 +78,11 @@ page only builds text locally in your browser.
 - **Templates** — save your current field values under a name and reload
   them later, for scenarios you run repeatedly (session-only; not saved
   across a page reload)
+- **Step 2 — LinkedIn Contact Enrichment** *(separate, standalone prompt)* —
+  cross-references a LinkedIn contacts export against a shortlist of target
+  companies (25 or fewer recommended) to surface warm introduction paths;
+  attach your CSV export directly to the chat message, nothing is uploaded
+  or parsed by this page itself
 - **31 research columns per company** in the main tracker (36 with M&A
   columns on), including a direct careers-page link alongside the website,
   a salary range column pulled from current job postings where one is
@@ -75,7 +96,9 @@ page only builds text locally in your browser.
 | File | Purpose |
 |------|---------|
 | `prompt_builder.html` | The tool itself — open it in a browser |
-| `sample_generated_prompt.txt` | Example output: the exact prompt text generated from a filled-in scenario (OT/ICS consulting prospects, size- and location-filtered, with the Company Activity tab enabled) |
+| `Target_Company_Research_Prompt_Template.md` | Fill-in-the-blank plain-text alternative to the web form — same fields, same logic, paste directly into Claude |
+| `sample_generated_prompt.txt` | Example input: the exact prompt text generated for a real scenario (5 named OT/ICS cybersecurity companies, discovery on, Company Activity tab enabled) — paste this into Claude to see it run |
+| `sample_generated_output.xlsx` | Example output: the actual tracker Claude produces from that prompt — real, verified research (not fabricated), demonstrating the two-tier system, all four optional tabs, and full formatting |
 
 ## Important notes
 
@@ -90,6 +113,8 @@ page only builds text locally in your browser.
   guaranteed hard filter against a live database — Claude applies them
   using its own research judgment, so spot-check a sample of results
   against the filter you specified.
-- Totals above roughly 50-75 companies in one prompt tend to come back with
-  thinner research per company — batch larger requests into multiple
-  prompts if you need more.
+- Full research is capped at 25 companies, always — this is fixed, not a
+  suggestion. Above that, the prompt automatically splits output into a
+  fully-researched Tier 1 (the strongest 25) and a lighter, basic-info-only
+  Tier 2 for everyone else. See the User Guide for the full mechanism,
+  including how to promote Tier 2 candidates into a follow-up Tier 1 run.
