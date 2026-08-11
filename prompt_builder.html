@@ -129,16 +129,15 @@
 
 <header>
   <h1>Target Company Research Prompt Builder</h1>
-  <p>Fill in what you know on the left — the exact prompt to send to Claude builds itself on the right. v2</p>
+  <p>Fill in what you know once — Section 1 builds a wide-net bulk pull, Section 2 builds the full research tracker, Section 3 builds LinkedIn contact enrichment. v3</p>
 </header>
 
-<div class="wrap">
+<div class="row">
   <div class="col">
-
     <div class="card">
       <fieldset>
-        <legend>1 · Starting point</legend>
-        <p class="hint" style="margin-top:-4px;margin-bottom:12px;">Fill in at least one of these — use more than one if you have them, and they'll be combined.</p>
+        <legend>Shared Inputs</legend>
+        <p class="hint" style="margin-top:-4px;margin-bottom:12px;">Fill in at least one of these — use more than one if you have them, and they'll be combined. These feed both Section 1 (Bulk Company Pull) and Section 2 (Full Research Tracker) below.</p>
 
         <div class="field">
           <label>Company(s) you know <span class="tag">optional</span></label>
@@ -148,11 +147,13 @@
         <div class="field">
           <label>Industry / field, plain language <span class="tag">optional</span></label>
           <input type="text" id="industry" placeholder="e.g. commercial HVAC controls">
+          <p class="hint">Be as specific as you can — free-text phrases don't map cleanly to a single NAICS code, so a vague phrase here is more likely to produce a bad code extraction. The prompt asks Claude to state which keyword it used, so you can catch a bad match early.</p>
         </div>
 
         <div class="field">
           <label>NAICS code(s), if known <span class="tag">optional</span></label>
           <input type="text" id="naics" placeholder="Leave blank if unknown — Claude will look it up">
+          <p class="hint">NAICS codes in this tool are a supporting layer (up to 5 per company, for classification and per-company verification), not the main way new companies get found — a code alone is too broad to search by. New companies mainly come from competitor lookups, analyst/category lists, conference exhibitor lists, and live job postings tied to what you named above.</p>
         </div>
 
         <div class="field">
@@ -172,12 +173,40 @@
             <input type="text" id="zipCode" placeholder="ZIP code, e.g. 60601" style="flex:1;">
             <input type="text" id="radiusMiles" placeholder="Radius (miles)" value="100" style="width:150px;">
           </div>
-          <p class="hint">Leave the ZIP code blank to search all locations with no distance restriction. If you enter a ZIP, the radius defaults to 100 miles but can be changed. This is separate from "Preferred location / work arrangement" below, which is about your own job-search preferences rather than filtering candidate companies by distance.</p>
+          <p class="hint">Leave the ZIP code blank to search all locations with no distance restriction. If you enter a ZIP, the radius defaults to 100 miles but can be changed. This is separate from "Preferred location / work arrangement" further down, which is about your own job-search preferences rather than filtering candidate companies by distance.</p>
         </div>
       </fieldset>
+    </div>
+  </div>
+</div>
 
+<div class="row">
+  <div class="col">
+    <div class="card">
+      <h2>Section 1 (optional) — Bulk Company Pull</h2>
+      <p class="hint">A separate, cheap, wide-net prompt. Instead of full 31-column research per company, this asks Claude to build a fast flat list — Company, Website, Inferred NAICS Code, one-line description, Source — using the same competitor-cascade / analyst-list / conference-exhibitor / job-posting discovery methods as Section 2, just without the deep per-company research. Meant to be pruned by hand afterward: delete the rows that aren't relevant, then paste the survivors into "Company(s) you know" above and set Section 2's Discovery scope to "Just enrich these" so the full research pass only spends effort on companies you've already confirmed you want.</p>
+
+      <div class="field">
+        <label>Target list size</label>
+        <input type="text" id="bulkSize" placeholder="e.g. 75-100" value="75-100">
+        <p class="hint">Since there's no per-company deep research here, this can go wider than Section 2's ~50-75 ceiling. Still bounded by how much a given seed/industry can actually support — Claude will say so if it can't find enough distinct real companies rather than padding the list.</p>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn-primary" id="copyBulkBtn">Copy prompt</button>
+        <button class="btn-secondary" id="downloadBulkBtn">Download .txt</button>
+      </div>
+      <div id="bulkPromptText"><span id="bulkPlaceholder">Fill in at least one Shared Input above (company, industry, or NAICS code) to see this prompt appear here.</span></div>
+    </div>
+  </div>
+</div>
+
+<div class="wrap">
+  <div class="col">
+
+    <div class="card">
       <fieldset>
-        <legend>2 · Scope &amp; purpose</legend>
+        <legend>Section 2 · Scope &amp; purpose</legend>
 
         <div class="field">
           <label>Discovery scope</label>
@@ -185,7 +214,7 @@
             <label class="radio-opt"><input type="radio" name="scope" value="find" checked> Find new companies</label>
             <label class="radio-opt"><input type="radio" name="scope" value="enrich"> Just enrich these</label>
           </div>
-          <p class="hint">"Find new companies" = Claude uses your starting point to discover additional candidates via NAICS codes. "Just enrich these" = Claude only researches the exact company names you typed — no new companies added.</p>
+          <p class="hint">"Find new companies" = Claude does its own moderate discovery (competitor cascade, analyst lists, conference exhibitor lists, job postings) bundled into the full research pass — good for "I have a few companies, expand modestly and research everything fully." "Just enrich these" = Claude only researches the exact company names you typed — no new companies added. If you ran Section 1's Bulk Company Pull and pasted your pruned list into "Company(s) you know" above, choose "Just enrich these" here — Section 1 already did the wide discovery, so a second discovery pass isn't needed and would just add expensive-to-research companies you didn't vet.</p>
         </div>
 
         <div class="field">
@@ -317,7 +346,7 @@
       </fieldset>
 
       <fieldset>
-        <legend>3 · M&amp;A research columns <span class="tag">optional</span></legend>
+        <legend>M&amp;A research columns <span class="tag">optional</span></legend>
 
         <div class="field">
           <label>Add M&amp;A-specific columns?</label>
@@ -376,7 +405,7 @@
 <div class="row" id="enrichRow">
   <div class="col">
     <div class="card">
-      <h2>Step 2 (optional) — LinkedIn Contact Enrichment</h2>
+      <h2>Section 3 (optional) — LinkedIn Contact Enrichment</h2>
       <p class="hint">This is a separate, focused prompt for cross-referencing your LinkedIn Contacts export against your Top Targeted Companies to surface warm introduction paths. This is a heavier processing lift, so it works best with <strong>25 or fewer companies</strong> — the more companies you list, the more Claude has to fuzzy-match against for every single contact, which slows down the processing and can hurt match quality.</p>
       <p class="hint">Run it separately from the Target Company Prompt Builder above: run that tool first, then paste your Top 25 companies below to build this prompt. Download the .txt, then paste that prompt into Claude along with your exported LinkedIn Contacts .csv export. There's no need to upload or paste the CSV here — this tool never touches the actual file.</p>
       <div class="field">
@@ -488,7 +517,9 @@ function buildPrompt(){
     lines.push(`- Roughly how many companies per NAICS code: ${perCode}`);
     lines.push(`- Include secondary/adjacent NAICS codes (suppliers, related industries): ${secondary === 'yes' ? 'Yes' : 'No'}`);
     if(exclude) lines.push(`- Exclude these companies entirely, even if they'd otherwise match: ${exclude}`);
-    lines.push(`- NAICS-based discovery method — a single NAICS code typically has many companies tied to it, so don't rely on general knowledge/memory to name a handful of obvious companies and stop there. For each NAICS code involved (whether I gave you one above or you derive it from the industry/company info I gave you): (1) confirm the code and its official definition using the U.S. Census Bureau's NAICS search (census.gov/naics) — this is the authoritative source for what the code actually covers; (2) pull real companies registered under that code using SAM.gov's entity search filtered by NAICS code — this is the closest thing to an actual company-level NAICS directory, since Census itself only publishes aggregated statistics, not a searchable list of companies; (3) supplement with general web search and industry directories to catch privately-held companies that wouldn't appear in SAM.gov's federal-contractor-oriented database. Use all three together rather than any single one alone.`);
+    lines.push(`- Discovery method — a NAICS code alone is too broad to use as a search filter (the codes that fit niches like this typically cover any IT/consulting business in North America, and SAM.gov's entity search cannot be queried automatically — if you hit that limitation, say so plainly rather than silently substituting something else and calling it a SAM.gov pull). So use NAICS as a supporting/verification layer, not the discovery engine itself:`);
+    lines.push(`  PRIMARY discovery — do these for each company I named above and repeat outward as you find new ones (a "competitor cascade"): (1) search "[company] competitors" and "[company] alternatives" for each named company; (2) check analyst/category sources relevant to the space (e.g. Gartner Magic Quadrant, Forrester Wave, G2/Capterra category pages) for named category leaders; (3) check exhibitor/sponsor lists from relevant industry conferences and trade shows; (4) search live job postings for the kind of role I'm targeting (e.g. "[role keyword] job posting") — this surfaces companies actively hiring in this space and doubles as a real hiring-signal data point instead of a separate guess.`);
+    lines.push(`  NAICS layer — for each company (whether I named it or you found it via the discovery methods above), identify up to 5 NAICS codes total: 1 primary code (the closest single match to its dominant service line) plus up to 4 secondary/adjacent codes. State which keyword or phrase from my industry/company description you used to derive these codes, so I can catch a bad extraction rather than it silently propagating through the list — free-text industry descriptions don't map cleanly to a single code, and getting this wrong early skews everything downstream. Use these codes to (a) sanity-check that a company the cascade surfaced is actually in-category rather than a false-positive adjacent business, and (b) where useful, verify that specific company's own SAM.gov registration/size-standard/set-aside status individually — a single-entity lookup like this is fine even though bulk code-based search is not.`);
     if(tiered){
       lines.push(`- Two-tier list: use the NAICS discovery method above to build a candidate pool broader than a normal single-tier list would need, then rank the full pool against my stated purpose. The top ${tier1Size} companies become "Tier 1" and get full research — every column listed below. The next ${tier2Size} companies become "Tier 2" and get a lighter research pass — see the separate, shorter Tier 2 column list below. This keeps the overall list genuinely comprehensive for the code(s) involved without spending full per-company research effort on every single one.`);
     }
@@ -515,9 +546,9 @@ function buildPrompt(){
   lines.push(`3. Careers Page — a direct link to this company's careers/jobs listing page specifically (e.g. "acme.com/careers" or their Workday/Greenhouse/Lever posting board), not just the homepage. Leave blank if you can't find one rather than guessing at a URL pattern`);
   lines.push(`4. Industry / Sector`);
   lines.push(`5. Industry Emphasized — the specific niche, vertical, or market segment this company emphasizes within that broader sector (e.g. "cloud security for financial services" rather than just "cybersecurity")`);
-  lines.push(`6. NAICS Code — the specific code this company was found under`);
-  lines.push(`7. NAICS Code Type — Primary or Secondary`);
-  lines.push(`8. Why This NAICS Code — one line connecting this code back to my starting point`);
+  lines.push(`6. NAICS Code(s) — up to 5 total: the 1 primary code plus up to 4 secondary/adjacent codes (see the discovery method note above) — list them together in this cell, primary first`);
+  lines.push(`7. NAICS Code Type — Primary or Secondary (for the first/lead code listed in the cell above)`);
+  lines.push(`8. Why This NAICS Code — one line connecting the code(s) back to my starting point, including the keyword/phrase you used to derive them so I can sanity-check the extraction`);
   lines.push(`9. HQ Location / Footprint — city, state/country, and whether local, regional, or global`);
   lines.push(`10. Company Size — employee count band`);
   lines.push(`11. Revenue Band / Latest Revenue — most recent public figure or reasonable estimate, with source/year noted`);
@@ -554,8 +585,8 @@ function buildPrompt(){
     lines.push(`1. Company — legal/common name`);
     lines.push(`2. Website`);
     lines.push(`3. Industry / Sector`);
-    lines.push(`4. NAICS Code — the specific code this company was found under`);
-    lines.push(`5. NAICS Code Type — Primary or Secondary`);
+    lines.push(`4. NAICS Code(s) — primary code plus any secondary codes found, up to 5 total, primary first`);
+    lines.push(`5. NAICS Code Type — Primary or Secondary (for the first/lead code listed)`);
     lines.push(`6. HQ Location / Footprint — city, state/country`);
     lines.push(`7. Company Size — employee count band, best available estimate`);
     lines.push(`8. Opportunity Fit — High/Medium/Low only, no supporting rationale needed`);
@@ -645,9 +676,96 @@ function render(){
   }
 }
 
+// --- Section 1: Bulk Company Pull ---
+const bulkPromptTextEl = document.getElementById('bulkPromptText');
+
+function buildBulkPrompt(){
+  const companies = val('companies');
+  const industry = val('industry');
+  const naics = val('naics');
+  const exclude = val('excludeCompanies');
+  const companySize = val('companySize');
+  const zip = val('zipCode');
+  const radius = val('radiusMiles') || '100';
+  const bulkSize = val('bulkSize') || '75-100';
+
+  const haveStart = companies || industry || naics;
+  if(!haveStart) return null;
+
+  let lines = [];
+  lines.push(`Please execute this task directly — research and build the actual file now, rather than first describing your plan, summarizing what you're about to do, or offering recommendations about how to proceed. If a genuine capability limitation prevents you from completing part of this, say so plainly and do as much as you actually can — but don't pause to ask permission, outline an approach, or check in before starting the real work.`);
+  lines.push("");
+  lines.push(`I want a fast, wide, low-detail list of candidate companies — NOT full research. This is a bulk discovery pass I'll prune by hand afterward, so keep each company cheap: no deep verification, no per-company career-page/job-posting/filing checks, just enough to recognize and sort. Here's what I have:`);
+  lines.push("");
+  if(companies) lines.push(`- Company/companies I already know (use these as seeds for discovery, and include them in the output too): ${companies}`);
+  if(industry) lines.push(`- Industry / field (plain language): ${industry}`);
+  if(naics) lines.push(`- NAICS code(s) I already know: ${naics}`);
+  if(exclude) lines.push(`- Exclude these companies entirely, even if they'd otherwise match: ${exclude}`);
+  if(companySize) lines.push(`- Company size filter: only include companies matching "${companySize}" — exclude companies outside this size band, best effort, don't spend heavy research confirming exact headcount`);
+  if(zip) lines.push(`- Location filter: only include companies headquartered within ${radius} miles of ZIP code ${zip}, best effort`);
+  lines.push(`- Target list size: ${bulkSize} — go this wide since there's no per-company deep research cost here. If the seed/industry genuinely can't support this many distinct real companies, say so and give me what you can actually find rather than padding the list with weak or duplicate matches.`);
+  lines.push("");
+  lines.push(`Discovery method — do NOT rely on NAICS codes as the search mechanism; a code alone is far too broad to use as a filter (it would return any IT/consulting business in North America) and there is no bulk, robots-allowed public source that returns "every company under code X" (SAM.gov's search blocks automated access; Census.gov has no company directory, only code definitions). Instead, discover companies via:`);
+  lines.push(`  1. Competitor/alternative cascade — for each seed company I named, search "[company] competitors" and "[company] alternatives," and repeat outward for companies you find this way too.`);
+  lines.push(`  2. Analyst & category sources — Gartner Magic Quadrant / Forrester Wave entries, G2/Capterra category pages, or equivalent category-leader lists relevant to this space.`);
+  lines.push(`  3. Conference exhibitor/sponsor lists — relevant industry conferences and trade shows often publish exhibitor or sponsor lists that are a strong signal for "real company actively in this space."`);
+  lines.push(`  4. Live job-posting search — searching for the kind of role tied to my industry/purpose surfaces companies actively hiring in this space.`);
+  lines.push(`NAICS codes are a tag applied AFTER a company is found this way, not a search filter: for each company, do a quick best-guess single NAICS code (don't spend real research effort verifying it — if you can't confidently guess one, leave it blank rather than forcing a wrong code). If you have live access to a NAICS-filterable data source that's actually queryable in this context (for example the free, public USASpending.gov API, which returns real federal-contract-recipient company names filtered by NAICS code, unlike SAM.gov's blocked search UI), you may use it as one more discovery channel — but note plainly which companies came from it if so, since it only covers companies with a federal-contracting footprint and will miss most private-sector-only firms.`);
+  lines.push("");
+  lines.push(`For each company, include only these columns — flat data, no research beyond what's needed to fill these in:`);
+  lines.push(`1. Company — legal/common name`);
+  lines.push(`2. Website`);
+  lines.push(`3. Inferred NAICS Code — single best-guess code, or blank if you can't confidently guess one`);
+  lines.push(`4. What They Do — one line, plain language`);
+  lines.push(`5. Source — the search/page that surfaced this company, so I can spot-check quality`);
+  lines.push("");
+  lines.push(`Format the result as a plain Excel workbook (.xlsx) — a header row, one row per company, reasonable column widths. No color-coding, no formulas, no extra tabs, no scoring — this is meant to be scanned and pruned quickly in Excel, not a finished deliverable. Once I've deleted the rows I don't want, I'll paste the Company column from what's left into a separate follow-up prompt for full research on just those companies.`);
+
+  return lines.join("\n");
+}
+
+function bulkRender(){
+  const prompt = buildBulkPrompt();
+  if(prompt === null){
+    bulkPromptTextEl.innerHTML = '<span id="bulkPlaceholder">Fill in at least one Shared Input above (company, industry, or NAICS code) to see this prompt appear here.</span>';
+  } else {
+    bulkPromptTextEl.textContent = prompt;
+  }
+}
+
+document.getElementById('copyBulkBtn').addEventListener('click', () => {
+  const prompt = buildBulkPrompt();
+  if(!prompt) return;
+  navigator.clipboard.writeText(prompt).then(() => {
+    const btn = document.getElementById('copyBulkBtn');
+    const original = btn.textContent;
+    btn.textContent = 'Copied!';
+    setTimeout(() => btn.textContent = original, 1500);
+  }).catch(() => {
+    alert('Clipboard blocked by your browser — use the Download .txt button instead.');
+  });
+});
+
+document.getElementById('downloadBulkBtn').addEventListener('click', () => {
+  const prompt = buildBulkPrompt();
+  if(!prompt) return;
+  const blob = new Blob([prompt], {type: 'text/plain'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'bulk_company_pull_prompt.txt';
+  a.click();
+  URL.revokeObjectURL(url);
+});
+
+function renderAll(){
+  render();
+  bulkRender();
+}
+
 document.querySelectorAll('input, textarea').forEach(el => {
-  el.addEventListener('input', render);
-  el.addEventListener('change', render);
+  el.addEventListener('input', renderAll);
+  el.addEventListener('change', renderAll);
 });
 document.querySelectorAll('input[name="maEnabled"]').forEach(el => {
   el.addEventListener('change', toggleMaAngleField);
@@ -702,6 +820,7 @@ function collectFieldData(){
     tiered: radioVal('tiered'),
     tier1Size: val('tier1Size'),
     tier2Size: val('tier2Size'),
+    bulkSize: val('bulkSize'),
     maEnabled: radioVal('maEnabled'),
     maAngle: radioVal('maAngle'),
     formatting: radioVal('formatting'),
@@ -729,6 +848,7 @@ function applyFieldData(data){
   document.getElementById('background').value = data.background || '';
   document.getElementById('tier1Size').value = data.tier1Size || '25';
   document.getElementById('tier2Size').value = data.tier2Size || '75';
+  document.getElementById('bulkSize').value = data.bulkSize || '75-100';
   const scopeVal = data.scope || 'find';
   const secondaryVal = data.secondary || 'yes';
   const tieredVal = data.tiered || 'no';
@@ -758,6 +878,7 @@ function applyFieldData(data){
   toggleMaAngleField();
   toggleTierFields();
   render();
+  bulkRender();
 }
 
 function refreshTemplateSelect(){
@@ -822,14 +943,17 @@ document.getElementById('resetBtn').addEventListener('click', () => {
   document.querySelector('input[name="eventsWindow"][value="12"]').checked = true;
   document.querySelector('input[name="companyEvents"][value="no"]').checked = true;
   document.querySelector('input[name="companyEventsWindow"][value="90"]').checked = true;
+  document.getElementById('bulkSize').value = '75-100';
   toggleMaAngleField();
   toggleTierFields();
   loadedTemplateName = null;
   render();
+  bulkRender();
 });
 
 refreshTemplateSelect();
 render();
+bulkRender();
 
 // --- Step 2: LinkedIn Contact Enrichment (separate, standalone prompt) ---
 const enrichPromptTextEl = document.getElementById('enrichPromptText');
