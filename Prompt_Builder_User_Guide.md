@@ -75,8 +75,8 @@ You only need one of these filled in — fill in more than one if you have them,
 
 | Field | What to put in it |
 |---|---|
-| Company(s) you know | A current employer, former employer, competitor — any real company name(s), one per line or comma-separated |
-| Industry / field, plain language | A description in your own words — no jargon needed (e.g. "commercial HVAC controls"). Be specific — see the note on NAICS extraction below |
+| Company(s) you know | A current employer, former employer, competitor — any real company name(s), one per line or comma-separated. A live hint tracks how many you've listed: 5-10 tends to give the cleanest results, past 20 the discovery cascade runs noticeably slower, and past 50 the tool suggests Anthropic's dedicated Research feature instead |
+| Industry / field, plain language | A description in your own words — no jargon needed (e.g. "commercial HVAC controls"). Be specific — see the note on NAICS extraction below. Not sure how to phrase it? The field links directly to the [Census NAICS Search](https://www.census.gov/naics/) so you can borrow official industry wording without needing to know your own code |
 | NAICS code(s), if known | Skip this if you don't know it — Claude will infer one per company later in the process |
 
 There's also an **Exclude these companies** field (optional) — anything you list there is left out entirely, even if it would otherwise match.
@@ -118,8 +118,8 @@ NAICS codes are applied to each company *after* it's found this way — a tag fo
 
 | Field | What it does |
 |---|---|
-| Discovery scope | "Find new companies" = Claude does its own moderate discovery (the method in Section 5) bundled into the full research pass. "Just enrich these" = Claude only researches the exact company names you typed — no new companies added, and tiering (Section 8) is ignored even if it's turned on. |
-| Companies per code | A loose volume dial for how many candidates to gather during discovery. The label is a holdover from when discovery was NAICS-code-driven; it still works as a rough guidance number for the competitor-cascade method, just not literally "per code" anymore. |
+| Discovery scope | "Find new companies" = Claude does its own moderate discovery (the method in Section 5) bundled into the full research pass. "Just enrich these" = Claude only researches the exact company names you typed — no new companies added. Switching to "Just enrich these" also hides the three fields below it (candidate count, secondary NAICS codes, two-tier toggle) since none of them apply without a discovery pass to act on. |
+| Roughly how many companies to find | A loose volume dial for this discovery pass — the Section 2 equivalent of Section 1's "Target list size." Unlike Section 1, every company found here gets full research, so totals above ~50–75 tend to come back thinner per company. Only visible when Discovery scope is "Find new companies." |
 | Include secondary/adjacent NAICS codes? | "Yes" (default) broadens each company's NAICS tagging to include supplier/vendor/related-industry codes. "No" keeps tagging tightly scoped to the primary code only. |
 | Use a two-tier target list? | See Section 8. Only takes effect when Discovery scope is "Find new companies." |
 | What is this list for? | The most important field — it tells Claude how to judge fit, category, and contacts for every company. |
@@ -150,7 +150,7 @@ This adds Ownership Type, Recent M&A Activity, a Signals column, Estimated Deal 
 
 Off by default, and now fully manual — this replaced an earlier automatic 25-company cap.
 
-**When it's active.** Only when both of these are true: Discovery scope is "Find new companies," **and** Use a two-tier target list? is set to Yes. In every other case — including enrich-only mode with the tiering checkbox left on from a previous session — you get one flat tracker with full research on everyone, and no Tier 2 tab logic runs at all.
+**When it's active.** Only when both of these are true: Discovery scope is "Find new companies," **and** Use a two-tier target list? is set to Yes. The tiering toggle and its Tier 1/Tier 2 size fields are hidden entirely whenever Discovery scope is "Just enrich these," so this shouldn't come up in normal use — but the underlying rule holds regardless: in every other case, including if a saved template carries a leftover tiered=Yes value, you get one flat tracker with full research on everyone, and no Tier 2 tab logic runs at all.
 
 **Tier 1 size / Tier 2 size.** Two plain number fields (defaults 25 and 75) — you set them directly, there's no automatic qualification pass, no dedup logic, and no ranking bonus for named companies baked into the mechanism. Claude ranks the discovered pool against your stated purpose and puts the top N (Tier 1 size) in full research; the next N (Tier 2 size) get a lighter pass.
 
