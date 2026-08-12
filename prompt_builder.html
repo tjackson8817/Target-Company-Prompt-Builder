@@ -73,6 +73,7 @@
     letter-spacing:.3px;
   }
   .hint{font-size:12px;color:var(--muted);margin-top:4px;line-height:1.4;}
+  .hint a{color:var(--blue);}
   input[type=text], textarea, select{
     width:100%;
     padding:9px 10px;
@@ -122,7 +123,21 @@
   .template-row{display:flex;gap:8px;margin-top:6px;}
   .template-row select{flex:1;}
   #placeholder{color:var(--muted);font-style:italic;font-size:13.5px;}
+  .row{padding:0 24px;max-width:1400px;margin:0 auto;}
   .divider{height:1px;background:var(--border);margin:16px 0;}
+
+  @media (max-width: 860px){
+    .wrap{flex-direction:column;padding:14px;gap:14px;}
+    .row{padding:0 14px;}
+    #outputPanel{position:static;}
+    #promptText, #bulkPromptText, #enrichPromptText{max-height:340px;font-size:12px;}
+    header{padding:18px 16px;}
+    header h1{font-size:19px;}
+    .card{padding:16px 14px;}
+    .radio-row{gap:12px;}
+    .template-row{flex-wrap:wrap;}
+    .template-row select{flex:1 1 100%;}
+  }
 </style>
 </head>
 <body>
@@ -140,35 +155,36 @@
         <p class="hint" style="margin-top:-4px;margin-bottom:12px;">Fill in at least one of these — use more than one if you have them, and they'll be combined. These feed both Section 1 (Bulk Company Pull) and Section 2 (Full Research Tracker) below.</p>
 
         <div class="field">
-          <label>Company(s) you know <span class="tag">optional</span></label>
+          <label for="companies">Company(s) you know <span class="tag">optional</span></label>
           <textarea id="companies" placeholder="e.g. Dragos, Claroty, Nozomi Networks"></textarea>
+          <p class="hint" id="companiesCountHint">Each company here seeds the discovery/competitor-cascade methods below — roughly 2+ searches apiece before any expansion. 5-10 tends to give the cleanest results.</p>
         </div>
 
         <div class="field">
-          <label>Industry / field, plain language <span class="tag">optional</span></label>
+          <label for="industry">Industry / field, plain language <span class="tag">optional</span></label>
           <input type="text" id="industry" placeholder="e.g. commercial HVAC controls">
-          <p class="hint">Be as specific as you can — free-text phrases don't map cleanly to a single NAICS code, so a vague phrase here is more likely to produce a bad code extraction. The prompt asks Claude to state which keyword it used, so you can catch a bad match early.</p>
+          <p class="hint">Be as specific as you can — free-text phrases don't map cleanly to a single NAICS code, so a vague phrase here is more likely to produce a bad code extraction. The prompt asks Claude to state which keyword it used, so you can catch a bad match early. Not sure how to phrase it? Browse official industry names and definitions at the <a href="https://www.census.gov/naics/" target="_blank" rel="noopener">Census NAICS Search</a> — you don't need to find your own code, just borrow their wording.</p>
         </div>
 
         <div class="field">
-          <label>NAICS code(s), if known <span class="tag">optional</span></label>
+          <label for="naics">NAICS code(s), if known <span class="tag">optional</span></label>
           <input type="text" id="naics" placeholder="Leave blank if unknown — Claude will look it up">
           <p class="hint">NAICS codes in this tool are a supporting layer (up to 5 per company, for classification and per-company verification), not the main way new companies get found — a code alone is too broad to search by. New companies mainly come from competitor lookups, analyst/category lists, conference exhibitor lists, and live job postings tied to what you named above.</p>
         </div>
 
         <div class="field">
-          <label>Exclude these companies <span class="tag">optional</span></label>
+          <label for="excludeCompanies">Exclude these companies <span class="tag">optional</span></label>
           <textarea id="excludeCompanies" placeholder="Companies to leave out entirely, even if they'd otherwise match"></textarea>
         </div>
 
         <div class="field">
-          <label>Limit to company size <span class="tag">optional</span></label>
+          <label for="companySize">Limit to company size <span class="tag">optional</span></label>
           <input type="text" id="companySize" placeholder="e.g. under 1,000 employees">
           <p class="hint">Phrased as a filter Claude applies while researching. Leave blank to include companies of any size.</p>
         </div>
 
         <div class="field">
-          <label>Limit to a location radius <span class="tag">optional</span></label>
+          <label for="zipCode">Limit to a location radius <span class="tag">optional</span></label>
           <div style="display:flex; gap:10px;">
             <input type="text" id="zipCode" placeholder="ZIP code, e.g. 60601" style="flex:1;">
             <input type="text" id="radiusMiles" placeholder="Radius (miles)" value="100" style="width:150px;">
@@ -187,7 +203,7 @@
       <p class="hint">A separate, cheap, wide-net prompt. Instead of full 31-column research per company, this asks Claude to build a fast flat list — Company, Website, Inferred NAICS Code, one-line description, Source — using the same competitor-cascade / analyst-list / conference-exhibitor / job-posting discovery methods as Section 2, just without the deep per-company research. Meant to be pruned by hand afterward: delete the rows that aren't relevant, then paste the survivors into "Company(s) you know" above and set Section 2's Discovery scope to "Just enrich these" so the full research pass only spends effort on companies you've already confirmed you want.</p>
 
       <div class="field">
-        <label>Target list size</label>
+        <label for="bulkSize">Target list size</label>
         <input type="text" id="bulkSize" placeholder="e.g. 75-100" value="75-100">
         <p class="hint">Since there's no per-company deep research here, this can go wider than Section 2's ~50-75 ceiling. Still bounded by how much a given seed/industry can actually support — Claude will say so if it can't find enough distinct real companies rather than padding the list.</p>
       </div>
@@ -217,34 +233,34 @@
           <p class="hint">"Find new companies" = Claude does its own moderate discovery (competitor cascade, analyst lists, conference exhibitor lists, job postings) bundled into the full research pass — good for "I have a few companies, expand modestly and research everything fully." "Just enrich these" = Claude only researches the exact company names you typed — no new companies added. If you ran Section 1's Bulk Company Pull and pasted your pruned list into "Company(s) you know" above, choose "Just enrich these" here — Section 1 already did the wide discovery, so a second discovery pass isn't needed and would just add expensive-to-research companies you didn't vet.</p>
         </div>
 
-        <div class="field">
-          <label>Companies per code <span class="tag">optional</span></label>
+        <div class="field" id="perCodeField">
+          <label for="perCode">Roughly how many companies to find <span class="tag">optional</span></label>
           <input type="text" id="perCode" placeholder="e.g. 15-30 — leave blank for Claude's judgment">
-          <p class="hint">15–30 per code tends to get the best-researched detail. Totals above ~50–75 in one prompt tend to come back thinner — batch it if you need more.</p>
+          <p class="hint">The Section 1 equivalent of "Target list size" — a loose volume dial for this discovery pass (competitor cascade, analyst lists, conferences, job postings). Unlike Section 1, every company found here gets full research, so totals above ~50–75 tend to come back thinner per company — batch it, or use Section 1's wider, cheaper Bulk Company Pull instead, if you need more.</p>
         </div>
 
-        <div class="field">
+        <div class="field" id="tieredToggleField">
           <label>Use a two-tier target list?</label>
           <div class="radio-row">
             <label class="radio-opt"><input type="radio" name="tiered" value="no" checked> No — one flat list</label>
             <label class="radio-opt"><input type="radio" name="tiered" value="yes"> Yes — Tier 1 (full detail) + Tier 2 (lighter)</label>
           </div>
-          <p class="hint">"Yes" has Claude build a wider candidate pool using the discovery method below (competitor cascade, analyst/category sources, conference exhibitor lists, job postings), rank the whole pool against your purpose, then fully research your top companies (Tier 1 — every column) while giving the rest (Tier 2) a lighter pass with a slimmer column set. This only applies when Discovery scope above is "Find new companies" — there's no pool to rank in "Just enrich these" mode, so this setting is ignored (and Tier 2 comes back empty) if you've selected that instead.</p>
+          <p class="hint">"Yes" has Claude build a wider candidate pool using the discovery method below (competitor cascade, analyst/category sources, conference exhibitor lists, job postings), rank the whole pool against your purpose, then fully research your top companies (Tier 1 — every column) while giving the rest (Tier 2) a lighter pass with a slimmer column set.</p>
         </div>
 
         <div class="field" id="tier1SizeField" style="display:none;">
-          <label>Tier 1 size (full detail)</label>
+          <label for="tier1Size">Tier 1 size (full detail)</label>
           <input type="text" id="tier1Size" placeholder="e.g. 25" value="25">
           <p class="hint">These get every column below, fully researched — careers pages, hiring signals, named contacts, the works.</p>
         </div>
 
         <div class="field" id="tier2SizeField" style="display:none;">
-          <label>Tier 2 size (lighter detail)</label>
+          <label for="tier2Size">Tier 2 size (lighter detail)</label>
           <input type="text" id="tier2Size" placeholder="e.g. 75" value="75">
           <p class="hint">These skip the expensive per-company lookups (job-board checks, 10-K/proxy research, named contacts, keyword generation) and just get enough to judge fit and know who they are.</p>
         </div>
 
-        <div class="field">
+        <div class="field" id="secondaryField">
           <label>Include secondary/adjacent NAICS codes?</label>
           <div class="radio-row">
             <label class="radio-opt"><input type="radio" name="secondary" value="yes" checked> Yes</label>
@@ -254,18 +270,18 @@
         </div>
 
         <div class="field">
-          <label>What is this list for?</label>
+          <label for="purpose">What is this list for?</label>
           <textarea id="purpose" placeholder='e.g. "job search targets for a Director-level OT cybersecurity role" or "prospective customers for our SaaS product"'></textarea>
           <p class="hint">The most important field — it tells Claude how to judge Category, Key Contact, Opportunity Fit, and Why This Fits for every company. Be specific.</p>
         </div>
 
         <div class="field">
-          <label>Preferred location / work arrangement <span class="tag">optional</span></label>
+          <label for="location">Preferred location / work arrangement <span class="tag">optional</span></label>
           <input type="text" id="location" placeholder="e.g. Texas or remote">
         </div>
 
         <div class="field">
-          <label>Your background <span class="tag">optional</span></label>
+          <label for="background">Your background <span class="tag">optional</span></label>
           <textarea id="background" placeholder="Paste a few lines from your resume, CV, LinkedIn bio, or a summary of your relevant experience — e.g. '8 years in federal OT cybersecurity consulting, former Booz Allen and SAIC'"></textarea>
           <p class="hint">Not a file upload — paste text directly (resume, CV, bio, LinkedIn summary, or just a few sentences — whatever you have). No length limit, but a tight paragraph of relevant highlights tends to work better than pasting a full multi-page document — it's easier for Claude to weigh correctly. Sharpens the Suggested Job Title Keywords column and gives Claude something real to reason from for Warm Introduction Path (former employers, overlapping experience) instead of guessing generically.</p>
         </div>
@@ -370,14 +386,14 @@
       <fieldset>
         <legend>Templates</legend>
         <div class="field">
-          <label>Template name</label>
+          <label for="templateName">Template name</label>
           <div class="template-row">
             <input type="text" id="templateName" placeholder="e.g. OT Vendors">
             <button class="btn-secondary" id="saveTemplateBtn">Save current as template</button>
           </div>
         </div>
         <div class="field">
-          <label>Load a saved template</label>
+          <label for="templateSelect">Load a saved template</label>
           <div class="template-row">
             <select id="templateSelect"><option value="">— none saved yet —</option></select>
             <button class="btn-secondary" id="loadTemplateBtn">Load</button>
@@ -409,7 +425,7 @@
       <p class="hint">This is a separate, focused prompt for cross-referencing your LinkedIn Contacts export against your Top Targeted Companies to surface warm introduction paths. This is a heavier processing lift, so it works best with <strong>25 or fewer companies</strong> — the more companies you list, the more Claude has to fuzzy-match against for every single contact, which slows down the processing and can hurt match quality.</p>
       <p class="hint">Run it separately from the Target Company Prompt Builder above: run that tool first, then paste your Top 25 companies below to build this prompt. Download the .txt, then paste that prompt into Claude along with your exported LinkedIn Contacts .csv export. There's no need to upload or paste the CSV here — this tool never touches the actual file.</p>
       <div class="field">
-        <label>Your target companies (one per line)</label>
+        <label for="enrichCompanies">Your target companies (one per line)</label>
         <textarea id="enrichCompanies" rows="6" placeholder="Paste the Company column from your tracker, or type company names, one per line — 25 or fewer works best"></textarea>
         <p class="hint" id="enrichCountHint"></p>
       </div>
@@ -462,9 +478,18 @@ function toggleMaAngleField(){
 }
 
 function toggleTierFields(){
-  const show = radioVal('tiered') === 'yes' ? 'block' : 'none';
+  const show = radioVal('tiered') === 'yes' && radioVal('scope') === 'find' ? 'block' : 'none';
   document.getElementById('tier1SizeField').style.display = show;
   document.getElementById('tier2SizeField').style.display = show;
+}
+
+function toggleScopeFields(){
+  const findMode = radioVal('scope') === 'find';
+  const show = findMode ? 'block' : 'none';
+  document.getElementById('perCodeField').style.display = show;
+  document.getElementById('secondaryField').style.display = show;
+  document.getElementById('tieredToggleField').style.display = show;
+  toggleTierFields();
 }
 
 function buildPrompt(){
@@ -513,16 +538,16 @@ function buildPrompt(){
   if(companies) lines.push(`- Company/companies I know: ${companies}`);
   if(industry) lines.push(`- Industry / field (plain language): ${industry}`);
   if(naics) lines.push(`- NAICS code(s) I already know: ${naics}`);
-  lines.push(`- Discovery scope: ${scope === 'enrich' ? 'Just research the exact companies I named above — do not generate new candidates.' : 'Find new candidate companies via NAICS discovery, in addition to anything I named.'}`);
+  lines.push(`- Discovery scope: ${scope === 'enrich' ? 'Just research the exact companies I named above — do not generate new candidates.' : 'Find new candidate companies via the discovery method below, in addition to anything I named.'}`);
   if(scope === 'find'){
-    lines.push(`- Roughly how many companies per NAICS code: ${perCode}`);
+    lines.push(`- Roughly how many companies to find: ${perCode}`);
     lines.push(`- Include secondary/adjacent NAICS codes (suppliers, related industries): ${secondary === 'yes' ? 'Yes' : 'No'}`);
     if(exclude) lines.push(`- Exclude these companies entirely, even if they'd otherwise match: ${exclude}`);
     lines.push(`- Discovery method — a NAICS code alone is too broad to use as a search filter (the codes that fit niches like this typically cover any IT/consulting business in North America, and SAM.gov's entity search cannot be queried automatically — if you hit that limitation, say so plainly rather than silently substituting something else and calling it a SAM.gov pull). So use NAICS as a supporting/verification layer, not the discovery engine itself:`);
     lines.push(`  PRIMARY discovery — do these for each company I named above and repeat outward as you find new ones (a "competitor cascade"): (1) search "[company] competitors" and "[company] alternatives" for each named company; (2) check analyst/category sources relevant to the space (e.g. Gartner Magic Quadrant, Forrester Wave, G2/Capterra category pages) for named category leaders; (3) check exhibitor/sponsor lists from relevant industry conferences and trade shows; (4) search live job postings for the kind of role I'm targeting (e.g. "[role keyword] job posting") — this surfaces companies actively hiring in this space and doubles as a real hiring-signal data point instead of a separate guess.`);
     lines.push(`  NAICS layer — for each company (whether I named it or you found it via the discovery methods above), identify up to 5 NAICS codes total: 1 primary code (the closest single match to its dominant service line) plus up to 4 secondary/adjacent codes. State which keyword or phrase from my industry/company description you used to derive these codes, so I can catch a bad extraction rather than it silently propagating through the list — free-text industry descriptions don't map cleanly to a single code, and getting this wrong early skews everything downstream. Use these codes to (a) sanity-check that a company the cascade surfaced is actually in-category rather than a false-positive adjacent business, and (b) where useful, verify that specific company's own SAM.gov registration/size-standard/set-aside status individually — a single-entity lookup like this is fine even though bulk code-based search is not.`);
     if(tiered){
-      lines.push(`- Two-tier list: use the NAICS discovery method above to build a candidate pool broader than a normal single-tier list would need, then rank the full pool against my stated purpose. The top ${tier1Size} companies become "Tier 1" and get full research — every column listed below. The next ${tier2Size} companies become "Tier 2" and get a lighter research pass — see the separate, shorter Tier 2 column list below. This keeps the overall list genuinely comprehensive for the code(s) involved without spending full per-company research effort on every single one.`);
+      lines.push(`- Two-tier list: use the discovery method above to build a candidate pool broader than a normal single-tier list would need, then rank the full pool against my stated purpose. The top ${tier1Size} companies become "Tier 1" and get full research — every column listed below. The next ${tier2Size} companies become "Tier 2" and get a lighter research pass — see the separate, shorter Tier 2 column list below. This keeps the overall list genuinely comprehensive without spending full per-company research effort on every single one.`);
     }
   }
   lines.push(`- What this list is for: ${purpose || "Not specified — use general judgment for fit/category/contacts."}`);
@@ -668,6 +693,23 @@ function buildPrompt(){
   return lines.join("\n");
 }
 
+const companiesCountHintEl = document.getElementById('companiesCountHint');
+const companiesBaseHint = companiesCountHintEl ? companiesCountHintEl.textContent : '';
+
+function updateCompaniesCountHint(){
+  if(!companiesCountHintEl) return;
+  const raw = val('companies');
+  if(!raw){ companiesCountHintEl.textContent = companiesBaseHint; return; }
+  const count = raw.split(/[\n,]/).map(s => s.trim()).filter(Boolean).length;
+  if(count > 50){
+    companiesCountHintEl.textContent = `${count} companies listed — that's well past what a single chat prompt handles well. Consider Anthropic's dedicated Research feature for a list this size, or split this into smaller batches.`;
+  } else if(count > 20){
+    companiesCountHintEl.textContent = `${count} companies listed — the cascade (roughly 2+ searches per seed, before expansion) will run noticeably slower past this point. Still workable, just slower.`;
+  } else {
+    companiesCountHintEl.textContent = companiesBaseHint;
+  }
+}
+
 function render(){
   const prompt = buildPrompt();
   if(prompt === null){
@@ -675,6 +717,7 @@ function render(){
   } else {
     promptTextEl.textContent = prompt;
   }
+  updateCompaniesCountHint();
 }
 
 // --- Section 1: Bulk Company Pull ---
@@ -773,6 +816,9 @@ document.querySelectorAll('input[name="maEnabled"]').forEach(el => {
 });
 document.querySelectorAll('input[name="tiered"]').forEach(el => {
   el.addEventListener('change', toggleTierFields);
+});
+document.querySelectorAll('input[name="scope"]').forEach(el => {
+  el.addEventListener('change', toggleScopeFields);
 });
 
 document.getElementById('copyBtn').addEventListener('click', () => {
@@ -877,7 +923,7 @@ function applyFieldData(data){
   document.querySelector(`input[name="companyEvents"][value="${companyEventsVal}"]`).checked = true;
   document.querySelector(`input[name="companyEventsWindow"][value="${companyEventsWindowVal}"]`).checked = true;
   toggleMaAngleField();
-  toggleTierFields();
+  toggleScopeFields();
   render();
   bulkRender();
 }
@@ -946,13 +992,14 @@ document.getElementById('resetBtn').addEventListener('click', () => {
   document.querySelector('input[name="companyEventsWindow"][value="90"]').checked = true;
   document.getElementById('bulkSize').value = '75-100';
   toggleMaAngleField();
-  toggleTierFields();
+  toggleScopeFields();
   loadedTemplateName = null;
   render();
   bulkRender();
 });
 
 refreshTemplateSelect();
+toggleScopeFields();
 render();
 bulkRender();
 
