@@ -1,0 +1,109 @@
+Please execute this task directly — research and build the actual file now, rather than first describing your plan, summarizing what you're about to do, or offering recommendations about how to proceed. If a genuine capability limitation prevents you from completing part of this (e.g., no file-creation tool available, no web search), say so plainly and do as much as you actually can — but don't pause to ask permission, outline an approach, or check in before starting the real work.
+
+I want you to research target companies and build a formatted Excel tracker (.xlsx). Here's what I have:
+
+- Company/companies I know: Dragos
+Claroty
+- Industry / field (plain language): OT/ICS cybersecurity consulting for critical infrastructure
+- Discovery scope: Find new candidate companies via the discovery method below, in addition to anything I named.
+- Roughly how many candidates to gather during discovery: your judgment
+- Include secondary/adjacent NAICS codes (suppliers, related industries): Yes
+- Discovery method — a NAICS code alone is too broad to use as a search filter (the codes that fit niches like this typically cover any IT/consulting business in North America, and SAM.gov's entity search cannot be queried automatically — if you hit that limitation, say so plainly rather than silently substituting something else and calling it a SAM.gov pull). So use NAICS as a supporting/verification layer, not the discovery engine itself:
+  PRIMARY discovery — do these for each company I named above and repeat outward as you find new ones (a "competitor cascade"): (1) search "[company] competitors" and "[company] alternatives" for each named company; (2) check analyst/category sources relevant to the space (e.g. Gartner Magic Quadrant, Forrester Wave, G2/Capterra category pages) for named category leaders; (3) check exhibitor/sponsor lists from relevant industry conferences and trade shows; (4) search live job postings for the kind of role I'm targeting (e.g. "[role keyword] job posting") — this surfaces companies actively hiring in this space and doubles as a real hiring-signal data point instead of a separate guess.
+  NAICS layer — for each company (whether I named it or you found it via the discovery methods above), identify up to 5 NAICS codes total: 1 primary code (the closest single match to its dominant service line) plus up to 4 secondary/adjacent codes. State which keyword or phrase from my industry/company description you used to derive these codes, so I can catch a bad extraction rather than it silently propagating through the list — free-text industry descriptions don't map cleanly to a single code, and getting this wrong early skews everything downstream. Use these codes to (a) sanity-check that a company the cascade surfaced is actually in-category rather than a false-positive adjacent business, and (b) where useful, verify that specific company's own SAM.gov registration/size-standard/set-aside status individually — a single-entity lookup like this is fine even though bulk code-based search is not.
+- Two-tier list: use the discovery method above to build a candidate pool broader than a normal single-tier list would need, then rank the full pool against my stated purpose. The top 8 companies become "Tier 1" and get full research — every column listed below. The next 15 companies become "Tier 2" and get a lighter research pass — see the separate, shorter Tier 2 column list below. This keeps the overall list genuinely comprehensive without spending full per-company research effort on every single one.
+- What this list is for: Job search for a Director-level OT Cybersecurity Consulting or advisory role, working with industrial/critical-infrastructure clients.
+- Preferred location / work arrangement: Texas or remote
+- My background (use this to sharpen Suggested Job Title Keywords and Warm Introduction Path — look for former-employer overlap, transferable experience, or relevant credentials): 15+ years in OT cybersecurity consulting and practice-building, former EY and Accenture, hands-on with Dragos, Nozomi Networks, and Claroty platforms.
+
+For each Tier 1 company, research and include these columns in the tracker:
+1. Company — legal/common name
+2. Website
+3. Careers Page — a direct link to this company's careers/jobs listing page specifically (e.g. "acme.com/careers" or their Workday/Greenhouse/Lever posting board), not just the homepage. Leave blank if you can't find one rather than guessing at a URL pattern
+4. Industry / Sector
+5. Industry Emphasized — the specific niche, vertical, or market segment this company emphasizes within that broader sector (e.g. "cloud security for financial services" rather than just "cybersecurity")
+6. NAICS Code(s) — up to 5 total: the 1 primary code plus up to 4 secondary/adjacent codes (see the discovery method note above) — list them together in this cell, primary first
+7. NAICS Code Type — Primary or Secondary (for the first/lead code listed in the cell above)
+8. Why This NAICS Code — one line connecting the code(s) back to my starting point, including the keyword/phrase you used to derive them so I can sanity-check the extraction
+9. HQ Location / Footprint — city, state/country, and whether local, regional, or global
+10. Company Size — employee count band
+11. Revenue Band / Latest Revenue — most recent public figure or reasonable estimate, with source/year noted
+12. Growth / Revenue Signal — High/Medium/Low plus a brief note on what's driving it
+13. Hiring Signal — High/Medium/Low plus a brief note, inferred from overall business trajectory (revenue growth, expansion announcements, funding rounds, earnings commentary) and how that connects to my stated purpose — an indirect signal, not a job-posting count
+14. Recent Hiring Trends — High/Medium/Low based on actual current job postings for this company (check LinkedIn Jobs, Indeed, or the company's own careers page) as of today (August 11, 2026) — High = many open roles posted right now, Medium = some open roles, Low = few or no open roles found. This is a direct, concrete snapshot, separate from the broader Hiring Signal above
+15. Salary Range (if posted) — while checking job postings for the Recent Hiring Trends column above, note the salary range if any posting discloses one (many now do, due to state pay-transparency laws), along with the job title it's attached to (e.g. "$140K-$170K — Sr. OT Security Engineer posting"). Leave blank if no posting discloses a range — don't estimate or infer a figure
+16. Opportunity Relevance — rate High/Medium/Low with a short note on how relevant this company is to my stated purpose, whatever that purpose is (job search, sales, partnerships, M&A, etc.)
+17. Opportunity Fit — High/Medium/Low, how well this company fits my stated purpose overall
+18. Category — group companies usefully for my stated purpose
+19. Why This Fits — 1-2 sentence rationale connecting the company to my stated purpose
+20. Executive Role Fit — the level/title most relevant to approach or target at this company for my purpose (e.g. Partner, Managing Director, Practice Lead, VP, Chief Consultant), based on how the company is structured
+21. Warm Introduction Path — the most plausible path to a warm introduction at this company (e.g. recruiter, executive search firm, former colleagues, LinkedIn 2nd-degree connection, conference/industry contacts), inferred from the company's profile and my background if I've shared it
+22. Outreach Approach — brief guidance on how and through whom to approach this company
+23. Key Contacts / Priority Titles — named individuals if publicly findable, otherwise closest equivalent titles. Additionally, for publicly traded companies only, check the most recent 10-K's cybersecurity governance disclosure (Item 1C / Regulation S-K Item 106) for a named CISO, CIO, CTO, or similarly responsible officer. If one is named there, add it as a clearly labeled second line: "(per FY20XX 10-K)" — this is a different kind of data point than the practice-level contact above (sourced from a filing, not inferred), so keep it visually distinct rather than blending the two. If the company is public but the 10-K doesn't name anyone (common — many disclosures describe the role without naming the person), add a brief note saying so rather than omitting silently. If the company is privately held and doesn't file a 10-K at all, skip this entirely — don't add a "not applicable" line for the obvious case.
+24. Compensation Benchmark — for publicly traded companies only: if the individual named from the 10-K in column 23 also appears in that company's most recent proxy statement (DEF 14A) Summary Compensation Table as a Named Executive Officer, report their total compensation figure with the fiscal year noted (e.g. "$2.1M total comp, FY2025 proxy"). This will genuinely apply to a minority of companies — security-specific roles like CISO are rarely among the top 5 highest-paid executives a proxy discloses, so most rows will legitimately have nothing here. When that's the case, say so briefly ("not a Named Executive Officer — not disclosed") rather than leaving the cell ambiguously blank, and don't substitute a generic market-rate guess dressed up as filing data. Skip entirely for private companies, same as column 23.
+25. Suggested Search Keywords — terms useful for a LinkedIn people-search (finding the right person at this company)
+26. Suggested Job Title Keywords — 2-4 actual job title variants this specific company would plausibly use in a job posting for the Executive Role Fit identified above (e.g. not a generic title — the title format this company itself tends to use), meant for searching job postings/boards rather than searching for people, informed by my background above where relevant
+27. Source URL — link(s) supporting the data above
+28. Priority Score — leave blank for me to fill in
+29. Status — leave blank (Not Started / Researching / Contacted / In Progress / Closed)
+30. Next Action — leave blank
+31. Date Researched — today's date
+
+For each Tier 2 company, research and include only this shorter set of columns — skip the deeper lookups (careers page verification, job-posting/hiring checks, salary data, 10-K/proxy research, named contacts, keyword generation). The goal for Tier 2 is enough to judge fit and know who they are, not exhaustive detail:
+1. Company — legal/common name
+2. Website
+3. Industry / Sector
+4. NAICS Code(s) — primary code plus any secondary codes found, up to 5 total, primary first
+5. NAICS Code Type — Primary or Secondary (for the first/lead code listed)
+6. HQ Location / Footprint — city, state/country
+7. Company Size — employee count band, best available estimate
+8. Opportunity Fit — High/Medium/Low only, no supporting rationale needed
+9. Category — same grouping logic used for Tier 1, for consistency
+10. Source URL
+
+Output structure for the two-tier list: put Tier 1 companies in a tab named "Tier 1 - Priority Targets" (the full column set above, with all formatting rules below applied) and Tier 2 companies in a separate tab named "Tier 2 - Extended List" (the slim column set just above, plain data — autofilter is fine, but skip the rating-color gradient and Suggested Priority Rank formula since Tier 2 doesn't have the underlying rating columns those depend on). Any tabs below that pull from "the main tracker" (Job Posting Quick Links, Job Post Finder, Outreach Contacts) should pull from Tier 1 only, since they depend on Tier-1-only columns like Suggested Job Title Keywords and Key Contacts / Priority Titles.
+
+Formatting requirements for the Excel file — apply all of these:
+- Color-code these five rating columns using a 5-step gradient keyed to the leading word of each cell: Growth / Revenue Signal, Hiring Signal, Recent Hiring Trends, Opportunity Relevance, Opportunity Fit. Very High = darker green (A9D8A9), High = green (C6E8C6), Medium-High = yellow-green (E2EFC0), Medium = yellow (FFF2B2), Low-Medium = orange (FBDCB8), Low = red (F4C7C3).
+- Add a "Suggested Priority Rank (1-25)" column positioned immediately next to the blank Priority Score column. Compute it per company: convert each rating word to points (Very High=5, High=4, Medium-High=3.5, Medium=3, Low-Medium=2, Low=1), then score = (Opportunity Fit points x 2) + (Opportunity Relevance points x 2) + average(Growth/Revenue Signal points, Hiring Signal points, Recent Hiring Trends points). Round to 1 decimal. Color this column using the same gradient, bucketed by score: >=22 Very High, >=18 High, >=14 Medium-High, >=10 Medium, >=7 Low-Medium, else Low. Add a cell comment on this column's header noting it's a mechanical starting point based on the formula above, not a replacement for my own judgment, and that I should compare it against my own Priority Score.
+- Hyperlink the Website and Careers Page columns so each cell links to that company's actual site/careers page. Leave Source URL as plain text (those cells are often citation notes, not single clean links).
+- Add autofilter on the header row. Freeze both the header row and the Company column so they stay visible while scrolling.
+- Lightly shade alternating data rows (zebra striping) for readability, without overriding the rating-column colors above.
+- Give the Priority Score, Status, and Next Action columns (the ones I fill in by hand) a distinct light fill and border, separate from the rating gradient, so it's visually clear which columns are your research versus my own input.
+- Add a "Notes & Assumptions" tab: document which figures are verified vs. estimated, list key assumptions (like how you interpreted an unstated purpose), and include a color legend explaining the gradient above.
+- Add a "Summary" tab: counts of companies by Opportunity Fit, by NAICS Code Type, and by Category, plus a "Top 5 by Suggested Priority Rank" table.
+
+Also add a "Job Posting Quick Links" tab — one row per company, with these columns:
+- Company
+- Job Title Used for Search — the single most likely job title for this company (pull just the first variant out of Suggested Job Title Keywords, not the whole multi-title cell — a focused single-title search works better than one crammed with 3-4 titles at once). If Suggested Job Title Keywords is "N/A" for this company (e.g. a current/internal-only row), use a generic fallback like the industry/purpose keyword instead so the link still works.
+- LinkedIn Jobs Search, Indeed Search, Google Jobs Search — three separate HYPERLINK() formulas per row
+Use exactly this formula pattern (tested and confirmed working — note the _xlfn. prefix on ENCODEURL, which Excel requires when this function is written programmatically; omitting it produces a #NAME? error), referencing that row's own Company (column A) and Job Title Used for Search (column B) cells on this tab:
+  LinkedIn: =HYPERLINK("https://www.linkedin.com/jobs/search/?keywords="&_xlfn.ENCODEURL(A2)&"%20"&_xlfn.ENCODEURL(B2),"Search LinkedIn")
+  Indeed: =HYPERLINK("https://www.indeed.com/jobs?q="&_xlfn.ENCODEURL(B2)&"+"&_xlfn.ENCODEURL(A2),"Search Indeed")
+  Google Jobs: =HYPERLINK("https://www.google.com/search?q="&_xlfn.ENCODEURL(A2)&"+"&_xlfn.ENCODEURL(B2)&"+jobs","Search Google Jobs")
+(Adjust the row number in each formula to match its own row.) These reference this tab's own cells, not the main sheet, so the tab works standalone and the links update automatically if I edit the Company or Job Title cell later.
+Critical — these must be real, working links, not broken text: do NOT substitute LinkedIn's hashtag/feed URL (linkedin.com/feed/hashtag/...) for the jobs-search URL given above — that's a different LinkedIn feature and will not return job postings. Do NOT write these as Markdown link syntax like [Search LinkedIn](https://...) — Excel does not render Markdown, so that syntax shows up as broken literal text in the cell instead of a clickable link. Each cell must contain a real Excel formula starting with =HYPERLINK(, not a text label styled to look like one. If you're building this file programmatically (e.g. with openpyxl), set the cell's value directly to the formula string starting with "=HYPERLINK(" rather than wrapping it in Markdown brackets or treating it as display text. Before finishing, open and check a sample of the LinkedIn/Indeed/Google Jobs cells to confirm they're clickable and land on the correct search-results page for that company and title.
+Important — be explicit about what this tab is and isn't: it is a set of pre-built search links, nothing more. Each link just opens LinkedIn, Indeed, or Google with the company name and a job title already typed into the search box for me — the same as if I'd typed them in myself. Clicking a link does not pull in, list, or embed any actual job postings, and nothing here is "unique jobs found" — it's a shortcut to go run that search, every time, live, whenever I click it. Say this plainly in the file itself (e.g. in the tab's notes or the main Notes tab), not just in your reply to me.
+
+Also add a "Job Post Finder" tab — separate from the Job Posting Quick Links tab above, and much simpler: plain reference data, not links or formulas. Exactly two columns:
+- Column A: Company Name — same value as the Company column on the main tracker
+- Column B: Suggested Job Title Keywords — the full value from the main tracker's Suggested Job Title Keywords column, all 2-4 title variants included, not reduced to a single title
+One row per company, same order as the main tracker, header row on row 1. No HYPERLINK() formulas, no job-board-specific columns, nothing clickable — just the two columns side by side. The point is for me to be able to select a company's row, copy the company name and its keyword variants, and paste them into whatever job board or search engine I want to check manually, rather than being limited to the three platforms the Quick Links tab is hardcoded to.
+
+Also add an "Outreach Contacts" tab — plain reference data, not links or formulas, feeding a separate companion tool (Outreach Message Builder). Exactly four columns, in this exact order:
+- Column A: Company — same value as the Company column on the main tracker
+- Column B: Key Contacts / Priority Titles — same value as the main tracker's Key Contacts / Priority Titles column
+- Column C: Warm Introduction Path — same value as the main tracker's Warm Introduction Path column
+- Column D: Category — same value as the main tracker's Category column
+One row per company, same order as the main tracker, header row on row 1. These four columns aren't adjacent on the main sheet, so this tab exists purely to put them side by side — no new research, just a reformatted copy of data already generated above. The point is for me to be able to select this whole block and paste it directly into the Outreach Message Builder's bulk-paste box, which expects exactly these four columns, in this exact order, tab-separated.
+
+Also add an "Industry Events & Forums" tab — one row per event, not per company, since the same event is often relevant to several companies on my list at once. Columns:
+- Event Name
+- Date(s)
+- Location
+- Format — In-person / Virtual / Hybrid
+- Relevant To — reuse the values from the main sheet's Category column (not a separate taxonomy), so this tab stays connected to however the companies are already grouped there
+- URL
+Only include real, currently findable conferences, trade shows, or industry forums relevant to my stated industry/purpose, scoped to the next 12 months. Same honesty standard as the rest of this request: only report events you actually find via search with a real URL, do not fabricate or guess at an event that "probably exists" for this industry, and report fewer events rather than padding the list. If you can't find good coverage for a given Category, say so rather than inventing something to fill the gap.
+
+Format the result as a clean, formatted Excel workbook (.xlsx) with a header row, reasonable column widths, and one row per company. Don't fabricate figures — mark estimates clearly and leave anything unverifiable blank rather than guessing.

@@ -1,0 +1,47 @@
+Please execute this task directly — research and build the actual file now, rather than first describing your plan, summarizing what you're about to do, or offering recommendations about how to proceed. If a genuine capability limitation prevents you from completing part of this, say so plainly and do as much as you actually can — but don't pause to ask permission, outline an approach, or check in before starting the real work.
+
+I want a fast, wide, low-detail list of candidate companies — NOT full research. This is a bulk discovery pass I'll prune by hand afterward, so keep each company cheap: no deep verification, no per-company career-page/job-posting/filing checks, just enough to recognize and sort. Here's what I have:
+
+- Company/companies I already know (use these as seeds for discovery, and include them in the output too): Deloitte
+EY
+KPMG
+PwC
+Accenture
+IBM
+Capgemini
+CGI
+Atos / Eviden
+DXC Technology
+NTT Data
+Wipro
+HCLTech
+Infosys
+TCS (Tata Consultancy Services)
+Booz Allen Hamilton
+Honeywell OT Cybersecurity
+Siemens (incl. Siemens Energy / Advanta)
+Schneider Electric
+Rockwell Automation
+ABB
+Yokogawa
+Emerson
+1898 & Co. (Burns & McDonnell)
+ABS Group
+- Industry / field (plain language): Consulting, Operational Technology, Information Technology, Advisory
+- Target list size: 75 — go this wide since there's no per-company deep research cost here. If the seed/industry genuinely can't support this many distinct real companies, say so and give me what you can actually find rather than padding the list with weak or duplicate matches.
+
+Discovery method — do NOT rely on NAICS codes as the search mechanism; a code alone is far too broad to use as a filter (it would return any IT/consulting business in North America) and there is no bulk, robots-allowed public source that returns "every company under code X" (SAM.gov's search blocks automated access; Census.gov has no company directory, only code definitions). Instead, discover companies via:
+  1. Competitor/alternative cascade — for each seed company I named, search "[company] competitors" and "[company] alternatives," and repeat outward for companies you find this way too.
+  2. Analyst & category sources — Gartner Magic Quadrant / Forrester Wave entries, G2/Capterra category pages, or equivalent category-leader lists relevant to this space.
+  3. Conference exhibitor/sponsor lists — relevant industry conferences and trade shows often publish exhibitor or sponsor lists that are a strong signal for "real company actively in this space."
+  4. Live job-posting search — searching for the kind of role tied to my industry/purpose surfaces companies actively hiring in this space.
+NAICS codes are a tag applied AFTER a company is found this way, not a search filter: for each company, do a quick best-guess single NAICS code (don't spend real research effort verifying it — if you can't confidently guess one, leave it blank rather than forcing a wrong code). If you have live access to a NAICS-filterable data source that's actually queryable in this context (for example the free, public USASpending.gov API, which returns real federal-contract-recipient company names filtered by NAICS code, unlike SAM.gov's blocked search UI), you may use it as one more discovery channel — but note plainly which companies came from it if so, since it only covers companies with a federal-contracting footprint and will miss most private-sector-only firms.
+
+For each company, include only these columns — flat data, no research beyond what's needed to fill these in:
+1. Company — legal/common name
+2. Website
+3. Inferred NAICS Code — single best-guess code, or blank if you can't confidently guess one
+4. What They Do — one line, plain language
+5. Source — the search/page that surfaced this company, so I can spot-check quality
+
+Format the result as a plain Excel workbook (.xlsx) — a header row, one row per company, reasonable column widths. No color-coding, no formulas, no extra tabs, no scoring — this is meant to be scanned and pruned quickly in Excel, not a finished deliverable. Once I've deleted the rows I don't want, I'll paste the Company column from what's left into a separate follow-up prompt for full research on just those companies.
