@@ -150,7 +150,7 @@ This adds Ownership Type, Recent M&A Activity, a Signals column, Estimated Deal 
 
 Off by default, and now fully manual — this replaced an earlier automatic 25-company cap.
 
-**When it's active.** Only when both of these are true: Discovery scope is "Find new companies," **and** Use a two-tier target list? is set to Yes. The tiering toggle and its Tier 1/Tier 2 size fields are hidden entirely whenever Discovery scope is "Just enrich these," so this shouldn't come up in normal use — but the underlying rule holds regardless: in every other case, including if a saved template carries a leftover tiered=Yes value, you get one flat tracker with full research on everyone, and no Tier 2 tab logic runs at all.
+**When it's active.** Only when both of these are true: Discovery scope is "Find new companies," **and** Use a two-tier target list? is set to Yes. The tiering toggle and its Tier 1/Tier 2 size fields are hidden entirely whenever Discovery scope is "Just enrich these," so this shouldn't come up in normal use — but the underlying rule holds regardless: in every other case, you get one flat tracker with full research on everyone, and no Tier 2 tab logic runs at all.
 
 **Tier 1 size / Tier 2 size.** Two plain number fields (defaults 25 and 75) — you set them directly, there's no automatic qualification pass, no dedup logic, and no ranking bonus for named companies baked into the mechanism. Claude ranks the discovered pool against your stated purpose and puts the top N (Tier 1 size) in full research; the next N (Tier 2 size) get a lighter pass.
 
@@ -170,16 +170,7 @@ Each of the three sections' output panels updates instantly as you type — ther
 - If your browser blocks clipboard access, click Download .txt instead.
 - Paste it into a new Claude chat and send it as-is.
 
-## 10. Saving and Reusing Templates
-
-- Fill in the form the way you want it.
-- Type a name in Template name and click Save current as template.
-- Later, pick it from the dropdown and click Load.
-- Delete removes a template you no longer need.
-
-*Templates only persist for the current browser tab/session — they are not written to a file or account. Saved fields include Section 1's target list size and Section 2's tier sizes.*
-
-## 11. Typical Workflow, Start to Finish
+## 10. Typical Workflow, Start to Finish
 
 - Open prompt_builder.html.
 - Fill in Shared Inputs.
@@ -190,18 +181,17 @@ Each of the three sections' output panels updates instantly as you type — ther
 - Download the .xlsx tracker Claude produces.
 - If you want a follow-up on any Tier 2 company, copy its name and re-run in "Just enrich these" mode.
 
-## 12. Quick Troubleshooting
+## 11. Quick Troubleshooting
 
 | Problem | Fix |
 |---|---|
 | The file opens as code/text instead of a page | Right-click → Open with → your browser |
 | "Copy prompt" doesn't seem to do anything | Some browsers silently block clipboard access — use Download .txt instead |
 | A prompt panel just shows placeholder text | You need at least one Shared Input field filled in (Section 1 and 2) or a companies list (Section 3) |
-| Saved templates disappeared | Templates only last for the current browser tab/session |
 | Tiering didn't apply even though the checkbox says Yes | Check Discovery scope — tiering only activates in "Find new companies" mode (Section 8) |
 | Output rows feel thin/generic | If tiering is active, check whether a company landed in Tier 2 — that tab is basic-info-only by design, not a research shortfall |
 
-## 13. What's in the Output Tracker
+## 12. What's in the Output Tracker
 
 The prompt asks Claude to research and fill in these 31 columns for every Tier 1 (or single-tier) company, 36 with M&A columns on:
 
@@ -218,7 +208,7 @@ Company, Website, Careers Page, Industry / Sector, Industry Emphasized, NAICS Co
 - **Suggested Search Keywords** finds people; **Suggested Job Title Keywords** finds postings — tailored per company.
 - **Key Contacts / Priority Titles** can carry a second line for public companies — a named cybersecurity executive sourced from the 10-K. See Section 17.
 
-## 14. Reading the Formatted Tracker
+## 13. Reading the Formatted Tracker
 
 - **Color-coded ratings.** Five rating columns shaded on a 5-step gradient, green (High) to red (Low). Legend on the Notes & Assumptions tab.
 - **Suggested Priority Rank (1-25).** A mechanical starting point next to the blank Priority Score column, computed by formula from the five rating columns — compare the two and overrule where you disagree.
@@ -228,7 +218,7 @@ Company, Website, Careers Page, Industry / Sector, Industry Emphasized, NAICS Co
 - **Priority Score, Status, and Next Action** get a distinct pale-yellow fill — your inputs, visually separate from Claude's research.
 - **A Summary tab** with counts by Opportunity Fit, NAICS Code Type, and Category, plus a Top 5 by Suggested Priority Rank table.
 
-## 14a. The Job Posting Quick Links Tab (and Its Limits)
+## 13a. The Job Posting Quick Links Tab (and Its Limits)
 
 If Add a Job Posting Quick Links tab? is Yes, the tracker gets a sheet with three HYPERLINK() formulas per company — LinkedIn Jobs, Indeed, and Google Jobs searches, pre-filled with company name and one job title.
 
@@ -236,29 +226,29 @@ If Add a Job Posting Quick Links tab? is Yes, the tracker gets a sheet with thre
 
 This is the cheap, safe option — it costs no extra research, pure string templating from data already generated in the main tracker.
 
-## 15. The Job Post Finder Tab
+## 14. The Job Post Finder Tab
 
 If Add a Job Post Finder tab? is Yes, the tracker gets a minimal sheet: Company Name and the full Suggested Job Title Keywords cell (all variants, not reduced to one), nothing else — no formulas, no hyperlinks.
 
 Different moment than Quick Links: that tab gives pre-built links to three platforms using one title; this tab gives the raw ingredients — company plus all keyword variants — to paste into whatever job board or search tool you actually want to use.
 
-## 16. The Outreach Contacts Tab
+## 15. The Outreach Contacts Tab
 
 If Add an Outreach Contacts tab? is Yes, the tracker gets a four-column sheet — Company, Key Contacts / Priority Titles, Warm Introduction Path, Category, in that exact order — copied straight from the main tracker. These four columns aren't adjacent on the main sheet, so this tab exists purely to put them side by side for a clean copy-paste into the companion Outreach Message Builder tool's bulk-paste box.
 
-## 17. The Industry Events & Forums Tab (and How Category Drives It)
+## 16. The Industry Events & Forums Tab (and How Category Drives It)
 
 If Yes, adds a tab of real, upcoming conferences and trade shows — one row per event, not per company. The Relevant To column reuses your main sheet's Category values directly, so it stays connected to however your companies are already grouped.
 
 Same honesty standard as everywhere else: only real, currently findable events with a real URL. Thin coverage is reported directly rather than invented.
 
-## 18. The Company Activity & Events Tab
+## 17. The Company Activity & Events Tab
 
 Off by default. One row per company instead of per event — recent LinkedIn activity, podcast/webcast appearances, upcoming events that company is attending or speaking at.
 
 A meaningfully harder research task than Industry Events. Claude checks each company from a few different angles (LinkedIn page directly, podcast/webinar search, conference/sponsor search) before concluding there's nothing. Expect real unevenness — many rows will legitimately read "No recent public activity found" or, for a large batch, "not individually checked this pass," which is the honest result, not a sign something's broken.
 
-## 19. Key Contacts and 10-K Filings
+## 18. Key Contacts and 10-K Filings
 
 For publicly traded companies specifically, a second data point is layered on top of the practice-level Key Contact: a check of the company's most recent 10-K for a named individual responsible for cybersecurity governance (SEC Regulation S-K Item 106 / Item 1C). When found, added as a clearly labeled second line: "(per FY20XX 10-K)."
 
@@ -267,13 +257,13 @@ For publicly traded companies specifically, a second data point is layered on to
 - Not every public company names someone — when that happens, the tracker says so directly.
 - It's only as current as the filing.
 
-## 20. Compensation Benchmark
+## 19. Compensation Benchmark
 
 If the named 10-K individual also appears in the company's proxy statement (DEF 14A) as a Named Executive Officer, their disclosed total compensation is reported alongside them.
 
 *This will genuinely apply to a minority of companies — proxy statements only disclose compensation for the top handful of executives, and a security-specific role is rarely among them.*
 
-## 21. Section 3 — LinkedIn Contact Enrichment
+## 20. Section 3 — LinkedIn Contact Enrichment
 
 A separate, self-contained card at the bottom of the page. This is a fully independent feature — it doesn't touch or require the Section 2 tracker, and generates its own standalone prompt with its own Copy/Download buttons.
 
@@ -288,6 +278,6 @@ A separate, self-contained card at the bottom of the page. This is a fully indep
 
 **What you get back:** for each target company, any matching contacts — name, title, LinkedIn URL, current/former status, and a Match Confidence rating. Companies with no match are listed as "No match found" rather than dropped.
 
-## 22. A Faster Way to Fill This Out (Reverse Note)
+## 21. A Faster Way to Fill This Out (Reverse Note)
 
 If you'd rather not use the web form at all, there's a companion plain-text template — Target_Company_Research_Prompt_Template (.md) — with the same fields laid out as fill-in-the-blank text you can paste directly into a Claude chat. Use whichever format is more convenient in the moment; both produce the same result. (Note: this template covers Section 2 only — Section 1 and Section 3 don't have a plain-text equivalent yet.)

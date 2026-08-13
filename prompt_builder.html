@@ -120,8 +120,6 @@
   .btn-danger{background:#fbeaea;color:#b23b3b;}
   .btn-danger:hover{background:#f6d9d9;}
   .stat-line{font-size:12px;color:var(--muted);margin-bottom:10px;}
-  .template-row{display:flex;gap:8px;margin-top:6px;}
-  .template-row select{flex:1;}
   #placeholder{color:var(--muted);font-style:italic;font-size:13.5px;}
   .row{padding:0 24px;max-width:1400px;margin:0 auto;}
   .divider{height:1px;background:var(--border);margin:16px 0;}
@@ -135,8 +133,6 @@
     header h1{font-size:19px;}
     .card{padding:16px 14px;}
     .radio-row{gap:12px;}
-    .template-row{flex-wrap:wrap;}
-    .template-row select{flex:1 1 100%;}
   }
 </style>
 </head>
@@ -383,25 +379,6 @@
         </div>
       </fieldset>
 
-      <fieldset>
-        <legend>Templates</legend>
-        <div class="field">
-          <label for="templateName">Template name</label>
-          <div class="template-row">
-            <input type="text" id="templateName" placeholder="e.g. OT Vendors">
-            <button class="btn-secondary" id="saveTemplateBtn">Save current as template</button>
-          </div>
-        </div>
-        <div class="field">
-          <label for="templateSelect">Load a saved template</label>
-          <div class="template-row">
-            <select id="templateSelect"><option value="">— none saved yet —</option></select>
-            <button class="btn-secondary" id="loadTemplateBtn">Load</button>
-            <button class="btn-danger" id="deleteTemplateBtn">Delete</button>
-          </div>
-        </div>
-      </fieldset>
-
       <button class="btn-danger" id="resetBtn">Reset all fields</button>
     </div>
   </div>
@@ -464,7 +441,6 @@
 <script>
 const fieldCountEl = document.getElementById('fieldCount');
 const promptTextEl = document.getElementById('promptText');
-let loadedTemplateName = null;
 
 function val(id){ return document.getElementById(id).value.trim(); }
 function radioVal(name){
@@ -846,133 +822,8 @@ document.getElementById('downloadBtn').addEventListener('click', () => {
   URL.revokeObjectURL(url);
 });
 
-// --- Templates (stored in-memory for this session; not persisted across page reloads) ---
-let templates = {};
-
-function collectFieldData(){
-  return {
-    companies: val('companies'),
-    industry: val('industry'),
-    naics: val('naics'),
-    excludeCompanies: val('excludeCompanies'),
-    companySize: val('companySize'),
-    zipCode: val('zipCode'),
-    radiusMiles: val('radiusMiles'),
-    perCode: val('perCode'),
-    purpose: val('purpose'),
-    location: val('location'),
-    background: val('background'),
-    scope: radioVal('scope'),
-    secondary: radioVal('secondary'),
-    tiered: radioVal('tiered'),
-    tier1Size: val('tier1Size'),
-    tier2Size: val('tier2Size'),
-    bulkSize: val('bulkSize'),
-    maEnabled: radioVal('maEnabled'),
-    maAngle: radioVal('maAngle'),
-    formatting: radioVal('formatting'),
-    quickLinks: radioVal('quickLinks'),
-    jobFinder: radioVal('jobFinder'),
-    outreachContacts: radioVal('outreachContacts'),
-    events: radioVal('events'),
-    eventsWindow: radioVal('eventsWindow'),
-    companyEvents: radioVal('companyEvents'),
-    companyEventsWindow: radioVal('companyEventsWindow'),
-  };
-}
-
-function applyFieldData(data){
-  document.getElementById('companies').value = data.companies || '';
-  document.getElementById('industry').value = data.industry || '';
-  document.getElementById('naics').value = data.naics || '';
-  document.getElementById('excludeCompanies').value = data.excludeCompanies || '';
-  document.getElementById('companySize').value = data.companySize || '';
-  document.getElementById('zipCode').value = data.zipCode || '';
-  document.getElementById('radiusMiles').value = data.radiusMiles || '100';
-  document.getElementById('perCode').value = data.perCode || '';
-  document.getElementById('purpose').value = data.purpose || '';
-  document.getElementById('location').value = data.location || '';
-  document.getElementById('background').value = data.background || '';
-  document.getElementById('tier1Size').value = data.tier1Size || '25';
-  document.getElementById('tier2Size').value = data.tier2Size || '75';
-  document.getElementById('bulkSize').value = data.bulkSize || '75-100';
-  const scopeVal = data.scope || 'find';
-  const secondaryVal = data.secondary || 'yes';
-  const tieredVal = data.tiered || 'no';
-  const maEnabledVal = data.maEnabled || 'no';
-  const maAngleVal = data.maAngle || 'target';
-  const formattingVal = data.formatting || 'yes';
-  const quickLinksVal = data.quickLinks || 'yes';
-  const jobFinderVal = data.jobFinder || 'yes';
-  const outreachContactsVal = data.outreachContacts || 'yes';
-  const eventsVal = data.events || 'yes';
-  const eventsWindowVal = data.eventsWindow || '12';
-  const companyEventsVal = data.companyEvents || 'no';
-  const companyEventsWindowVal = data.companyEventsWindow || '90';
-  document.querySelector(`input[name="scope"][value="${scopeVal}"]`).checked = true;
-  document.querySelector(`input[name="secondary"][value="${secondaryVal}"]`).checked = true;
-  document.querySelector(`input[name="tiered"][value="${tieredVal}"]`).checked = true;
-  document.querySelector(`input[name="maEnabled"][value="${maEnabledVal}"]`).checked = true;
-  document.querySelector(`input[name="maAngle"][value="${maAngleVal}"]`).checked = true;
-  document.querySelector(`input[name="formatting"][value="${formattingVal}"]`).checked = true;
-  document.querySelector(`input[name="quickLinks"][value="${quickLinksVal}"]`).checked = true;
-  document.querySelector(`input[name="jobFinder"][value="${jobFinderVal}"]`).checked = true;
-  document.querySelector(`input[name="outreachContacts"][value="${outreachContactsVal}"]`).checked = true;
-  document.querySelector(`input[name="events"][value="${eventsVal}"]`).checked = true;
-  document.querySelector(`input[name="eventsWindow"][value="${eventsWindowVal}"]`).checked = true;
-  document.querySelector(`input[name="companyEvents"][value="${companyEventsVal}"]`).checked = true;
-  document.querySelector(`input[name="companyEventsWindow"][value="${companyEventsWindowVal}"]`).checked = true;
-  toggleMaAngleField();
-  toggleScopeFields();
-  render();
-  bulkRender();
-}
-
-function refreshTemplateSelect(){
-  const sel = document.getElementById('templateSelect');
-  sel.innerHTML = '';
-  const names = Object.keys(templates);
-  if(names.length === 0){
-    sel.innerHTML = '<option value="">— none saved yet —</option>';
-    return;
-  }
-  names.forEach(name => {
-    const opt = document.createElement('option');
-    opt.value = name;
-    opt.textContent = name;
-    sel.appendChild(opt);
-  });
-}
-
-document.getElementById('saveTemplateBtn').addEventListener('click', () => {
-  const name = val('templateName');
-  if(!name){ alert('Give the template a name first.'); return; }
-  templates[name] = collectFieldData();
-  refreshTemplateSelect();
-  document.getElementById('templateSelect').value = name;
-  loadedTemplateName = name;
-  alert(`Saved as "${name}". Note: templates only persist for this browser session — they're cleared if you close or reload the page.`);
-});
-
-document.getElementById('loadTemplateBtn').addEventListener('click', () => {
-  const sel = document.getElementById('templateSelect');
-  const name = sel.value;
-  if(!name || !templates[name]) return;
-  applyFieldData(templates[name]);
-  loadedTemplateName = name;
-});
-
-document.getElementById('deleteTemplateBtn').addEventListener('click', () => {
-  const sel = document.getElementById('templateSelect');
-  const name = sel.value;
-  if(!name || !templates[name]) return;
-  if(!confirm(`Delete template "${name}"?`)) return;
-  delete templates[name];
-  refreshTemplateSelect();
-});
-
 document.getElementById('resetBtn').addEventListener('click', () => {
-  if(!confirm('Clear all fields on the form? This does not affect any saved templates.')) return;
+  if(!confirm('Clear all fields on the form?')) return;
   document.querySelectorAll('input[type=text], textarea').forEach(el => el.value = '');
   document.getElementById('radiusMiles').value = '100';
   document.getElementById('tier1Size').value = '25';
@@ -993,12 +844,10 @@ document.getElementById('resetBtn').addEventListener('click', () => {
   document.getElementById('bulkSize').value = '75-100';
   toggleMaAngleField();
   toggleScopeFields();
-  loadedTemplateName = null;
   render();
   bulkRender();
 });
 
-refreshTemplateSelect();
 toggleScopeFields();
 render();
 bulkRender();
