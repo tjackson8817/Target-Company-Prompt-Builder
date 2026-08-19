@@ -9,7 +9,7 @@ User Guide
 **Live Tool:** [https://tjackson8817.github.io/Target-Company-Prompt-Builder/](https://tjackson8817.github.io/Target-Company-Prompt-Builder/)
 
 Created By: Tom Jackson
-Updated: August 11, 2026 — v3 (adds Section 1 Bulk Company Pull; discovery method changed from NAICS-based search to competitor-cascade; see "What Changed in v3" below)
+Updated: August 18, 2026 — v4 (adds Section 4 Department Contact Finder; see "What Changed in v4" below)
 
 ## About This Tool & Cross-Platform Compatibility
 
@@ -41,6 +41,10 @@ If you used an earlier version of this tool, three things are different:
 - **Discovery method changed.** Earlier versions framed NAICS codes as the way Claude finds new companies. That didn't hold up in practice — a NAICS code alone is too broad to search by, and the one government source that can filter companies by code (SAM.gov) blocks automated access. Discovery is now driven by a competitor cascade, analyst/category sources, conference exhibitor lists, and live job-posting search — with NAICS demoted to a supporting classification tag (up to 5 codes per company) rather than the discovery engine. See Section 5.
 - **Tiering is now a manual, adjustable toggle**, not an automatic 25-company cap. You choose Tier 1 and Tier 2 sizes yourself, and tiering only takes effect when Discovery scope is "Find new companies" — it's ignored in "Just enrich these" mode, since there's no discovered pool to rank in that mode. See Section 8.
 
+### What Changed in v4
+
+- **New: Section 4 — Department Contact Finder.** A fourth self-contained prompt, run separately like Section 3, that finds *named individuals* at a target company who work in or near a specific role/department — sourced from live web search (LinkedIn profiles, company team pages, press, case studies), not your own contacts. It's the fulfillment step for the main tracker's Key Contacts / Priority Titles column, which often comes back as a placeholder like "Practice-level title only — no named individual confirmed." See Section 21.
+
 ## Claude Settings You'll Need Before You Start
 
 These prompts ask Claude to do two things: research live, and build a real .xlsx file. Both depend on settings that aren't always on by default.
@@ -60,14 +64,15 @@ Nothing is sent anywhere when you use this — it's just a form that builds text
 
 ## 2. How the Page Is Organized
 
-The tool is one page, top to bottom, in four parts:
+The tool is one page, top to bottom, in five parts:
 
 1. **Shared Inputs** — the fields every other section reads from (companies you know, industry, NAICS, exclusions, size/location filters).
 2. **Section 1 — Bulk Company Pull** (optional) — a fast, wide, low-detail discovery prompt you run first if you want a large candidate list to prune by hand.
 3. **Section 2 — Full Research Tracker** — the main tool: scope, purpose, tiering, formatting, and optional tabs, producing the full research prompt.
 4. **Section 3 — LinkedIn Contact Enrichment** (optional) — a separate, self-contained prompt that cross-references a LinkedIn export against a company shortlist.
+5. **Section 4 — Department Contact Finder** (optional) — a separate, self-contained prompt that finds named individuals at a target company via live web search, tiered by how closely their role matches what you're looking for. See Section 21.
 
-Sections 1, 2, and 3 each have their own Copy prompt / Download .txt buttons and their own output panel — they are three separate prompts meant to be run as separate Claude conversations (or separate messages), not one combined prompt.
+Sections 1, 2, 3, and 4 each have their own Copy prompt / Download .txt buttons and their own output panel — they are four separate prompts meant to be run as separate Claude conversations (or separate messages), not one combined prompt.
 
 ## 3. Shared Inputs
 
@@ -278,6 +283,30 @@ A separate, self-contained card at the bottom of the page. This is a fully indep
 
 **What you get back:** for each target company, any matching contacts — name, title, LinkedIn URL, current/former status, and a Match Confidence rating. Companies with no match are listed as "No match found" rather than dropped.
 
-## 21. A Faster Way to Fill This Out (Reverse Note)
+## 21. Section 4 — Department Contact Finder
 
-If you'd rather not use the web form at all, there's a companion plain-text template — Target_Company_Research_Prompt_Template (.md) — with the same fields laid out as fill-in-the-blank text you can paste directly into a Claude chat. Use whichever format is more convenient in the moment; both produce the same result. (Note: this template covers Section 2 only — Section 1 and Section 3 don't have a plain-text equivalent yet.)
+A fourth self-contained card at the bottom of the page, below Section 3. This is independent — it doesn't touch or require Section 2 or Section 3, and generates its own standalone prompt with its own Copy/Download buttons.
+
+**What it does:** finds named individuals at a target company who work in or near a specific role/department, sourced from live web research (LinkedIn profiles, company team/leadership pages, press, case studies) — not your own contacts, unlike Section 3. This is the fulfillment step for the main tracker's **Key Contacts / Priority Titles** column, which frequently comes back as a placeholder like *"Practice-level title only — no named individual independently confirmed this pass."* Section 4 exists to convert that placeholder into real names.
+
+**How to use it**
+
+- Paste your target companies into the box, one per line — the Company column from a Section 1 or Section 2 tracker works directly. Keep the list to **15 companies or fewer** — the tool warns inline and auto-truncates if you go over. This task is more search-intensive per company than Section 3's fuzzy-match, since each company/role pair requires its own live web search, so the cap is lower than Section 3's 25.
+- Enter a **Target role / department** — a practice or team name, not a full job title. If you have a Section 2 tracker open, pull the shortest variant from that company's **Suggested Job Title Keywords** cell (e.g. "Cyber Risk OT" rather than "Managing Director, Cyber Risk OT") — dropping the seniority level widens the search instead of narrowing it to one level.
+- Set **Include adjacent teams?** — "Yes" (default) widens the search beyond an exact department match when Tier 1 results are thin (see tiering below). "No" restricts results to exact matches only, and reports plainly when a company has none rather than substituting a looser match.
+- Copy or download the generated prompt.
+- Start a **new** Claude conversation with Web search enabled, and paste the prompt in.
+
+**Match tiers.** Every result is labeled with one of three tiers, never blended silently:
+
+| Tier | Definition |
+|---|---|
+| 1 — Exact | Title or team name matches the target role/department directly |
+| 2 — Adjacent | Same general practice area, broader scope than the target |
+| 3 — Umbrella | Parent practice or risk/functional area likely overseeing the target area |
+
+**What you get back:** for each target company, a tiered table of named individuals — Company, Matched Person's Name, Title, Department/Team, Match Tier, Source, and a Confidence rating (High/Medium/Low). Companies with no usable public results are listed as "No public matches found" rather than dropped. The columns are laid out so the rows can be pasted directly into a Section 2 tracker's Key Contacts / Priority Titles column.
+
+## 22. A Faster Way to Fill This Out (Reverse Note)
+
+If you'd rather not use the web form at all, there's a companion plain-text template — Target_Company_Research_Prompt_Template (.md) — with the same fields laid out as fill-in-the-blank text you can paste directly into a Claude chat. Use whichever format is more convenient in the moment; both produce the same result. (Note: this template covers Section 2 only — Section 1, Section 3, and Section 4 don't have a plain-text equivalent yet.)
