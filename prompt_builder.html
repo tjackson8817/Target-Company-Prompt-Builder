@@ -140,7 +140,7 @@
 
 <header>
   <h1>Target Company Research Prompt Builder</h1>
-  <p>Fill in what you know once — Section 1 builds a wide-net bulk pull, Section 2 builds the full research tracker, Section 3 builds LinkedIn contact enrichment. v3</p>
+  <p>Fill in what you know once — Section 1 builds a wide-net bulk pull, Section 2 builds the full research tracker, Section 3 builds LinkedIn contact enrichment, Section 4 finds named department contacts via web search. v4</p>
 </header>
 
 <div class="row">
@@ -433,6 +433,53 @@
           <li>Match Confidence — High (exact company name match), Medium (clear variant/subsidiary match), or Low (plausible but uncertain, e.g. a similar name or ambiguous abbreviation)</li>
         </ul>
         <p class="hint" style="font-size:13px;color:var(--text);margin-bottom:0;">If a target company has no matching contact in your CSV, it's still included in the results as "No match found" rather than omitted, so you can see coverage across your full list. The result is formatted as an Excel workbook (.xlsx).</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row" id="deptRow">
+  <div class="col">
+    <div class="card">
+      <h2>Section 4 (optional) — Department Contact Finder</h2>
+      <p class="hint">A separate, focused prompt that finds <strong>named individuals</strong> at a target company who work in or near a specific role/department — sourced from public web research (LinkedIn profiles, company team pages, press, case studies), not your own contacts. This is the fulfillment step for the main tracker's <strong>Key Contacts / Priority Titles</strong> column, which often comes back as a placeholder like "Practice-level title only — no named individual confirmed" — this prompt exists to turn that into real names. Works best with <strong>15 or fewer companies</strong>, since each company/role pair needs its own live web search — a heavier per-company lift than Section 3's fuzzy-match.</p>
+      <p class="hint">Run it separately: paste your target companies below, along with the role/department you're targeting — the shortest variant from your tracker's <strong>Suggested Job Title Keywords</strong> column tends to work better here than the full title (e.g. "Cyber Risk OT" rather than "Managing Director, Cyber Risk OT" — dropping the seniority level widens the search instead of narrowing it to one level). Download the .txt, then paste into a <strong>new chat with web search enabled</strong>.</p>
+
+      <div class="field">
+        <label for="deptCompanies">Your target companies (one per line, 15 or fewer)</label>
+        <textarea id="deptCompanies" rows="6" placeholder="Paste the Company column from your tracker, or type company names, one per line — 15 or fewer works best"></textarea>
+        <p class="hint" id="deptCountHint"></p>
+      </div>
+
+      <div class="field">
+        <label for="deptRole">Target role / department</label>
+        <input type="text" id="deptRole" placeholder='e.g. "OT Cybersecurity" or "Audit" — a department/practice name, not a full job title'>
+        <p class="hint">Pulled from your tracker's Suggested Job Title Keywords if you have one open — use the shortest variant. This is what the search matches against, tiered by closeness (see below).</p>
+      </div>
+
+      <div class="field">
+        <label>Include adjacent teams?</label>
+        <div class="radio-row">
+          <label class="radio-opt"><input type="radio" name="deptAdjacent" value="yes" checked> Yes — widen beyond an exact match</label>
+          <label class="radio-opt"><input type="radio" name="deptAdjacent" value="no"> No — exact department match only</label>
+        </div>
+        <p class="hint">"Yes" (default) also returns Tier 2 (adjacent practice, broader scope) and Tier 3 (umbrella/parent practice) matches when an exact match is thin — every result is still labeled with its tier, never blended in silently. "No" returns Tier 1 exact matches only, and says so plainly when a company has none, rather than substituting a looser match.</p>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn-primary" id="copyDeptBtn">Copy prompt</button>
+        <button class="btn-secondary" id="downloadDeptBtn">Download .txt</button>
+      </div>
+      <div id="deptPromptText"><span id="deptPlaceholder">Fill in your target companies and a target role/department above to see this prompt appear here.</span></div>
+
+      <div style="margin-top:20px;padding:14px 16px;background:#fcfdfe;border:1px solid var(--border);border-radius:8px;">
+        <p class="hint" style="font-size:13px;color:var(--text);margin-top:0;"><strong>Match tiers used in this prompt:</strong></p>
+        <ul class="hint" style="font-size:13px;color:var(--text);margin:0 0 12px 18px;padding:0;line-height:1.6;">
+          <li><strong>Tier 1 — Exact:</strong> title or team name matches the target role/department directly.</li>
+          <li><strong>Tier 2 — Adjacent:</strong> same general practice area, broader scope than the target.</li>
+          <li><strong>Tier 3 — Umbrella:</strong> parent practice or risk/functional area likely overseeing the target area.</li>
+        </ul>
+        <p class="hint" style="font-size:13px;color:var(--text);margin-bottom:0;">For each match found, the report has Company, Matched Person's Name, Title, Department/Team (as stated in the source), Match Tier, Source, and a Confidence rating (High/Medium/Low). Companies with no usable public results are listed as "No public matches found" rather than dropped. The result is formatted as an Excel workbook (.xlsx), with rows ready to paste back into the tracker's Key Contacts / Priority Titles column.</p>
       </div>
     </div>
   </div>
@@ -929,6 +976,100 @@ document.getElementById('downloadEnrichBtn').addEventListener('click', () => {
 });
 
 enrichRender();
+
+// --- Section 4: Department Contact Finder (separate, standalone prompt) ---
+const deptPromptTextEl = document.getElementById('deptPromptText');
+const deptCountHintEl = document.getElementById('deptCountHint');
+const DEPT_COMPANY_CAP = 15;
+
+function buildDeptPrompt(){
+  const raw = val('deptCompanies');
+  const list = raw.split('\n').map(s => s.trim()).filter(Boolean).slice(0, DEPT_COMPANY_CAP);
+  const role = val('deptRole');
+  const adjacent = radioVal('deptAdjacent') === 'no' ? 'No' : 'Yes';
+  if(list.length === 0 || !role) return null;
+
+  let lines = [];
+  lines.push(`Please execute this task directly using web search — search now, rather than describing your plan first or asking permission.`);
+  lines.push("");
+  lines.push(`I'm researching named individuals at specific companies who work in or near a target department/role, to identify potential networking contacts. This should use live web search (LinkedIn profiles, company team/leadership pages, press releases, case studies, job postings) — not your training data alone, since roles and org structures change.`);
+  lines.push("");
+  lines.push(`Target role/department: ${role}`);
+  lines.push("");
+  lines.push(`Target companies (one per line):`);
+  list.forEach(c => lines.push(`- ${c}`));
+  lines.push("");
+  lines.push(`Include adjacent teams: ${adjacent}`);
+  lines.push("");
+  lines.push(`For each target company, search for named individuals whose title or team matches the target role/department, using this tiering:`);
+  lines.push(`- Tier 1 (Exact): title or team name matches the target role/department directly.`);
+  lines.push(`- Tier 2 (Adjacent): same general practice area, broader scope than the target.`);
+  lines.push(`- Tier 3 (Umbrella): parent practice or risk/functional area likely overseeing the target area.`);
+  lines.push("");
+  if(adjacent === 'No'){
+    lines.push(`Include adjacent teams is set to No — return Tier 1 exact matches only. If a company has no Tier 1 matches, say so rather than substituting a lower tier.`);
+  } else {
+    lines.push(`Include adjacent teams is set to Yes — return Tier 1 first for each company, then include Tier 2 and Tier 3 matches when Tier 1 is thin or empty, always labeled clearly with their tier. Never blend tiers without marking them.`);
+  }
+  lines.push("");
+  lines.push(`For each match found, report: Company, Matched Person's Name, Title, Department/Team (as stated in the source), Match Tier, Source (e.g. LinkedIn profile, company page, case study, press release), and a Confidence rating (High/Medium/Low) reflecting how directly the source confirms current department membership. Never fabricate a name, title, or team — if you cannot confirm a detail, state that explicitly rather than guessing.`);
+  lines.push("");
+  lines.push(`If a target company has no usable public results, still include it as "No public matches found" rather than omitting it.`);
+  lines.push("");
+  lines.push(`Format the result as a formatted Excel workbook (.xlsx) — or a clearly organized table in your reply if you can't create a file — with one row per matched person, grouped by company and sorted by tier. This is a standalone task; it doesn't rebuild or modify any tracker from a separate conversation, but the columns are laid out so the rows can be pasted directly into a tracker's "Key Contacts / Priority Titles" column afterward.`);
+
+  return lines.join("\n");
+}
+
+function deptRender(){
+  const rawList = val('deptCompanies').split('\n').map(s => s.trim()).filter(Boolean);
+  const prompt = buildDeptPrompt();
+  if(prompt === null){
+    deptPromptTextEl.innerHTML = '<span id="deptPlaceholder">Fill in your target companies and a target role/department above to see this prompt appear here.</span>';
+  } else {
+    deptPromptTextEl.textContent = prompt;
+  }
+  if(rawList.length > DEPT_COMPANY_CAP){
+    deptCountHintEl.textContent = `${rawList.length} companies listed — only the first ${DEPT_COMPANY_CAP} will be included. This task runs a live search per company/role pair, so it's capped lower than Section 3; trim the list or split into batches for more.`;
+  } else if(rawList.length > 0){
+    deptCountHintEl.textContent = `${rawList.length} compan${rawList.length === 1 ? 'y' : 'ies'} listed.`;
+  } else {
+    deptCountHintEl.textContent = '';
+  }
+}
+
+document.getElementById('deptCompanies').addEventListener('input', deptRender);
+document.getElementById('deptRole').addEventListener('input', deptRender);
+document.querySelectorAll('input[name="deptAdjacent"]').forEach(el => {
+  el.addEventListener('change', deptRender);
+});
+
+document.getElementById('copyDeptBtn').addEventListener('click', () => {
+  const prompt = buildDeptPrompt();
+  if(!prompt) return;
+  navigator.clipboard.writeText(prompt).then(() => {
+    const btn = document.getElementById('copyDeptBtn');
+    const original = btn.textContent;
+    btn.textContent = 'Copied!';
+    setTimeout(() => btn.textContent = original, 1500);
+  }).catch(() => {
+    alert('Clipboard blocked by your browser — use the Download .txt button instead.');
+  });
+});
+
+document.getElementById('downloadDeptBtn').addEventListener('click', () => {
+  const prompt = buildDeptPrompt();
+  if(!prompt) return;
+  const blob = new Blob([prompt], {type: 'text/plain'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'department_contact_finder_prompt.txt';
+  a.click();
+  URL.revokeObjectURL(url);
+});
+
+deptRender();
 </script>
 </body>
 </html>
