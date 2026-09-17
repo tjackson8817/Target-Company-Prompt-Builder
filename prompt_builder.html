@@ -140,7 +140,7 @@
 
 <header>
   <h1>Target Company Research Prompt Builder</h1>
-  <p>Fill in what you know once — Section 1 builds a wide-net bulk pull, Section 2 builds the full research tracker, Section 3 builds LinkedIn contact enrichment, Section 4 finds named department contacts via web search. v4</p>
+  <p>Fill in what you know once — Section 1 builds a wide-net bulk pull, Section 2 builds the detail company pull (full research tracker), Section 3 builds LinkedIn contact enrichment, Section 4 finds named department contacts via web search. v4</p>
 </header>
 
 <div class="row">
@@ -148,7 +148,7 @@
     <div class="card">
       <fieldset>
         <legend>Shared Inputs</legend>
-        <p class="hint" style="margin-top:-4px;margin-bottom:12px;">Fill in at least one of these — use more than one if you have them, and they'll be combined. These feed both Section 1 (Bulk Company Pull) and Section 2 (Full Research Tracker) below.</p>
+        <p class="hint" style="margin-top:-4px;margin-bottom:12px;">Fill in at least one of these — use more than one if you have them, and they'll be combined. These feed both Section 1 (Bulk Company Pull) and Section 2 (Detail Company Pull) below.</p>
 
         <div class="field">
           <label for="companies">Company(s) you know <span class="tag">optional</span></label>
@@ -217,6 +217,8 @@
   <div class="col">
 
     <div class="card">
+      <h2>Section 2 — Detail Company Pull</h2>
+      <p class="hint">The main tool — full per-company research (up to 36 columns) and a fully formatted Excel tracker, built from the Shared Inputs above plus everything you set below.</p>
       <fieldset>
         <legend>Section 2 · Scope &amp; purpose</legend>
 
@@ -253,7 +255,7 @@
         <div class="field" id="tier2SizeField" style="display:none;">
           <label for="tier2Size">Tier 2 size (lighter detail)</label>
           <input type="text" id="tier2Size" placeholder="e.g. 75" value="75">
-          <p class="hint">These skip the expensive per-company lookups (job-board checks, 10-K/proxy research, named contacts, keyword generation) and just get enough to judge fit and know who they are.</p>
+          <p class="hint">These skip the expensive per-company lookups (job-board checks, 10-K/proxy research, named contacts, keyword generation) and just get enough to judge fit and know who they are. The generated prompt now explicitly requires both tabs to come back populated — if a past run left this tab empty, that instruction is what was missing.</p>
         </div>
 
         <div class="field" id="secondaryField">
@@ -643,6 +645,7 @@ function buildPrompt(){
     lines.push(`10. Source URL`);
     lines.push("");
     lines.push(`Output structure for the two-tier list: put Tier 1 companies in a tab named "Tier 1 - Priority Targets" (the full column set above, with all formatting rules below applied) and Tier 2 companies in a separate tab named "Tier 2 - Extended List" (the slim column set just above, plain data — autofilter is fine, but skip the rating-color gradient and Suggested Priority Rank formula since Tier 2 doesn't have the underlying rating columns those depend on). Any tabs below that pull from "the main tracker" (Job Posting Quick Links, Job Post Finder, Outreach Contacts) should pull from Tier 1 only, since they depend on Tier-1-only columns like Suggested Job Title Keywords and Key Contacts / Priority Titles.`);
+    lines.push(`Both tabs are required output, not optional — do not deliver a workbook where "Tier 2 - Extended List" is empty, header-only, or missing. Budget your effort accordingly: Tier 2's column set is deliberately short specifically so you have room to actually populate all ${tier2Size} of those rows after finishing Tier 1's deeper research, not so you can skip it.`);
     lines.push("");
   }
   if(formatting){
@@ -709,6 +712,10 @@ function buildPrompt(){
     lines.push(`- Source URL(s)`);
     lines.push(`Search each company individually and from a few different angles before concluding there's nothing — don't rely on a single generic search. For each company, try at minimum: (1) the company's own LinkedIn company page directly, not just a general web search of its name, (2) "[company name] podcast" and "[company name] webinar" or "webcast", and (3) "[company name] conference 2026" or "[company name] speaking OR sponsoring OR exhibiting". Only after checking these specifically should you conclude there's nothing findable for that company.`);
     lines.push(`This is inherently uneven across companies -- some will have a rich public footprint, many will have little to nothing findable, and that's expected. Same honesty standard as the rest of this request: only report activity you can verify via search with a real, working URL and date. If you can't find meaningful recent activity for a company after the checks above, write "No recent public activity found" rather than fabricating a LinkedIn post, podcast appearance, or event that doesn't actually exist. If most or all companies come back with "No recent public activity found," say so plainly in the Notes tab rather than letting an empty-looking tab speak for itself — note briefly what was searched, so I know it was actually checked rather than skipped.`);
+    lines.push("");
+  }
+  if(tieredActive){
+    lines.push(`Before you finish and hand back the file, confirm both tiers are actually present and populated: "Tier 1 - Priority Targets" should have all ${tier1Size} companies with every Tier 1 column filled in, and "Tier 2 - Extended List" should separately have its own ${tier2Size} companies (distinct from Tier 1, not a repeat of them) with the lighter Tier 2 column set filled in. A run that stops after Tier 1 and leaves Tier 2 empty or missing has not completed this task. If effort or time constraints genuinely mean you can't research the full counts requested, shrink both tiers proportionally rather than dropping Tier 2 to zero, and say so plainly in your reply — don't silently ship a Tier 1-only file.`);
     lines.push("");
   }
   lines.push(`Format the result as a clean, formatted Excel workbook (.xlsx) with a header row, reasonable column widths, and one row per company. Don't fabricate figures — mark estimates clearly and leave anything unverifiable blank rather than guessing.`);
