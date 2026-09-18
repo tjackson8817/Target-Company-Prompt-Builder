@@ -91,7 +91,7 @@
     position:sticky;
     top:24px;
   }
-  #promptText{
+  #promptText, #bulkPromptText, #enrichPromptText, #deptPromptText{
     white-space:pre-wrap;
     font-family:"SFMono-Regular",Consolas,Menlo,monospace;
     font-size:12.5px;
@@ -207,7 +207,10 @@
       <div class="btn-row">
         <button class="btn-primary" id="copyBulkBtn">Copy prompt</button>
         <button class="btn-secondary" id="downloadBulkBtn">Download .txt</button>
+        <button class="btn-secondary" id="loadBulkBtn" type="button">Load .txt to edit</button>
+        <input type="file" id="loadBulkInput" accept=".txt" style="display:none;">
       </div>
+      <p class="hint" id="loadBulkStatus"></p>
       <div id="bulkPromptText"><span id="bulkPlaceholder">Fill in at least one Shared Input above (company, industry, or NAICS code) to see this prompt appear here.</span></div>
     </div>
   </div>
@@ -390,7 +393,10 @@
       <div class="btn-row">
         <button class="btn-primary" id="copyBtn">Copy prompt</button>
         <button class="btn-secondary" id="downloadBtn">Download .txt</button>
+        <button class="btn-secondary" id="loadMainBtn" type="button">Load .txt to edit</button>
+        <input type="file" id="loadMainInput" accept=".txt" style="display:none;">
       </div>
+      <p class="hint" id="loadMainStatus"></p>
       <div class="stat-line"><span id="fieldCount">0</span> of 10 fields filled in</div>
       <div id="promptText"><span id="placeholder">Fill in at least one starting-point field or a purpose to see your prompt appear here.</span></div>
     </div>
@@ -411,7 +417,10 @@
       <div class="btn-row">
         <button class="btn-primary" id="copyEnrichBtn">Copy prompt</button>
         <button class="btn-secondary" id="downloadEnrichBtn">Download .txt</button>
+        <button class="btn-secondary" id="loadEnrichBtn" type="button">Load .txt to edit</button>
+        <input type="file" id="loadEnrichInput" accept=".txt" style="display:none;">
       </div>
+      <p class="hint" id="loadEnrichStatus"></p>
       <div id="enrichPromptText"><span id="enrichPlaceholder">Paste your top 25 companies from the Target Company spreadsheet above to see this prompt appear here.</span></div>
 
       <div style="margin-top:20px;padding:14px 16px;background:#fcfdfe;border:1px solid var(--border);border-radius:8px;">
@@ -471,7 +480,10 @@
       <div class="btn-row">
         <button class="btn-primary" id="copyDeptBtn">Copy prompt</button>
         <button class="btn-secondary" id="downloadDeptBtn">Download .txt</button>
+        <button class="btn-secondary" id="loadDeptBtn" type="button">Load .txt to edit</button>
+        <input type="file" id="loadDeptInput" accept=".txt" style="display:none;">
       </div>
+      <p class="hint" id="loadDeptStatus"></p>
       <div id="deptPromptText"><span id="deptPlaceholder">Fill in your target companies and a target role/department above to see this prompt appear here.</span></div>
 
       <div style="margin-top:20px;padding:14px 16px;background:#fcfdfe;border:1px solid var(--border);border-radius:8px;">
@@ -1077,6 +1089,336 @@ document.getElementById('downloadDeptBtn').addEventListener('click', () => {
 });
 
 deptRender();
+
+// ==================================================================
+// ---- Load a previously downloaded .txt prompt back into a section ----
+// Each section's parser reads the exact plain-text shape this tool
+// generates. Reliable on a prompt downloaded from this tool as-is;
+// heavily hand-edited text may not parse perfectly — review after loading.
+// ==================================================================
+
+function genericLoadParse(text, anchors, cutMarker){
+  const cutIdx = cutMarker ? text.indexOf(cutMarker) : -1;
+  const headerText = cutIdx >= 0 ? text.slice(0, cutIdx) : text;
+  const lines = headerText.split(/\r?\n/);
+  const data = {};
+  let field = null;
+  let buf = [];
+  function closeField(){
+    if(field){ data[field] = buf.join('\n').trim(); }
+    field = null; buf = [];
+  }
+  lines.forEach(line => {
+    let matched = null;
+    for(const a of anchors){
+      if(line.startsWith(a.prefix)){ matched = a; break; }
+    }
+    if(matched){
+      closeField();
+      const rest = line.slice(matched.prefix.length);
+      if(matched.key){ field = matched.key; buf = [rest]; }
+      else { field = null; buf = []; }
+      return;
+    }
+    if(field){ buf.push(line); return; }
+  });
+  closeField();
+  return data;
+}
+
+// ---- Section 1 loader ----
+const SECTION1_ANCHORS = [
+  { prefix: '- Company/companies I already know (use these as seeds for discovery, and include them in the output too): ', key: 'companies' },
+  { prefix: '- Industry / field (plain language): ', key: 'industry' },
+  { prefix: '- NAICS code(s) I already know: ', key: 'naics' },
+  { prefix: "- Exclude these companies entirely, even if they'd otherwise match: ", key: 'exclude' },
+  { prefix: '- Company size filter: ', key: 'companySizeRaw' },
+  { prefix: '- Location filter: ', key: 'locationRaw' },
+  { prefix: '- Target list size: ', key: 'bulkSizeRaw' },
+  { prefix: 'Discovery method — do NOT rely on NAICS codes as the search mechanism', key: null },
+];
+function parseSection1Prompt(text){
+  if(!text.includes('I want a fast, wide, low-detail list of candidate companies — NOT full research.')){
+    return { ok:false, reason: "Couldn't recognize this as a Bulk Company Pull prompt from this tool." };
+  }
+  const raw = genericLoadParse(text, SECTION1_ANCHORS, 'For each company, include only these columns');
+  const data = {
+    companies: raw.companies || '', industry: raw.industry || '', naics: raw.naics || '',
+    excludeCompanies: raw.exclude || '', companySize: '', zipCode: '', radiusMiles: '100',
+    bulkSize: '75-100',
+  };
+  if(raw.companySizeRaw){
+    const m = raw.companySizeRaw.match(/^only include companies matching "(.*)"/);
+    if(m) data.companySize = m[1];
+  }
+  if(raw.locationRaw){
+    const m = raw.locationRaw.match(/^only include companies headquartered within (.+?) miles of ZIP code (.+?), best effort/);
+    if(m){ data.radiusMiles = m[1]; data.zipCode = m[2]; }
+  }
+  if(raw.bulkSizeRaw){
+    const m = raw.bulkSizeRaw.match(/^(.*?) — go this wide since there's no per-company deep research cost here\./);
+    data.bulkSize = m ? m[1] : raw.bulkSizeRaw;
+  }
+  return { ok:true, data };
+}
+function populateShared(data){
+  if('companies' in data) document.getElementById('companies').value = data.companies;
+  if('industry' in data) document.getElementById('industry').value = data.industry;
+  if('naics' in data) document.getElementById('naics').value = data.naics;
+  if('excludeCompanies' in data) document.getElementById('excludeCompanies').value = data.excludeCompanies;
+  if('companySize' in data) document.getElementById('companySize').value = data.companySize;
+  if('zipCode' in data) document.getElementById('zipCode').value = data.zipCode;
+  if('radiusMiles' in data) document.getElementById('radiusMiles').value = data.radiusMiles || '100';
+}
+document.getElementById('loadBulkBtn').addEventListener('click', () => {
+  document.getElementById('loadBulkInput').click();
+});
+document.getElementById('loadBulkInput').addEventListener('change', (e) => {
+  const file = e.target.files[0];
+  const statusEl = document.getElementById('loadBulkStatus');
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    const result = parseSection1Prompt(reader.result);
+    if(!result.ok){
+      statusEl.textContent = result.reason + ' You can still paste its contents into the fields manually.';
+      return;
+    }
+    populateShared(result.data);
+    document.getElementById('bulkSize').value = result.data.bulkSize;
+    renderAll();
+    statusEl.textContent = `Loaded "${file.name}" — review the fields above, then regenerate.`;
+  };
+  reader.onerror = () => { statusEl.textContent = 'Could not read that file.'; };
+  reader.readAsText(file);
+  e.target.value = '';
+});
+
+// ---- Section 2 loader ----
+const SECTION2_ANCHORS = [
+  { prefix: '- Company/companies I know: ', key: 'companies' },
+  { prefix: '- Industry / field (plain language): ', key: 'industry' },
+  { prefix: '- NAICS code(s) I already know: ', key: 'naics' },
+  { prefix: '- Discovery scope: ', key: 'scopeRaw' },
+  { prefix: '- Roughly how many companies to find: ', key: 'perCodeRaw' },
+  { prefix: '- Include secondary/adjacent NAICS codes (suppliers, related industries): ', key: 'secondaryRaw' },
+  { prefix: "- Exclude these companies entirely, even if they'd otherwise match: ", key: 'exclude' },
+  { prefix: '- Discovery method — a NAICS code alone is too broad to use as a search filter', key: null },
+  { prefix: '- Two-tier list: use the discovery method above to build a candidate pool broader', key: 'tieredRaw' },
+  { prefix: '- What this list is for: ', key: 'purposeRaw' },
+  { prefix: '- Company size filter: ', key: 'companySizeRaw' },
+  { prefix: '- Location filter: ', key: 'locationFilterRaw' },
+  { prefix: '- Preferred location / work arrangement: ', key: 'location' },
+  { prefix: '- My background (use this to sharpen Suggested Job Title Keywords and Warm Introduction Path — look for former-employer overlap, transferable experience, or relevant credentials): ', key: 'background' },
+  { prefix: '- M&A research angle: ', key: 'maAngleRaw' },
+];
+function parseSection2Prompt(text){
+  if(!text.includes(`I want you to research target companies and build a formatted Excel tracker (.xlsx). Here's what I have:`)){
+    return { ok:false, reason: "Couldn't recognize this as a Detail Company Pull prompt from this tool." };
+  }
+  const cutMarker = text.includes('For each Tier 1 company, research and include these columns in the tracker:')
+    ? 'For each Tier 1 company, research and include these columns in the tracker:'
+    : 'For each company, research and include these columns in the tracker:';
+  const raw = genericLoadParse(text, SECTION2_ANCHORS, cutMarker);
+
+  const data = {
+    companies: raw.companies || '', industry: raw.industry || '', naics: raw.naics || '',
+    excludeCompanies: raw.exclude || '', companySize: '', zipCode: '', radiusMiles: '100',
+    scope: 'find', perCode: '', secondary: 'yes',
+    tiered: 'no', tier1Size: '25', tier2Size: '75',
+    purpose: '', location: raw.location || '', background: raw.background || '',
+    formatting: text.includes('Formatting requirements for the Excel file — apply all of these:') ? 'yes' : 'no',
+    quickLinks: text.includes('Also add a "Job Posting Quick Links" tab') ? 'yes' : 'no',
+    jobFinder: text.includes('Also add a "Job Post Finder" tab') ? 'yes' : 'no',
+    outreachContacts: text.includes('Also add an "Outreach Contacts" tab') ? 'yes' : 'no',
+    events: text.includes('Also add an "Industry Events & Forums" tab') ? 'yes' : 'no',
+    eventsWindow: '12',
+    companyEvents: text.includes('Also add a "Company Activity & Events" tab') ? 'yes' : 'no',
+    companyEventsWindow: '90',
+    maEnabled: raw.maAngleRaw !== undefined ? 'yes' : 'no',
+    maAngle: 'target',
+  };
+  if(raw.scopeRaw){ data.scope = raw.scopeRaw.startsWith('Just research the exact companies') ? 'enrich' : 'find'; }
+  if(raw.perCodeRaw){ data.perCode = raw.perCodeRaw === 'your judgment' ? '' : raw.perCodeRaw; }
+  if(raw.secondaryRaw){ data.secondary = raw.secondaryRaw.trim() === 'Yes' ? 'yes' : 'no'; }
+  if(raw.tieredRaw !== undefined){
+    data.tiered = 'yes';
+    const m1 = raw.tieredRaw.match(/The top (.+?) companies become "Tier 1"/);
+    const m2 = raw.tieredRaw.match(/The next (.+?) companies become "Tier 2"/);
+    if(m1) data.tier1Size = m1[1];
+    if(m2) data.tier2Size = m2[1];
+  }
+  if(raw.purposeRaw !== undefined){
+    data.purpose = raw.purposeRaw === 'Not specified — use general judgment for fit/category/contacts.' ? '' : raw.purposeRaw;
+  }
+  if(raw.companySizeRaw){
+    const m = raw.companySizeRaw.match(/^only include companies matching "(.*)" — exclude companies outside this size band\./);
+    if(m) data.companySize = m[1];
+  }
+  if(raw.locationFilterRaw){
+    const m = raw.locationFilterRaw.match(/^only include companies headquartered within (.+?) miles of ZIP code (.+?)\. Estimate the distance/);
+    if(m){ data.radiusMiles = m[1]; data.zipCode = m[2]; }
+  }
+  if(raw.maAngleRaw){
+    if(raw.maAngleRaw.includes('Treat each company as a potential acquisition target for me.')) data.maAngle = 'target';
+    else if(raw.maAngleRaw.includes('Treat each company as a potential acquirer of a business like mine.')) data.maAngle = 'acquirer';
+    else if(raw.maAngleRaw.includes("Rate each company's fit both as a potential acquisition target AND as a potential acquirer.")) data.maAngle = 'either';
+  }
+  if(data.events === 'yes'){
+    const m = text.match(/relevant to my stated industry\/purpose, scoped to (.+?)\./);
+    if(m){
+      if(m[1] === 'the next 6 months') data.eventsWindow = '6';
+      else if(m[1] === 'any upcoming date (no cutoff)') data.eventsWindow = 'any';
+      else data.eventsWindow = '12';
+    }
+  }
+  if(data.companyEvents === 'yes'){
+    const m = text.match(/Recent LinkedIn Activity — notable posts, announcements, or updates from (.+?),/);
+    if(m){
+      if(m[1] === 'the last 30 days') data.companyEventsWindow = '30';
+      else if(m[1] === 'the last 6 months') data.companyEventsWindow = '180';
+      else data.companyEventsWindow = '90';
+    }
+  }
+  return { ok:true, data };
+}
+function populateSection2(data){
+  populateShared(data);
+  document.querySelector(`input[name="scope"][value="${data.scope}"]`).checked = true;
+  document.getElementById('perCode').value = data.perCode;
+  document.querySelector(`input[name="secondary"][value="${data.secondary}"]`).checked = true;
+  document.querySelector(`input[name="tiered"][value="${data.tiered}"]`).checked = true;
+  document.getElementById('tier1Size').value = data.tier1Size;
+  document.getElementById('tier2Size').value = data.tier2Size;
+  document.getElementById('purpose').value = data.purpose;
+  document.getElementById('location').value = data.location;
+  document.getElementById('background').value = data.background;
+  document.querySelector(`input[name="formatting"][value="${data.formatting}"]`).checked = true;
+  document.querySelector(`input[name="quickLinks"][value="${data.quickLinks}"]`).checked = true;
+  document.querySelector(`input[name="jobFinder"][value="${data.jobFinder}"]`).checked = true;
+  document.querySelector(`input[name="outreachContacts"][value="${data.outreachContacts}"]`).checked = true;
+  document.querySelector(`input[name="events"][value="${data.events}"]`).checked = true;
+  document.querySelector(`input[name="eventsWindow"][value="${data.eventsWindow}"]`).checked = true;
+  document.querySelector(`input[name="companyEvents"][value="${data.companyEvents}"]`).checked = true;
+  document.querySelector(`input[name="companyEventsWindow"][value="${data.companyEventsWindow}"]`).checked = true;
+  document.querySelector(`input[name="maEnabled"][value="${data.maEnabled}"]`).checked = true;
+  document.querySelector(`input[name="maAngle"][value="${data.maAngle}"]`).checked = true;
+  toggleMaAngleField();
+  toggleScopeFields();
+  renderAll();
+}
+document.getElementById('loadMainBtn').addEventListener('click', () => {
+  document.getElementById('loadMainInput').click();
+});
+document.getElementById('loadMainInput').addEventListener('change', (e) => {
+  const file = e.target.files[0];
+  const statusEl = document.getElementById('loadMainStatus');
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    const result = parseSection2Prompt(reader.result);
+    if(!result.ok){
+      statusEl.textContent = result.reason + ' You can still paste its contents into the fields manually.';
+      return;
+    }
+    populateSection2(result.data);
+    statusEl.textContent = `Loaded "${file.name}" — review the fields above, then regenerate.`;
+  };
+  reader.onerror = () => { statusEl.textContent = 'Could not read that file.'; };
+  reader.readAsText(file);
+  e.target.value = '';
+});
+
+// ---- Section 3 loader ----
+function parseSection3Prompt(text){
+  if(!text.includes('Cross-reference my attached LinkedIn contacts CSV against this list of target companies')){
+    return { ok:false, reason: "Couldn't recognize this as a LinkedIn Contact Enrichment prompt from this tool." };
+  }
+  const marker = 'to help me find warm introduction paths:';
+  const idx = text.indexOf(marker);
+  const after = idx >= 0 ? text.slice(idx + marker.length) : text;
+  const lines = after.split(/\r?\n/);
+  const companies = [];
+  let started = false;
+  for(const line of lines){
+    if(line.startsWith('- ')){ companies.push(line.slice(2).trim()); started = true; continue; }
+    if(started && line.trim() === '') break;
+    if(started && !line.startsWith('- ')) break;
+  }
+  return { ok:true, data: { enrichCompanies: companies.join('\n') } };
+}
+document.getElementById('loadEnrichBtn').addEventListener('click', () => {
+  document.getElementById('loadEnrichInput').click();
+});
+document.getElementById('loadEnrichInput').addEventListener('change', (e) => {
+  const file = e.target.files[0];
+  const statusEl = document.getElementById('loadEnrichStatus');
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    const result = parseSection3Prompt(reader.result);
+    if(!result.ok){
+      statusEl.textContent = result.reason + ' You can still paste its contents into the field manually.';
+      return;
+    }
+    document.getElementById('enrichCompanies').value = result.data.enrichCompanies;
+    enrichRender();
+    statusEl.textContent = `Loaded "${file.name}" — review the companies above, then regenerate.`;
+  };
+  reader.onerror = () => { statusEl.textContent = 'Could not read that file.'; };
+  reader.readAsText(file);
+  e.target.value = '';
+});
+
+// ---- Section 4 loader ----
+function parseSection4Prompt(text){
+  if(!text.includes("I'm researching named individuals at specific companies who work in or near a target department/role")){
+    return { ok:false, reason: "Couldn't recognize this as a Department Contact Finder prompt from this tool." };
+  }
+  const data = { deptCompanies: '', deptRole: '', deptAdjacent: 'yes' };
+  const roleM = text.match(/^Target role\/department: (.*)$/m);
+  if(roleM) data.deptRole = roleM[1].trim();
+  const adjM = text.match(/^Include adjacent teams: (.*)$/m);
+  if(adjM) data.deptAdjacent = adjM[1].trim() === 'No' ? 'no' : 'yes';
+
+  const marker = 'Target companies (one per line):';
+  const idx = text.indexOf(marker);
+  if(idx >= 0){
+    const after = text.slice(idx + marker.length).split(/\r?\n/);
+    const companies = [];
+    let started = false;
+    for(const line of after){
+      if(line.startsWith('- ')){ companies.push(line.slice(2).trim()); started = true; continue; }
+      if(started && (line.trim() === '' || !line.startsWith('- '))) break;
+    }
+    data.deptCompanies = companies.join('\n');
+  }
+  return { ok:true, data };
+}
+document.getElementById('loadDeptBtn').addEventListener('click', () => {
+  document.getElementById('loadDeptInput').click();
+});
+document.getElementById('loadDeptInput').addEventListener('change', (e) => {
+  const file = e.target.files[0];
+  const statusEl = document.getElementById('loadDeptStatus');
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    const result = parseSection4Prompt(reader.result);
+    if(!result.ok){
+      statusEl.textContent = result.reason + ' You can still paste its contents into the fields manually.';
+      return;
+    }
+    document.getElementById('deptCompanies').value = result.data.deptCompanies;
+    document.getElementById('deptRole').value = result.data.deptRole;
+    document.querySelector(`input[name="deptAdjacent"][value="${result.data.deptAdjacent}"]`).checked = true;
+    deptRender();
+    statusEl.textContent = `Loaded "${file.name}" — review the fields above, then regenerate.`;
+  };
+  reader.onerror = () => { statusEl.textContent = 'Could not read that file.'; };
+  reader.readAsText(file);
+  e.target.value = '';
+});
 </script>
 </body>
 </html>
