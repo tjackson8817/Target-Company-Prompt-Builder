@@ -1,9 +1,9 @@
 # Target Company Research → Excel Tracker
-### Reusable Prompt Template (Section 2: Full Research Tracker)
+### Reusable Prompt Template (Section 1: Detailed Company Pull)
 
 Copy everything below into a new Claude chat. Fill in the fields at the top, delete anything you don't need, and send it. Works for any purpose — job search, sales prospecting, partnership scouting, investment research, vendor evaluation, etc.
 
-**This template covers Section 2 of the tool only.** If you want a wide, cheap candidate list to prune by hand first (Section 1 — Bulk Company Pull) or the standalone LinkedIn contact-matching step (Section 3), those don't have a plain-text template yet — use the web form (`prompt_builder.html`) for those, or ask Claude directly to build one from this file as a starting point.
+**This template covers Section 1 of the tool only.** If you want a wide, cheap candidate list to prune by hand first (Section 2 — Bulk Company Pull) or the standalone LinkedIn contact-matching step (Section 3), those don't have a plain-text template yet — use the web form (`prompt_builder.html`) for those, or ask Claude directly to build one from this file as a starting point.
 
 ---
 
@@ -225,7 +225,7 @@ Format the result as a clean, formatted Excel workbook with a header row, sensib
 
 - The M&A research option is off by default and only activates its extra columns when you say Yes.
 - Re-run this same template any time you want to expand — feed it a new company or industry description and ask Claude to add new rows to your existing tracker instead of starting over.
-- There's no automatic company cap. Totals above roughly 50–75 companies in one run tend to come back thinner per company — use the two-tier option above, or the web tool's Section 1 (Bulk Company Pull) for a wider, cheaper first pass to prune by hand.
+- There's no automatic company cap. Totals above roughly 50–75 companies in one run tend to come back thinner per company — use the two-tier option above, or the web tool's Section 2 (Bulk Company Pull) for a wider, cheaper first pass to prune by hand.
 
 ---
 

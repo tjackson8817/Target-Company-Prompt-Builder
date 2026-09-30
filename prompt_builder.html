@@ -140,7 +140,7 @@
 
 <header>
   <h1>Target Company Research Prompt Builder</h1>
-  <p>Fill in what you know once — Section 1 builds a wide-net bulk pull, Section 2 builds the detail company pull (full research tracker), Section 3 builds LinkedIn contact enrichment, Section 4 finds named department contacts via web search. v4</p>
+  <p>Fill in what you know once — Section 1 builds the detailed company pull (full research tracker), Section 2 builds an optional wide-net bulk pull, Section 3 builds LinkedIn contact enrichment, Section 4 finds named department contacts via web search. v4</p>
 </header>
 
 <div class="row">
@@ -148,7 +148,7 @@
     <div class="card">
       <fieldset>
         <legend>Shared Inputs</legend>
-        <p class="hint" style="margin-top:-4px;margin-bottom:12px;">Fill in at least one of these — use more than one if you have them, and they'll be combined. These feed both Section 1 (Bulk Company Pull) and Section 2 (Detail Company Pull) below.</p>
+        <p class="hint" style="margin-top:-4px;margin-bottom:12px;">Fill in at least one of these — use more than one if you have them, and they'll be combined. These feed both Section 1 (Detailed Company Pull) and Section 2 (Bulk Company Pull) below.</p>
 
         <div class="field">
           <label for="companies">Company(s) you know <span class="tag">optional</span></label>
@@ -192,38 +192,14 @@
   </div>
 </div>
 
-<div class="row">
-  <div class="col">
-    <div class="card">
-      <h2>Section 1 (optional) — Bulk Company Pull</h2>
-      <p class="hint">A separate, cheap, wide-net prompt. Instead of full 31-column research per company, this asks Claude to build a fast flat list — Company, Website, Inferred NAICS Code, one-line description, Source — using the same competitor-cascade / analyst-list / conference-exhibitor / job-posting discovery methods as Section 2, just without the deep per-company research. Meant to be pruned by hand afterward: delete the rows that aren't relevant, then paste the survivors into "Company(s) you know" above and set Section 2's Discovery scope to "Just enrich these" so the full research pass only spends effort on companies you've already confirmed you want.</p>
-
-      <div class="field">
-        <label for="bulkSize">Target list size</label>
-        <input type="text" id="bulkSize" placeholder="e.g. 75-100" value="75-100">
-        <p class="hint">Since there's no per-company deep research here, this can go wider than Section 2's ~50-75 ceiling. Still bounded by how much a given seed/industry can actually support — Claude will say so if it can't find enough distinct real companies rather than padding the list.</p>
-      </div>
-
-      <div class="btn-row">
-        <button class="btn-primary" id="copyBulkBtn">Copy prompt</button>
-        <button class="btn-secondary" id="downloadBulkBtn">Download .txt</button>
-        <button class="btn-secondary" id="loadBulkBtn" type="button">Load .txt to edit</button>
-        <input type="file" id="loadBulkInput" accept=".txt" style="display:none;">
-      </div>
-      <p class="hint" id="loadBulkStatus"></p>
-      <div id="bulkPromptText"><span id="bulkPlaceholder">Fill in at least one Shared Input above (company, industry, or NAICS code) to see this prompt appear here.</span></div>
-    </div>
-  </div>
-</div>
-
 <div class="wrap">
   <div class="col">
 
     <div class="card">
-      <h2>Section 2 — Detail Company Pull</h2>
+      <h2>Section 1 — Detailed Company Pull</h2>
       <p class="hint">The main tool — full per-company research (up to 36 columns) and a fully formatted Excel tracker, built from the Shared Inputs above plus everything you set below.</p>
       <fieldset>
-        <legend>Section 2 · Scope &amp; purpose</legend>
+        <legend>Section 1 · Scope &amp; purpose</legend>
 
         <div class="field">
           <label>Discovery scope</label>
@@ -231,13 +207,13 @@
             <label class="radio-opt"><input type="radio" name="scope" value="find" checked> Find new companies</label>
             <label class="radio-opt"><input type="radio" name="scope" value="enrich"> Just enrich these</label>
           </div>
-          <p class="hint">"Find new companies" = Claude does its own moderate discovery (competitor cascade, analyst lists, conference exhibitor lists, job postings) bundled into the full research pass — good for "I have a few companies, expand modestly and research everything fully." "Just enrich these" = Claude only researches the exact company names you typed — no new companies added. If you ran Section 1's Bulk Company Pull and pasted your pruned list into "Company(s) you know" above, choose "Just enrich these" here — Section 1 already did the wide discovery, so a second discovery pass isn't needed and would just add expensive-to-research companies you didn't vet.</p>
+          <p class="hint">"Find new companies" = Claude does its own moderate discovery (competitor cascade, analyst lists, conference exhibitor lists, job postings) bundled into the full research pass — good for "I have a few companies, expand modestly and research everything fully." "Just enrich these" = Claude only researches the exact company names you typed — no new companies added. If you ran Section 2's Bulk Company Pull (below) and pasted your pruned list into "Company(s) you know" above, choose "Just enrich these" here — Section 2 already did the wide discovery, so a second discovery pass isn't needed and would just add expensive-to-research companies you didn't vet.</p>
         </div>
 
         <div class="field" id="perCodeField">
           <label for="perCode">Roughly how many companies to find <span class="tag">optional</span></label>
           <input type="text" id="perCode" placeholder="e.g. 15-30 — leave blank for Claude's judgment">
-          <p class="hint">The Section 1 equivalent of "Target list size" — a loose volume dial for this discovery pass (competitor cascade, analyst lists, conferences, job postings). Unlike Section 1, every company found here gets full research, so totals above ~50–75 tend to come back thinner per company — batch it, or use Section 1's wider, cheaper Bulk Company Pull instead, if you need more.</p>
+          <p class="hint">The Section 2 equivalent of "Target list size" — a loose volume dial for this discovery pass (competitor cascade, analyst lists, conferences, job postings). Unlike Section 2, every company found here gets full research, so totals above ~50–75 tend to come back thinner per company — batch it, or use Section 2's wider, cheaper Bulk Company Pull (below) instead, if you need more.</p>
         </div>
 
         <div class="field" id="tieredToggleField">
@@ -399,6 +375,30 @@
       <p class="hint" id="loadMainStatus"></p>
       <div class="stat-line"><span id="fieldCount">0</span> of 10 fields filled in</div>
       <div id="promptText"><span id="placeholder">Fill in at least one starting-point field or a purpose to see your prompt appear here.</span></div>
+    </div>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col">
+    <div class="card">
+      <h2>Section 2 (optional) — Bulk Company Pull</h2>
+      <p class="hint">A separate, cheap, wide-net prompt. Instead of full 31-column research per company, this asks Claude to build a fast flat list — Company, Website, Inferred NAICS Code, one-line description, Source — using the same competitor-cascade / analyst-list / conference-exhibitor / job-posting discovery methods as Section 1, just without the deep per-company research. Meant to be pruned by hand afterward: delete the rows that aren't relevant, then paste the survivors into "Company(s) you know" above and set Section 1's Discovery scope to "Just enrich these" so the full research pass only spends effort on companies you've already confirmed you want.</p>
+
+      <div class="field">
+        <label for="bulkSize">Target list size</label>
+        <input type="text" id="bulkSize" placeholder="e.g. 75-100" value="75-100">
+        <p class="hint">Since there's no per-company deep research here, this can go wider than Section 1's ~50-75 ceiling. Still bounded by how much a given seed/industry can actually support — Claude will say so if it can't find enough distinct real companies rather than padding the list.</p>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn-primary" id="copyBulkBtn">Copy prompt</button>
+        <button class="btn-secondary" id="downloadBulkBtn">Download .txt</button>
+        <button class="btn-secondary" id="loadBulkBtn" type="button">Load .txt to edit</button>
+        <input type="file" id="loadBulkInput" accept=".txt" style="display:none;">
+      </div>
+      <p class="hint" id="loadBulkStatus"></p>
+      <div id="bulkPromptText"><span id="bulkPlaceholder">Fill in at least one Shared Input above (company, industry, or NAICS code) to see this prompt appear here.</span></div>
     </div>
   </div>
 </div>
@@ -762,7 +762,7 @@ function render(){
   updateCompaniesCountHint();
 }
 
-// --- Section 1: Bulk Company Pull ---
+// --- Section 2: Bulk Company Pull ---
 const bulkPromptTextEl = document.getElementById('bulkPromptText');
 
 function buildBulkPrompt(){
@@ -1126,7 +1126,7 @@ function genericLoadParse(text, anchors, cutMarker){
   return data;
 }
 
-// ---- Section 1 loader ----
+// ---- Section 2 (Bulk) loader ----
 const SECTION1_ANCHORS = [
   { prefix: '- Company/companies I already know (use these as seeds for discovery, and include them in the output too): ', key: 'companies' },
   { prefix: '- Industry / field (plain language): ', key: 'industry' },
@@ -1194,7 +1194,7 @@ document.getElementById('loadBulkInput').addEventListener('change', (e) => {
   e.target.value = '';
 });
 
-// ---- Section 2 loader ----
+// ---- Section 1 (Detailed) loader ----
 const SECTION2_ANCHORS = [
   { prefix: '- Company/companies I know: ', key: 'companies' },
   { prefix: '- Industry / field (plain language): ', key: 'industry' },
@@ -1214,7 +1214,7 @@ const SECTION2_ANCHORS = [
 ];
 function parseSection2Prompt(text){
   if(!text.includes(`I want you to research target companies and build a formatted Excel tracker (.xlsx). Here's what I have:`)){
-    return { ok:false, reason: "Couldn't recognize this as a Detail Company Pull prompt from this tool." };
+    return { ok:false, reason: "Couldn't recognize this as a Detailed Company Pull prompt from this tool." };
   }
   const cutMarker = text.includes('For each Tier 1 company, research and include these columns in the tracker:')
     ? 'For each Tier 1 company, research and include these columns in the tracker:'
