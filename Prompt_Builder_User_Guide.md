@@ -9,7 +9,7 @@ User Guide
 **Live Tool:** [https://tjackson8817.github.io/Target-Company-Prompt-Builder/](https://tjackson8817.github.io/Target-Company-Prompt-Builder/)
 
 Created By: Tom Jackson
-Updated: August 18, 2026 — v4 (adds Section 4 Department Contact Finder; see "What Changed in v4" below)
+Updated: October 8, 2026 — v5 (Section 3 LinkedIn Contact Enrichment now maps target companies to your connections and, optionally, your message history; see "What Changed in v5" below)
 
 ## About This Tool & Cross-Platform Compatibility
 
@@ -45,6 +45,11 @@ If you used an earlier version of this tool, three things are different:
 
 - **New: Section 4 — Department Contact Finder.** A fourth self-contained prompt, run separately like Section 3, that finds *named individuals* at a target company who work in or near a specific role/department — sourced from live web search (LinkedIn profiles, company team pages, press, case studies), not your own contacts. It's the fulfillment step for the main tracker's Key Contacts / Priority Titles column, which often comes back as a placeholder like "Practice-level title only — no named individual confirmed." See Section 21.
 
+### What Changed in v5
+
+- **Section 3 — LinkedIn Contact Enrichment now builds a 4-tab workbook.** It still maps your target companies to your LinkedIn connections (now in a dedicated **Contact Matches** tab with two new columns, Company as Listed in CSV and Match Note, plus a **Summary** tab of per-company counts). New: attach your LinkedIn **messages.csv** alongside **Connections.csv** and the workbook also rolls up your message history with every matched connection. It shows who you've talked to, who's waiting on your reply, who you're waiting on, and who you've never contacted (**Target Connections** tab), plus the full conversation history (**Messages** tab).
+- **Messages are optional.** A new **Which LinkedIn files will you attach?** choice switches the prompt between *Connections + Messages* (default) and *Connections only*. With connections only you still get the full Summary and Contact Matches tabs. And if you pick Connections + Messages but the messages file is missing or unreadable, Claude is told to build the connections-only tabs anyway and tell you, rather than stopping. See Section 20.
+
 ## Claude Settings You'll Need Before You Start
 
 These prompts ask Claude to do two things: research live, and build a real .xlsx file. Both depend on settings that aren't always on by default.
@@ -69,7 +74,7 @@ The tool is one page, top to bottom, in five parts:
 1. **Shared Inputs** — the fields every other section reads from (companies you know, industry, NAICS, exclusions, size/location filters).
 2. **Section 1 — Bulk Company Pull** (optional) — a fast, wide, low-detail discovery prompt you run first if you want a large candidate list to prune by hand.
 3. **Section 2 — Full Research Tracker** — the main tool: scope, purpose, tiering, formatting, and optional tabs, producing the full research prompt.
-4. **Section 3 — LinkedIn Contact Enrichment** (optional) — a separate, self-contained prompt that cross-references a LinkedIn export against a company shortlist.
+4. **Section 3 — LinkedIn Contact Enrichment** (optional) — a separate, self-contained prompt that maps a company shortlist to your LinkedIn connections and, if you attach your messages too, your conversation history with each of them.
 5. **Section 4 — Department Contact Finder** (optional) — a separate, self-contained prompt that finds named individuals at a target company via live web search, tiered by how closely their role matches what you're looking for. See Section 21.
 
 Sections 1, 2, 3, and 4 each have their own Copy prompt / Download .txt buttons and their own output panel — they are four separate prompts meant to be run as separate Claude conversations (or separate messages), not one combined prompt.
@@ -193,6 +198,8 @@ Each of the three sections' output panels updates instantly as you type — ther
 | The file opens as code/text instead of a page | Right-click → Open with → your browser |
 | "Copy prompt" doesn't seem to do anything | Some browsers silently block clipboard access — use Download .txt instead |
 | A prompt panel just shows placeholder text | You need at least one Shared Input field filled in (Section 1 and 2) or a companies list (Section 3) |
+| Section 3 workbook has only Summary and Contact Matches | That's the connections-only output — either "Connections only" was selected, or Claude couldn't read messages.csv (it should say so). Re-run with Connections + Messages and attach both files to the same message |
+| Section 3 shows "Never messaged" for someone you know you've messaged | Messages are linked by LinkedIn profile URL. Messages sent after your export date aren't in the file. Request a fresh export and re-run |
 | Tiering didn't apply even though the checkbox says Yes | Check Discovery scope — tiering only activates in "Find new companies" mode (Section 8) |
 | Output rows feel thin/generic | If tiering is active, check whether a company landed in Tier 2 — that tab is basic-info-only by design, not a research shortfall |
 
@@ -270,18 +277,56 @@ If the named 10-K individual also appears in the company's proxy statement (DEF 
 
 ## 20. Section 3 — LinkedIn Contact Enrichment
 
-A separate, self-contained card at the bottom of the page. This is a fully independent feature — it doesn't touch or require the Section 2 tracker, and generates its own standalone prompt with its own Copy/Download buttons.
+A separate, self-contained card below Section 2. This is a fully independent feature — it doesn't touch or require the Section 2 tracker, and generates its own standalone prompt with its own Copy/Download buttons.
 
-**What it does:** cross-references a LinkedIn contacts export against a list of target companies, to surface which of your existing connections work (or worked) at each one.
+**What it does:** maps your target companies to your LinkedIn connections, to surface which of your existing connections work (or worked) at each one. If you also attach your LinkedIn messages, it adds your conversation history with each of those connections, so you can see at a glance where every warm path stands. You'll see who you've already talked to, who replied last and is waiting on you, who you reached out to without a reply, and who you've never contacted.
+
+**Getting your LinkedIn files**
+
+- On desktop LinkedIn: **Me** → **Settings & Privacy** → **Data privacy** → **Get a copy of your data**.
+- Choose the larger data archive (or, if offered, just **Connections** and **Messages**). LinkedIn emails you when it's ready.
+- Download and unzip it. The two files this prompt uses are **Connections.csv** and **messages.csv**.
 
 **How to use it**
 
 - Paste your target companies into the box, one per line — the Company column from a Section 1 or Section 2 tracker works directly.
 - Keep the list to 25 companies or fewer — the tool warns inline if you go over. The expensive part here is the number of contacts to fuzzy-match against, not the company count, so a long list slows matching and can hurt accuracy.
+- Pick **Which LinkedIn files will you attach?**
+  - **Connections + Messages** (default) — attach both Connections.csv and messages.csv. You get all four tabs below.
+  - **Connections only** — attach just Connections.csv. You get the Summary and Contact Matches tabs. Use this if you don't have your messages file, or would rather not share your message history.
 - Copy or download the generated prompt.
-- Start a new Claude conversation, paste the prompt in, and attach your LinkedIn contacts CSV export directly to that same message. This tool never uploads, parses, or reads the CSV itself.
+- Start a new Claude conversation with **Code execution and file creation** enabled, paste the prompt in, and attach your file(s) to that same message. This tool never uploads, parses, or reads your files itself.
 
-**What you get back:** for each target company, any matching contacts — name, title, LinkedIn URL, current/former status, and a Match Confidence rating. Companies with no match are listed as "No match found" rather than dropped.
+**What you get back — an Excel workbook (.xlsx)**
+
+| Tab | What's in it | Needs messages? |
+|---|---|---|
+| Summary | One row per target company, in your list order: Contacts Matched, Current, Former, and High/Medium/Low Confidence counts. With messages, it adds Connections Messaged, Your Move, Awaiting Reply, Never Messaged, Total Messages, and Last Message. All live formulas, with a TOTAL row and short notes on how matching worked. | No (messaging columns need it) |
+| Contact Matches | Target companies mapped to connections, one row per match: Company, Matched Contact Name, Contact's Title, Contact's LinkedIn Profile URL, Current or Former, Match Confidence, Company as Listed in CSV, Match Note. Companies with no match get a "No match found" row rather than being dropped. | No |
+| Target Connections | Each matched connection with their message history rolled up: Conversations, Msgs Sent, Msgs Received, First/Last Message, Last From, Status, and a Last Message Preview. | Yes |
+| Messages | Every message in your conversations with matched connections, grouped by company and contact, oldest to newest. | Yes |
+
+**Reading the Status column (Target Connections)**
+
+| Status | Meaning | Shading |
+|---|---|---|
+| Your move - they replied last | You've both written; they sent the last message | Orange |
+| They reached out - no reply from you | Only they've written | Orange |
+| Awaiting their reply | You've both written; you sent the last message | Yellow |
+| You reached out - no reply yet | Only you've written | Yellow |
+| Never messaged | No messages either way | None |
+
+Start with the orange rows: those are warm paths where the next step is yours.
+
+**How matching works — and its limits**
+
+- **Company matching** uses each connection's Company field, including clear variants (subsidiary, regional entity, parent company, former name, abbreviation). Short names like "EY" or "IBM" are matched as whole words. Non-exact matches carry **Medium** confidence and a **Match Note** explaining why (e.g. "Avanade: Accenture-majority-owned JV with Microsoft").
+- **Current vs. Former:** LinkedIn's export only lists each connection's *current* employer. "Former" is used only where the data says so, such as a Company of "Ex EY" or a Position of "Retired". People who used to work at a target but have since moved won't appear under that target.
+- **Messages are linked by LinkedIn profile URL**, not by name, so two people with the same name aren't mixed up. A group conversation counts toward every matched connection in it.
+- **Only as current as your export.** Messages sent after you requested the export aren't included, so re-export before a big outreach push.
+- **Privacy.** The Messages tab copies your private conversations. Treat the workbook as personal. Choose "Connections only" if you'd rather not share message history at all.
+
+**Example:** `sample_linkedin_contact_enrichment_prompt.txt` and `sample_linkedin_contact_enrichment_output.xlsx` in the repo show a full Connections + Messages run against 15 target companies. The contacts and messages in the sample are fictional.
 
 ## 21. Section 4 — Department Contact Finder
 

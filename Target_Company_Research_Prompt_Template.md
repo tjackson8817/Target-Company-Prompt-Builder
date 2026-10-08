@@ -3,7 +3,7 @@
 
 Copy everything below into a new Claude chat. Fill in the fields at the top, delete anything you don't need, and send it. Works for any purpose — job search, sales prospecting, partnership scouting, investment research, vendor evaluation, etc.
 
-**This template covers Section 1 of the tool only.** If you want a wide, cheap candidate list to prune by hand first (Section 2 — Bulk Company Pull) or the standalone LinkedIn contact-matching step (Section 3), those don't have a plain-text template yet — use the web form (`prompt_builder.html`) for those, or ask Claude directly to build one from this file as a starting point.
+**This template covers Section 1 of the tool only.** If you want a wide, cheap candidate list to prune by hand first (Section 2 — Bulk Company Pull), use the web form (`prompt_builder.html`) for that, or ask Claude directly to build one from this file as a starting point. The standalone LinkedIn Contact Enrichment step (Section 3) has its own fill-in block at the end of this file.
 
 ---
 
@@ -231,17 +231,87 @@ Format the result as a clean, formatted Excel workbook with a header row, sensib
 
 ## Section 3 (separate, optional) — LinkedIn Contact Enrichment
 
-This is a genuinely separate follow-up prompt — run it after you already have a tracker and a shortlist, not alongside the request above. Fill in and copy separately.
+This is a genuinely separate follow-up prompt — run it after you already have a tracker and a shortlist, not alongside the request above. Fill in and copy separately. It maps your target companies to your LinkedIn connections and, if you attach your messages too, your conversation history with each of them.
 
 **Your target companies** *(one per line, 25 or fewer recommended — the easiest source is the Company column from a tracker built above)*
 `[Company name(s), one per line]`
 
-**PROMPT (send as-is, with your LinkedIn contacts CSV export attached to the same message)**
+**Which LinkedIn files will you attach?** *(from LinkedIn → Me → Settings & Privacy → Data privacy → Get a copy of your data; unzip the archive LinkedIn emails you)*
+`[Connections + Messages (Connections.csv and messages.csv) — default / Connections only (Connections.csv)]`
 
-Please execute this task directly — match now, rather than describing your plan first or asking permission. I'm attaching a CSV export of my LinkedIn contacts to this message. If you don't have a way to read the attached file, say so plainly and stop rather than guessing at contacts.
+Use **Prompt A** for Connections + Messages (4-tab workbook: Summary, Contact Matches, Target Connections, Messages) or **Prompt B** for Connections only (Summary and Contact Matches). Attach the file(s) to the same message as the prompt, in a Claude chat with Code execution and file creation enabled.
 
-Cross-reference my attached LinkedIn contacts CSV against this list of target companies, to help me find warm introduction paths:
+### PROMPT A — Connections + Messages (send as-is, with Connections.csv and messages.csv attached)
+
+```
+Please execute this task directly — match now and build the workbook, rather than describing your plan first or asking permission. If you can't read Connections.csv, say so plainly and stop rather than guessing at contacts.
+
+Files attached to this message (from my LinkedIn data export): Connections.csv (my connections) and messages.csv (my LinkedIn message history).
+
+Cross-reference my attached LinkedIn Connections.csv against this list of target companies, to help me find warm introduction paths:
 
 *(list your target companies here, one per line)*
 
-For each target company above, check my attached CSV for contacts whose Company/Employer field matches that company — including a clear variant of it (subsidiary, former name, common abbreviation, parent/holding company). For each match found, report: Company, Matched Contact Name, Contact's Title, Contact's LinkedIn Profile URL (if present), Current or Former status, and Match Confidence (High/Medium/Low). If a target company has no matching contact, still include it as "No match found" rather than omitting it. Format the result as a formatted Excel workbook (.xlsx) — or a clearly organized table in your reply if you can't create a file — with one row per matched contact, grouped by company.
+Reading the files:
+- LinkedIn's Connections.csv usually starts with a few "Notes:" lines before the real header row (First Name, Last Name, URL, Email Address, Company, Position, Connected On) — skip down to that header. Column names can vary slightly between exports; match them by meaning.
+- messages.csv has one row per message (CONVERSATION ID, CONVERSATION TITLE, FROM, SENDER PROFILE URL, TO, RECIPIENT PROFILE URLS, DATE, SUBJECT, CONTENT, FOLDER). RECIPIENT PROFILE URLS can hold several comma-separated URLs (group conversations).
+- This is a large-file task — use code to read, match, and build the workbook rather than reading the files by eye.
+
+Matching rules:
+- For each target company, find connections whose Company field matches it — including a clear variant (subsidiary, regional entity, former name, common abbreviation, parent/holding company). Match short names like "EY", "ABB", or "IBM" as whole words only, so they don't hit inside other words.
+- Current or Former: LinkedIn's export only lists each connection's current employer. Mark someone Former only when the data itself says so (e.g. Company reads "Ex EY", or Position says "Retired" or "Former"); otherwise Current. A former employee can still be a useful warm intro, but it's a different kind of connection than someone there now, so don't blend the two.
+- Match Confidence: High (the Company field names the target, or a regional entity of it), Medium (clear variant — subsidiary, affiliate, parent, acquired company — or a former employee), or Low (plausible but uncertain, e.g. a similar name or ambiguous abbreviation).
+- Only use what's actually in the files I attached — don't fabricate a contact, and don't guess someone into a company they aren't actually listed against.
+
+Build a formatted Excel workbook (.xlsx) with these tabs, in this order:
+
+1. "Summary" — one row per target company, in my list order. Columns: Target Company, Contacts Matched, Current, Former, High Confidence, Medium Confidence, Low Confidence, Connections Messaged, Your Move, Awaiting Reply, Never Messaged, Total Messages, Last Message. Use live COUNTIFS/SUMIFS formulas that point at the other tabs (not typed-in numbers), and add a TOTAL row. Below the table, add a few short notes on how matching worked and the date range the message export covers. "Your Move" counts the "Your move" and "They reached out" statuses; "Awaiting Reply" counts the "Awaiting their reply" and "You reached out" statuses (see tab 3).
+
+2. "Contact Matches" — target companies mapped to my connections. Exactly these columns, in this order: Company, Matched Contact Name, Contact's Title, Contact's LinkedIn Profile URL, Current or Former, Match Confidence, Company as Listed in CSV, Match Note. One row per matched contact, grouped by company in my list order (High before Medium before Low, then by name). If a target company has no matching contact, still include one row for it with "No match found" in Matched Contact Name and "No contact in the CSV lists this company" in Match Note, so I can see coverage across my full list. Use Match Note to explain anything that isn't a plain exact match (subsidiary, regional entity, parent company, "Ex" employer, etc.).
+
+3. "Target Connections" — one row per matched contact with their message history rolled up. Columns: Target Company, Name, Position, Company (LinkedIn), Connected On, Email, Profile URL, Conversations, Msgs Sent, Msgs Received, First Message, Last Message, Last From, Status, Last Message Preview (first ~300 characters), Match Note. Within each company, sort by most recent message first. Status is exactly one of:
+   - "Never messaged" — no messages either way
+   - "You reached out - no reply yet" — only I have sent messages
+   - "They reached out - no reply from you" — only they have sent messages
+   - "Awaiting their reply" — we've both written, and I sent the last message
+   - "Your move - they replied last" — we've both written, and they sent the last message
+   Shade the Status cell light orange for "Your move" and "They reached out", and light yellow for "Awaiting their reply" and "You reached out".
+
+4. "Messages" — every message from conversations that include a matched contact. Columns: Target Company, Connection, Date (UTC), Direction (Sent/Received), From, To, Conversation Title, Message, Folder, Conversation ID. Sort by company (my list order), then contact, then date. Cut any Message longer than 32,000 characters (Excel's cell limit).
+
+How to link messages to connections: join on LinkedIn profile URL, not on name — compare each connection's URL against SENDER PROFILE URL and every URL in RECIPIENT PROFILE URLS (lowercase both, drop any trailing slash). My own profile is the URL that appears in nearly every conversation; treat messages from it as Sent and everything else as Received. A group conversation counts toward every matched connection in it.
+
+If messages.csv turns out to be missing or unreadable, don't stop: still build the Summary (without the messaging columns) and Contact Matches tabs from Connections.csv alone, skip tabs 3–4, and tell me.
+
+Formatting: bold header row with a dark fill, frozen header row, autofilter, sensible column widths, wrapped text for long cells, clickable LinkedIn profile URLs, and real Excel dates. If you can't create a file in this context, give me the Summary and Contact Matches as clearly organized tables in your reply instead. This is a standalone follow-up step; it doesn't rebuild or modify any tracker from a separate conversation.
+```
+
+### PROMPT B — Connections only (send as-is, with Connections.csv attached)
+
+```
+Please execute this task directly — match now and build the workbook, rather than describing your plan first or asking permission. If you can't read Connections.csv, say so plainly and stop rather than guessing at contacts.
+
+File attached to this message (from my LinkedIn data export): Connections.csv (my connections) only. I'm not attaching my messages, so skip everything that depends on message history.
+
+Cross-reference my attached LinkedIn Connections.csv against this list of target companies, to help me find warm introduction paths:
+
+*(list your target companies here, one per line)*
+
+Reading the file:
+- LinkedIn's Connections.csv usually starts with a few "Notes:" lines before the real header row (First Name, Last Name, URL, Email Address, Company, Position, Connected On) — skip down to that header. Column names can vary slightly between exports; match them by meaning.
+- This is a large-file task — use code to read, match, and build the workbook rather than reading the files by eye.
+
+Matching rules:
+- For each target company, find connections whose Company field matches it — including a clear variant (subsidiary, regional entity, former name, common abbreviation, parent/holding company). Match short names like "EY", "ABB", or "IBM" as whole words only, so they don't hit inside other words.
+- Current or Former: LinkedIn's export only lists each connection's current employer. Mark someone Former only when the data itself says so (e.g. Company reads "Ex EY", or Position says "Retired" or "Former"); otherwise Current. A former employee can still be a useful warm intro, but it's a different kind of connection than someone there now, so don't blend the two.
+- Match Confidence: High (the Company field names the target, or a regional entity of it), Medium (clear variant — subsidiary, affiliate, parent, acquired company — or a former employee), or Low (plausible but uncertain, e.g. a similar name or ambiguous abbreviation).
+- Only use what's actually in the file I attached — don't fabricate a contact, and don't guess someone into a company they aren't actually listed against.
+
+Build a formatted Excel workbook (.xlsx) with these tabs, in this order:
+
+1. "Summary" — one row per target company, in my list order. Columns: Target Company, Contacts Matched, Current, Former, High Confidence, Medium Confidence, Low Confidence. Use live COUNTIFS/SUMIFS formulas that point at the other tabs (not typed-in numbers), and add a TOTAL row. Below the table, add a few short notes on how matching worked.
+
+2. "Contact Matches" — target companies mapped to my connections. Exactly these columns, in this order: Company, Matched Contact Name, Contact's Title, Contact's LinkedIn Profile URL, Current or Former, Match Confidence, Company as Listed in CSV, Match Note. One row per matched contact, grouped by company in my list order (High before Medium before Low, then by name). If a target company has no matching contact, still include one row for it with "No match found" in Matched Contact Name and "No contact in the CSV lists this company" in Match Note, so I can see coverage across my full list. Use Match Note to explain anything that isn't a plain exact match (subsidiary, regional entity, parent company, "Ex" employer, etc.).
+
+Formatting: bold header row with a dark fill, frozen header row, autofilter, sensible column widths, wrapped text for long cells, clickable LinkedIn profile URLs, and real Excel dates. If you can't create a file in this context, give me the Summary and Contact Matches as clearly organized tables in your reply instead. This is a standalone follow-up step; it doesn't rebuild or modify any tracker from a separate conversation.
+```

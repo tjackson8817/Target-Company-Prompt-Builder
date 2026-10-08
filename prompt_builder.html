@@ -140,7 +140,7 @@
 
 <header>
   <h1>Target Company Research Prompt Builder</h1>
-  <p>Fill in what you know once — Section 1 builds the detailed company pull (full research tracker), Section 2 builds an optional wide-net bulk pull, Section 3 builds LinkedIn contact enrichment, Section 4 finds named department contacts via web search. v4</p>
+  <p>Fill in what you know once — Section 1 builds the detailed company pull (full research tracker), Section 2 builds an optional wide-net bulk pull, Section 3 maps your target companies to your LinkedIn connections (and, optionally, your message history with them), Section 4 finds named department contacts via web search. v5</p>
 </header>
 
 <div class="row">
@@ -407,12 +407,20 @@
   <div class="col">
     <div class="card">
       <h2>Section 3 (optional) — LinkedIn Contact Enrichment</h2>
-      <p class="hint">This is a separate, focused prompt for cross-referencing your LinkedIn Contacts export against your Top Targeted Companies to surface warm introduction paths. This is a heavier processing lift, so it works best with <strong>25 or fewer companies</strong> — the more companies you list, the more Claude has to fuzzy-match against for every single contact, which slows down the processing and can hurt match quality.</p>
-      <p class="hint">Run it separately from the Target Company Prompt Builder above: run that tool first, then paste your Top 25 companies below to build this prompt. Download the .txt, then paste that prompt into Claude along with your exported LinkedIn Contacts .csv export. There's no need to upload or paste the CSV here — this tool never touches the actual file.</p>
+      <p class="hint">This is a separate, focused prompt for cross-referencing your LinkedIn data export against your Top Targeted Companies to surface warm introduction paths. It always maps your target companies to your <strong>connections</strong> (Connections.csv). If you also attach your <strong>messages</strong> (messages.csv), it adds your conversation history with each of those connections, so you can see who you've already talked to, who's waiting on you, and who you've never contacted. Works best with <strong>25 or fewer companies</strong>: the more companies you list, the more Claude has to fuzzy-match against for every single contact, which slows down the processing and can hurt match quality.</p>
+      <p class="hint">Run it separately from the Target Company Prompt Builder above: run that tool first, then paste your Top 25 companies below to build this prompt. Download the .txt, then paste that prompt into Claude and attach your LinkedIn export file(s) to the same message. There's no need to upload or paste the CSVs here — this tool never touches the actual files.</p>
       <div class="field">
         <label for="enrichCompanies">Your target companies (one per line)</label>
         <textarea id="enrichCompanies" rows="6" placeholder="Paste the Company column from your tracker, or type company names, one per line — 25 or fewer works best"></textarea>
         <p class="hint" id="enrichCountHint"></p>
+      </div>
+      <div class="field">
+        <label>Which LinkedIn files will you attach?</label>
+        <div class="radio-row">
+          <label class="radio-opt"><input type="radio" name="enrichFiles" value="both" checked> Connections + Messages</label>
+          <label class="radio-opt"><input type="radio" name="enrichFiles" value="connections"> Connections only</label>
+        </div>
+        <p class="hint">"Connections + Messages" (default) attaches both Connections.csv and messages.csv and gets you all four tabs below. "Connections only" attaches just Connections.csv and gets you the Summary and Contact Matches tabs. Use it if you don't have your messages file, or would rather not share your message history. Either way you still get the full company-to-connection map.</p>
       </div>
       <div class="btn-row">
         <button class="btn-primary" id="copyEnrichBtn">Copy prompt</button>
@@ -425,25 +433,24 @@
 
       <div style="margin-top:20px;padding:14px 16px;background:#fcfdfe;border:1px solid var(--border);border-radius:8px;">
         <p class="hint" style="font-size:13px;color:var(--text);margin-top:0;"><strong>NOTE:</strong></p>
-        <p class="hint" style="font-size:13px;color:var(--text);"><strong>Steps to export your LinkedIn profile (w/ contact data):</strong></p>
+        <p class="hint" style="font-size:13px;color:var(--text);"><strong>Steps to export your LinkedIn data (connections and messages):</strong></p>
         <ul class="hint" style="font-size:13px;color:var(--text);margin:0 0 12px 18px;padding:0;line-height:1.6;">
           <li>Log into desktop LinkedIn.</li>
           <li>Click your <strong>Me</strong> icon at the top of the page.</li>
           <li>Select <strong>Settings &amp; Privacy</strong>.</li>
           <li>Click <strong>Data privacy</strong> on the left menu.</li>
           <li>Click <strong>Get a copy of your data</strong>.</li>
-          <li>Choose <strong>Download larger data archive, including connections, verifications, contacts, account history, and information we infer about you based on your profile and activity</strong>.</li>
+          <li>Choose <strong>Download larger data archive, including connections, verifications, contacts, account history, and information we infer about you based on your profile and activity</strong>. (Or, if offered, pick just <strong>Connections</strong> and <strong>Messages</strong> for a smaller, faster export.)</li>
+          <li>When LinkedIn emails you that the archive is ready, download and unzip it. The two files this prompt uses are <strong>Connections.csv</strong> and <strong>messages.csv</strong>.</li>
         </ul>
-        <p class="hint" style="font-size:13px;color:var(--text);"><strong>For each match found, the report has:</strong></p>
+        <p class="hint" style="font-size:13px;color:var(--text);"><strong>What you get back (an Excel workbook, .xlsx):</strong></p>
         <ul class="hint" style="font-size:13px;color:var(--text);margin:0 0 12px 18px;padding:0;line-height:1.6;">
-          <li>Company — from your list above</li>
-          <li>Matched Contact Name</li>
-          <li>Contact's Title — as listed in the CSV</li>
-          <li>Contact's LinkedIn Profile URL — if present in the CSV</li>
-          <li>Current or Former — notes if the CSV or context suggests this is a past employer for that contact; a former employee can still be a useful warm intro, but it's a different kind of connection than someone there now, so these aren't blended together</li>
-          <li>Match Confidence — High (exact company name match), Medium (clear variant/subsidiary match), or Low (plausible but uncertain, e.g. a similar name or ambiguous abbreviation)</li>
+          <li><strong>Summary</strong> — one row per target company: contacts matched, current vs. former, match confidence counts, and (with messages) how many you've messaged, how many are waiting on you, how many are waiting on them, how many you've never messaged, total messages, and your last message date. Built from live formulas, with a TOTAL row.</li>
+          <li><strong>Contact Matches</strong> — target companies mapped to your connections, one row per match: Company, Matched Contact Name, Contact's Title, Contact's LinkedIn Profile URL, Current or Former, Match Confidence (High / Medium / Low), Company as Listed in CSV, and a Match Note explaining any non-exact match (subsidiary, regional entity, parent company, "Ex" employer). A former employee can still be a useful warm intro, but it's a different kind of connection than someone there now, so the two aren't blended together.</li>
+          <li><strong>Target Connections</strong> <em>(with messages)</em> — each matched connection with their message history rolled up: conversations, messages sent and received, first/last message date, who sent last, a preview of the last message, and a Status: <em>Never messaged</em>, <em>You reached out - no reply yet</em>, <em>They reached out - no reply from you</em>, <em>Awaiting their reply</em>, or <em>Your move - they replied last</em>. Rows where it's your move are shaded orange; rows waiting on them are shaded yellow.</li>
+          <li><strong>Messages</strong> <em>(with messages)</em> — every message in your conversations with those connections, grouped by company and contact, oldest to newest.</li>
         </ul>
-        <p class="hint" style="font-size:13px;color:var(--text);margin-bottom:0;">If a target company has no matching contact in your CSV, it's still included in the results as "No match found" rather than omitted, so you can see coverage across your full list. The result is formatted as an Excel workbook (.xlsx).</p>
+        <p class="hint" style="font-size:13px;color:var(--text);margin-bottom:0;">If a target company has no matching contact in your CSV, it's still included as "No match found" rather than omitted, so you can see coverage across your full list. Note that LinkedIn's export only shows each connection's <em>current</em> employer, so "Former" is flagged only where the data says so (for example, "Ex EY" or a "Retired" title), and anything sent after your export date won't appear.</p>
       </div>
     </div>
   </div>
@@ -926,25 +933,60 @@ function buildEnrichPrompt(){
   const raw = val('enrichCompanies');
   const list = raw.split('\n').map(s => s.trim()).filter(Boolean);
   if(list.length === 0) return null;
+  const withMsgs = radioVal('enrichFiles') !== 'connections';
 
   let lines = [];
-  lines.push(`Please execute this task directly — match now, rather than describing your plan first or asking permission. I'm attaching a CSV export of my LinkedIn contacts to this message. If you don't have a way to read the attached file, say so plainly and stop rather than guessing at contacts.`);
+  lines.push(`Please execute this task directly — match now and build the workbook, rather than describing your plan first or asking permission. If you can't read Connections.csv, say so plainly and stop rather than guessing at contacts.`);
   lines.push("");
-  lines.push(`Cross-reference my attached LinkedIn contacts CSV against this list of target companies, to help me find warm introduction paths:`);
+  if(withMsgs){
+    lines.push(`Files attached to this message (from my LinkedIn data export): Connections.csv (my connections) and messages.csv (my LinkedIn message history).`);
+  } else {
+    lines.push(`File attached to this message (from my LinkedIn data export): Connections.csv (my connections) only. I'm not attaching my messages, so skip everything that depends on message history.`);
+  }
+  lines.push("");
+  lines.push(`Cross-reference my attached LinkedIn Connections.csv against this list of target companies, to help me find warm introduction paths:`);
   lines.push("");
   list.forEach(c => lines.push(`- ${c}`));
   lines.push("");
-  lines.push(`For each target company above, check my attached CSV for contacts whose Company/Employer field matches that company — including a clear variant of it (subsidiary, former name, common abbreviation, parent/holding company). For each match found, report:`);
-  lines.push(`- Company — from my list above`);
-  lines.push(`- Matched Contact Name`);
-  lines.push(`- Contact's Title — as listed in the CSV`);
-  lines.push(`- Contact's LinkedIn Profile URL — if present in the CSV`);
-  lines.push(`- Current or Former — note if the CSV or context suggests this is a past employer for that contact; a former employee can still be a useful warm intro, but it's a different kind of connection than someone there now, so don't blend the two`);
-  lines.push(`- Match Confidence — High (exact company name match), Medium (clear variant/subsidiary match), or Low (plausible but uncertain, e.g. a similar name or ambiguous abbreviation)`);
+  lines.push(`Reading the file${withMsgs ? 's' : ''}:`);
+  lines.push(`- LinkedIn's Connections.csv usually starts with a few "Notes:" lines before the real header row (First Name, Last Name, URL, Email Address, Company, Position, Connected On) — skip down to that header. Column names can vary slightly between exports; match them by meaning.`);
+  if(withMsgs){
+    lines.push(`- messages.csv has one row per message (CONVERSATION ID, CONVERSATION TITLE, FROM, SENDER PROFILE URL, TO, RECIPIENT PROFILE URLS, DATE, SUBJECT, CONTENT, FOLDER). RECIPIENT PROFILE URLS can hold several comma-separated URLs (group conversations).`);
+  }
+  lines.push(`- This is a large-file task — use code to read, match, and build the workbook rather than reading the files by eye.`);
   lines.push("");
-  lines.push(`If a target company has no matching contact in my CSV, still include it in the results with "No match found" rather than omitting it, so I can see coverage across my full list. This only works with what's actually in the file I attached — don't fabricate a contact, and don't guess someone into a company they aren't actually listed against in the CSV.`);
+  lines.push(`Matching rules:`);
+  lines.push(`- For each target company, find connections whose Company field matches it — including a clear variant (subsidiary, regional entity, former name, common abbreviation, parent/holding company). Match short names like "EY", "ABB", or "IBM" as whole words only, so they don't hit inside other words.`);
+  lines.push(`- Current or Former: LinkedIn's export only lists each connection's current employer. Mark someone Former only when the data itself says so (e.g. Company reads "Ex EY", or Position says "Retired" or "Former"); otherwise Current. A former employee can still be a useful warm intro, but it's a different kind of connection than someone there now, so don't blend the two.`);
+  lines.push(`- Match Confidence: High (the Company field names the target, or a regional entity of it), Medium (clear variant — subsidiary, affiliate, parent, acquired company — or a former employee), or Low (plausible but uncertain, e.g. a similar name or ambiguous abbreviation).`);
+  lines.push(`- Only use what's actually in the file${withMsgs ? 's' : ''} I attached — don't fabricate a contact, and don't guess someone into a company they aren't actually listed against.`);
   lines.push("");
-  lines.push(`Format the result as a formatted Excel workbook (.xlsx) — or, if you can't create a file in this context, a clearly organized table in your reply — with one row per matched contact, grouped by company. This is a standalone follow-up step; it doesn't rebuild or modify any tracker from a separate conversation.`);
+  lines.push(`Build a formatted Excel workbook (.xlsx) with these tabs, in this order:`);
+  lines.push("");
+  const sumCols = withMsgs
+    ? `Target Company, Contacts Matched, Current, Former, High Confidence, Medium Confidence, Low Confidence, Connections Messaged, Your Move, Awaiting Reply, Never Messaged, Total Messages, Last Message`
+    : `Target Company, Contacts Matched, Current, Former, High Confidence, Medium Confidence, Low Confidence`;
+  lines.push(`1. "Summary" — one row per target company, in my list order. Columns: ${sumCols}. Use live COUNTIFS/SUMIFS formulas that point at the other tabs (not typed-in numbers), and add a TOTAL row. Below the table, add a few short notes on how matching worked${withMsgs ? ' and the date range the message export covers' : ''}.${withMsgs ? ' "Your Move" counts the "Your move" and "They reached out" statuses; "Awaiting Reply" counts the "Awaiting their reply" and "You reached out" statuses (see tab 3).' : ''}`);
+  lines.push("");
+  lines.push(`2. "Contact Matches" — target companies mapped to my connections. Exactly these columns, in this order: Company, Matched Contact Name, Contact's Title, Contact's LinkedIn Profile URL, Current or Former, Match Confidence, Company as Listed in CSV, Match Note. One row per matched contact, grouped by company in my list order (High before Medium before Low, then by name). If a target company has no matching contact, still include one row for it with "No match found" in Matched Contact Name and "No contact in the CSV lists this company" in Match Note, so I can see coverage across my full list. Use Match Note to explain anything that isn't a plain exact match (subsidiary, regional entity, parent company, "Ex" employer, etc.).`);
+  if(withMsgs){
+    lines.push("");
+    lines.push(`3. "Target Connections" — one row per matched contact with their message history rolled up. Columns: Target Company, Name, Position, Company (LinkedIn), Connected On, Email, Profile URL, Conversations, Msgs Sent, Msgs Received, First Message, Last Message, Last From, Status, Last Message Preview (first ~300 characters), Match Note. Within each company, sort by most recent message first. Status is exactly one of:`);
+    lines.push(`   - "Never messaged" — no messages either way`);
+    lines.push(`   - "You reached out - no reply yet" — only I have sent messages`);
+    lines.push(`   - "They reached out - no reply from you" — only they have sent messages`);
+    lines.push(`   - "Awaiting their reply" — we've both written, and I sent the last message`);
+    lines.push(`   - "Your move - they replied last" — we've both written, and they sent the last message`);
+    lines.push(`   Shade the Status cell light orange for "Your move" and "They reached out", and light yellow for "Awaiting their reply" and "You reached out".`);
+    lines.push("");
+    lines.push(`4. "Messages" — every message from conversations that include a matched contact. Columns: Target Company, Connection, Date (UTC), Direction (Sent/Received), From, To, Conversation Title, Message, Folder, Conversation ID. Sort by company (my list order), then contact, then date. Cut any Message longer than 32,000 characters (Excel's cell limit).`);
+    lines.push("");
+    lines.push(`How to link messages to connections: join on LinkedIn profile URL, not on name — compare each connection's URL against SENDER PROFILE URL and every URL in RECIPIENT PROFILE URLS (lowercase both, drop any trailing slash). My own profile is the URL that appears in nearly every conversation; treat messages from it as Sent and everything else as Received. A group conversation counts toward every matched connection in it.`);
+    lines.push("");
+    lines.push(`If messages.csv turns out to be missing or unreadable, don't stop: still build the Summary (without the messaging columns) and Contact Matches tabs from Connections.csv alone, skip tabs 3–4, and tell me.`);
+  }
+  lines.push("");
+  lines.push(`Formatting: bold header row with a dark fill, frozen header row, autofilter, sensible column widths, wrapped text for long cells, clickable LinkedIn profile URLs, and real Excel dates. If you can't create a file in this context, give me the Summary and Contact Matches as clearly organized tables in your reply instead. This is a standalone follow-up step; it doesn't rebuild or modify any tracker from a separate conversation.`);
 
   return lines.join("\n");
 }
@@ -968,6 +1010,9 @@ function enrichRender(){
 }
 
 document.getElementById('enrichCompanies').addEventListener('input', enrichRender);
+document.querySelectorAll('input[name="enrichFiles"]').forEach(el => {
+  el.addEventListener('change', enrichRender);
+});
 
 document.getElementById('copyEnrichBtn').addEventListener('click', () => {
   const prompt = buildEnrichPrompt();
@@ -1331,7 +1376,7 @@ document.getElementById('loadMainInput').addEventListener('change', (e) => {
 
 // ---- Section 3 loader ----
 function parseSection3Prompt(text){
-  if(!text.includes('Cross-reference my attached LinkedIn contacts CSV against this list of target companies')){
+  if(!/Cross-reference my attached LinkedIn (contacts CSV|Connections\.csv) against this list of target companies/.test(text)){
     return { ok:false, reason: "Couldn't recognize this as a LinkedIn Contact Enrichment prompt from this tool." };
   }
   const marker = 'to help me find warm introduction paths:';
@@ -1345,7 +1390,8 @@ function parseSection3Prompt(text){
     if(started && line.trim() === '') break;
     if(started && !line.startsWith('- ')) break;
   }
-  return { ok:true, data: { enrichCompanies: companies.join('\n') } };
+  const enrichFiles = text.includes("I'm not attaching my messages") ? 'connections' : 'both';
+  return { ok:true, data: { enrichCompanies: companies.join('\n'), enrichFiles } };
 }
 document.getElementById('loadEnrichBtn').addEventListener('click', () => {
   document.getElementById('loadEnrichInput').click();
@@ -1362,6 +1408,8 @@ document.getElementById('loadEnrichInput').addEventListener('change', (e) => {
       return;
     }
     document.getElementById('enrichCompanies').value = result.data.enrichCompanies;
+    const filesRadio = document.querySelector(`input[name="enrichFiles"][value="${result.data.enrichFiles}"]`);
+    if(filesRadio) filesRadio.checked = true;
     enrichRender();
     statusEl.textContent = `Loaded "${file.name}" — review the companies above, then regenerate.`;
   };
